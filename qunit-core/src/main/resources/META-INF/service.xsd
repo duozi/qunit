@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://l-docs.plat.cn6.qunar.com"
+           xmlns="http://l-docs.plat.cn6.qunar.com"
+           elementFormDefault="qualified">
+
+    <xs:simpleType name="stringType">
+        <xs:restriction base="xs:string"/>
+    </xs:simpleType>
+
+    <xs:simpleType name="httpMethodType">
+        <xs:restriction base="xs:NMTOKEN">
+            <xs:enumeration value="get"/>
+            <xs:enumeration value="post"/>
+            <xs:enumeration value="binary"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:complexType name="httpServiceType">
+        <xs:attribute name="id" type="xs:string" use="required"/>
+        <xs:attribute name="url" type="xs:string" use="required"/>
+        <xs:attribute name="method" type="httpMethodType"/>
+        <xs:attribute name="desc" type="stringType" use="required" />
+    </xs:complexType>
+
+    <xs:complexType name="rpcServiceType">
+        <xs:attribute name="id" type="xs:string" use="required"/>
+        <xs:attribute name="class" type="xs:string" use="required"/>
+        <xs:attribute name="method" type="xs:string" use="required"/>
+        <xs:attribute name="url" type="xs:string" use="required"/>
+        <xs:attribute name="desc" type="stringType" use="required" />
+    </xs:complexType>
+
+    <xs:complexType name="localServiceType">
+        <xs:attribute name="id" type="xs:string" use="required"/>
+        <xs:attribute name="class" type="xs:string" use="required"/>
+        <xs:attribute name="method" type="xs:string" use="required"/>
+        <xs:attribute name="desc" type="stringType" use="required" />
+    </xs:complexType>
+
+    <xs:element name="services">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="http" type="httpServiceType" maxOccurs="unbounded" minOccurs="0"/>
+                <xs:element name="rpc" type="rpcServiceType" maxOccurs="unbounded" minOccurs="0"/>
+                <xs:element name="local" type="localServiceType" maxOccurs="unbounded" minOccurs="0"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+</xs:schema>

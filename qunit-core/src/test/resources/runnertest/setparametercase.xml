@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ $$Id$$
+  ~ Copyright (c) 2011 Qunar.com. All Rights Reserved.
+  -->
+
+<testcase id="测试set命令传递参数，及其作用域">
+    <backgrounds>
+        <background id="初始化权限">
+        <set>
+            <param username="admin" site="k2sp.trade.qunar.com"  city_url="beijing_city" cityName="北京"
+                   hotelIds = "99,100" roomDetailId_1="1" roomDetailId_2="2"
+                   closeRoomTime="18:00" date_1="DATE(1,yyyy-MM-dd)" date_2="DATE(2,yyyy-MM-dd)"
+                    ></param>
+            </set>
+        </background>
+    </backgrounds>
+    <case id="setcasecase1" desc="接受来自background中set的值，该值会在整个testsuite中都有效" tag="automated">
+        <!--<sql>-->
+            <!--update hotel_info set close_room_time = ''  where id in  (${hotelIds});-->
+            <!--update room_detail set date_time = '${date_1}'  where id = ${roomDetailId_1};-->
+            <!--update room_detail set date_time = '${date_2}'  where id = ${roomDetailId_2};-->
+        <!--</sql>-->
+        <call service="register">
+            <user>
+                <param name="${username}" password="admin" age="100" street="beijing"/>
+            </user>
+        </call>
+        <call service="logon">
+            <param name="$result[0].name" password="$result[0].password"/>
+        </call>
+        <assert>
+            <status value="200"/>
+            <body>
+                <![CDATA[
+    {"name":"admin","password":"admin"}
+    ]]>
+            </body>
+        </assert>
+    </case>
+    <case id="setcase2" desc="case中自己设置值" tag="automated">
+        <set>
+            <param password="admin" />
+        </set>
+        <call service="register">
+            <user>
+                <param name="admin" password="${password}" age="100" street="beijing"/>
+            </user>
+        </call>
+        <call service="logon">
+            <param name="$result[0].name" password="$result[0].password"/>
+        </call>
+        <assert>
+            <status value="200"/>
+            <body>
+                <![CDATA[
+    {"name":"admin","password":"admin"}
+    ]]>
+            </body>
+        </assert>
+    </case>
+    <case id="setcase3" desc="background中和case中都设置了同名的值，case中的覆盖background中的" tag="automated">
+        <set>
+            <param username="guest" />
+        </set>
+        <call service="register">
+            <user>
+                <param name="${username}" password="admin" age="100" street="beijing"/>
+            </user>
+        </call>
+        <call service="logon">
+            <param name="$result[0].name" password="$result[0].password"/>
+        </call>
+        <assert>
+            <status value="200"/>
+            <body>
+                <![CDATA[
+    {"name":"guest","password":"admin"}
+    ]]>
+            </body>
+        </assert>
+    </case>
+    <case id="setcase4" desc="设置的值和常量混合在一起" tag="automated">
+        <call service="register">
+            <user>
+                <param name="test${username}" password="admin" age="100" street="beijing"/>
+            </user>
+        </call>
+        <call service="logon">
+            <param name="$result[0].name" password="$result[0].password"/>
+        </call>
+        <assert>
+            <status value="200"/>
+            <body>
+                <![CDATA[
+    {"name":"testadmin","password":"admin"}
+    ]]>
+            </body>
+        </assert>
+    </case>
+</testcase>

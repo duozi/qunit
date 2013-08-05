@@ -1,0 +1,25 @@
+<services>
+    <local id="content" class="com.qunar.base.qunit.service.ExcelService" method="generateExcel"/>
+    <local id="data" class="com.qunar.base.qunit.service.UserService" method="getData"/>
+    <local id="register" class="com.qunar.base.qunit.service.UserService" method="register"/>
+    <local id="logon" class="com.qunar.base.qunit.service.UserService" method="logon"/>
+    <local id="getCount" class="com.qunar.base.qunit.service.TestParameterService" method="getCount"/>
+    <local id="getString" class="com.qunar.base.qunit.service.TestParameterService" method="getString"/>
+    <local id="getJson" class="com.qunar.base.qunit.service.BugFixService" method="getJson"/>
+    <local id="singleParamCtor" class="com.qunar.base.qunit.service.TestCtorService" method="singleParamCtor"/>
+    <local id="multipleCtor" class="com.qunar.base.qunit.service.TestCtorService" method="multipleCtor"/>
+    <local id="multipleCtorWithDiffType" class="com.qunar.base.qunit.service.TestCtorService"
+           method="multipleCtorWithDiffType"/>
+
+    <http id="service-test" url="http://l-api.user.qunar.com/api/userinfo" method="get"/>
+
+
+    <http id="restfulapi" url="http://l-api.user.qunar.com/{bloger}/archive/{year}/{month}/{day}/{id}.html" method="get"/>
+
+    <local id="paramCheck" class="com.qunar.base.qunit.service.ParamCheckService" method="check"/>
+
+    <http id="testmockservice" url="http://${mock.host}:9999/test.json"
+          method="get" desc="测试mock调用"/>
+    <http id="querycallrecord" url="http://${mock.host}:9238/callrecord.query"
+          method="get" desc="查询调用记录"/>
+</services>

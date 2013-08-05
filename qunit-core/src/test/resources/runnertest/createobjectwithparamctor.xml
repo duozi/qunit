@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testcase id="ObjectFactory可以构建只有有参构造函数的对象">
+    <case id="只有一个有参构造函数" tag="automated">
+        <call service="singleParamCtor">
+            <UserCookies>
+                <param pCookie="p" vCookie="v" qCookie="q"/>
+            </UserCookies>
+        </call>
+        <assert>
+            <body>
+                <![CDATA[{"pCookie":"p","vCookie":"v","qCookie":"q"}]]>
+            </body>
+        </assert>
+    </case>
+    <case id="有多个有参构造函数，但参数个数不同-1" tag="automated">
+        <call service="multipleCtor">
+            <MultipleCtor>
+                <param a="a" b="b" c="c"/>
+            </MultipleCtor>
+        </call>
+        <assert>
+            <body>
+                <![CDATA[{"a":"a","b":"b","c":"c"}]]>
+            </body>
+        </assert>
+    </case>
+    <case id="有多个有参构造函数，但参数个数不同-2" tag="automated">
+        <call service="multipleCtor">
+            <MultipleCtor>
+                <param a="a" b="b" c="c" d="d"/>
+            </MultipleCtor>
+        </call>
+        <assert>
+            <body>
+                <![CDATA[{"a":"a","b":"b","c":"c"}]]>
+            </body>
+        </assert>
+    </case>
+    <case id="有多个有参构造函数，参数个数相同但类型不同" tag="automated">
+        <call service="multipleCtorWithDiffType">
+            <MultipleCtorWithDiffType>
+                <param a="a" b="1"/>
+            </MultipleCtorWithDiffType>
+        </call>
+        <assert>
+            <body>
+                <![CDATA[{"a":"a","b":1,"c":"null"}]]>
+            </body>
+        </assert>
+    </case>
+
+    <case id="有多个有参构造函数，参数个数相同但类型不同-body有null对象" tag="automated">
+        <call service="multipleCtorWithDiffType">
+            <MultipleCtorWithDiffType>
+                <param a="a" c="1"/>
+            </MultipleCtorWithDiffType>
+        </call>
+        <assert>
+            <body>
+                <![CDATA[{"a":"a","b":null,"c":"1"}]]>
+            </body>
+        </assert>
+    </case>
+</testcase>

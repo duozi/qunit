@@ -1,0 +1,4 @@
+<dataset>	
+	<city_country id="9" name="中国" pinyin="zhongguo" enname="china" isdeleted="0" />
+	<city_country id="10" name="日本" pinyin="riben" enname="japan" isdeleted="1" />
+</dataset>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ $$Id$$
+  ~ Copyright (c) 2011 Qunar.com. All Rights Reserved.
+  -->
+
+<testcase id="duplicate-caseid-test1">
+
+    <case id="duplicate-id" tag="automated,mutitags">
+        <call service="getJson"/>
+        <assert/>
+    </case>
+
+</testcase>

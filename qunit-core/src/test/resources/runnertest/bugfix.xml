@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testcase id="测试javacc解析double类型错误">
+
+    <case id="测试javacc解析double类型错误-1" tag="automated,mutitags">
+        <call service="getJson"/>
+        <assert>
+            <body>
+                <![CDATA[{"payMoney":188.00}]]>
+            </body>
+        </assert>
+    </case>
+
+</testcase>

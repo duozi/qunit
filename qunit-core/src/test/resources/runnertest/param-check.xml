@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testcase id="测试异常参数校验功能">
+
+    <case id="test-param" desc="测试为null时的参数校验" tag="automated,paramcheck">
+        <call service="paramCheck">
+            <param param1="value11" param2="value12" param3="value13"/>
+        </call>
+        <print/>
+        <paramcheck value="str:100,[NULL],[EMPTY],[SPECIAL]">
+            <call service="paramCheck">
+                <param param1="value1" param2="value2" param3="value3"/>
+            </call>
+            <print/>
+            <assert>
+                <body>
+                    {
+                        "invalidedMessage":regex('[a-zA-Z0-9 !@#$%^*]*invalided.$')
+                    }
+                </body>
+            </assert>
+        </paramcheck>
+    </case>
+
+</testcase>

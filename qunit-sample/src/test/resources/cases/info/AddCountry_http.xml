@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--id用英文保持唯一，desc用中文，会展示在报告上，提高可读性-->
+<testcase id="hotel_addCountry" desc="添加国家接口">
+
+    <!--backgroud会在每个case执行之前执行-->
+    <backgrounds>
+        <background id="logno_system" desc="登录系统">
+            <!-- prepareData标签和sql标签都有一个 database属性，如果没有指定则表示在default库上执行
+             库的配置是在qunit.properties里配置-->
+            <prepareData file="dataset/info/account.xml"/>
+            <call service="logon">
+                <param loginId="admin"
+                       password="admin"
+                       issso="false"
+                       token="" />
+            </call>
+            <assert>
+                <!-- http status code -->
+                <status value="200"/>
+                <!--有的接口支持回调，返回的内容为 callbackFunc({"ret":true})
+                当然，如果你的接口没有这种情况就不需要写callback了-->
+                <callback value="callbackname"/>
+                <!-- body里的内容可以使用各种验证规则来验证，详细的验证规则介绍见wiki文档 -->
+                <body>
+                    <![CDATA[
+                    {
+                        "ret":true
+                    }
+                   ]]>
+                </body>
+            </assert>
+        </background>
+    </backgrounds>
+
+    <case id="CountryService_addCountry_nameExist" desc="添加库中已有的国家名字返回错误信息">
+        <prepareData file="dataset/info/AddCountry.xml"/>
+        <call service="addCountry">
+            <param name="中国" pinyin="zhongguo" enname="china"/>
+        </call>
+        <assert>
+            <status value="200"/>
+            <body>
+                <![CDATA[
+            	 	 {
+            	 	    "ret":false,
+            	 	    "errmsg":"国家名字重复"
+            	 	 }
+               ]]>
+            </body>
+        </assert>
+    </case>
+
+    <case id="CountryService_addCountry_normal" desc="添加库中没有的的国家名字，正常添加">
+        <prepareData file="dataset/info/AddCountry.xml"/>
+        <call service="addCountry">
+            <param name="安道尔" pinyin="andaoer" enname="andorra"/>
+        </call>
+        <assert>
+            <status value="200"/>
+            <body>
+                <![CDATA[
+            	 	{
+            	 	    "ret":true
+            	 	}
+               ]]>
+            </body>
+        </assert>
+        <sql>
+            SELECT name,pinyin,enname FROM city_country WHERE name='安道尔'
+        </sql>
+        <!-- 在sql之后加上assert，对数据库里的内容进行比对 -->
+        <assert>
+            <body>
+                {
+                    "name":"安道尔",
+                    "pinyin":"andaoer",
+                    "enname":"andorra"
+                }
+            </body>
+        </assert>
+    </case>
+
+    <case id="CountryService_addCountry_duplicate" desc="添加库中已经存在国家">
+        <prepareData file="dataset/info/AddCountry.xml"/>
+        <sql>
+            SELECT name,pinyin,enname FROM city_country WHERE name='安道尔'
+        </sql>
+        <!-- 命令之间通过 $result 是可以传递值的。$result表示上一个命令的执行结果本身。如果返回结果是对象或json还可以通过
+         "." 进一步访问其属性。如果是数组还可以使用 "[]" 访问数组元素: $result[0].name, $result.users[0].name -->
+        <call service="addCountry">
+            <param name="$result.name" pinyin="$result.pinyin" enname="$result.enname"/>
+        </call>
+        <assert>
+            <status value="200"/>
+            <body>
+                <![CDATA[
+            	 	{
+            	 	    "ret":false
+            	 	}
+               ]]>
+            </body>
+        </assert>
+    </case>
+
+    <case id="CountryService_addCountry_queryCountry" desc="查找添加后的国家">
+        <call service="addCountry">
+            <param name="$result.name" pinyin="$result.pinyin" enname="$result.enname"/>
+        </call>
+        <!-- 如果接口是异步的，需要等待一会儿再进行下一步，否则可能case都执行完毕了，但接口的异步调用可能还没完成。
+         但需要注意的是，wait是不推荐使用的，应该使用 waitUntil -->
+        <!-- 单位都是 ms -->
+        <wait time="1000" />
+        <!-- waitUntil 表示给定的超时范围内(下面是设置为 5000ms),循环的执行 waitUntil内的命令，如果成功(即assert断言成功)，
+         则立即返回，执行后续命令，否则直到超时-->
+        <waitUntil timeout="5000">
+            <call service="queryCountry">
+                <!-- 在我们的case中上一步执行的结果是可以传递到下一步骤，下一步骤
+                 可以通过 $result 变量访问到结果-->
+                <param id="$result.id" />
+            </call>
+            <assert>
+                <body>
+                    {"ret":true}
+                </body>
+            </assert>
+        </waitUntil>
+    </case>
+</testcase>

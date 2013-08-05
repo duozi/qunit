@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://l-docs.plat.cn6.qunar.com"
+           xmlns="http://l-docs.plat.cn6.qunar.com"
+           elementFormDefault="qualified">
+
+    <xs:simpleType name="stringType">
+        <xs:restriction base="xs:string"/>
+    </xs:simpleType>
+
+    <xs:simpleType name="intType">
+        <xs:restriction base="xs:positiveInteger"/>
+    </xs:simpleType>
+
+    <xs:simpleType name="decType">
+        <xs:restriction base="xs:decimal"/>
+    </xs:simpleType>
+
+    <xs:complexType name="paramNoBodyType">
+
+    </xs:complexType>
+
+    <xs:complexType name="paramHasBodyType">
+        <xs:attribute name="name" type="stringType"/>
+    </xs:complexType>
+
+    <xs:complexType name="paramType">
+        <xs:sequence>
+            <xs:choice maxOccurs="unbounded" minOccurs="0">
+                <xs:any processContents="skip"/>
+            </xs:choice>
+        </xs:sequence>
+        <xs:anyAttribute processContents="skip"/>
+    </xs:complexType>
+
+    <xs:complexType name="callType">
+        <xs:sequence>
+            <xs:element name="param" type="paramType" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="service" type="stringType" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="assertType">
+        <xs:sequence>
+            <xs:choice maxOccurs="unbounded" minOccurs="1">
+                <xs:element name="status" maxOccurs="1" minOccurs="0">
+                    <xs:complexType>
+                        <xs:attribute name="value" type="intType" use="required"/>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="body" type="stringType" maxOccurs="1" minOccurs="0"/>
+                <xs:element name="xml" type="stringType" maxOccurs="1" minOccurs="0"/>
+                <xs:element name="callback" maxOccurs="1" minOccurs="0">
+                    <xs:complexType>
+                        <xs:attribute name="value" type="stringType" use="required"/>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="exception" maxOccurs="1" minOccurs="0">
+                    <xs:complexType>
+                        <xs:attribute name="class" type="stringType" use="required"/>
+                    </xs:complexType>
+                </xs:element>
+                <xs:any processContents="skip"/>
+            </xs:choice>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="transformType">
+        <xs:attribute name="class" type="stringType" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="waitType">
+        <xs:attribute name="time" type="intType" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="mockType">
+        <xs:attribute name="timeout" type="intType" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="sqlType">
+        <xs:complexContent>
+            <xs:restriction base="stringType">
+                <xs:attribute name="database" type="stringType"/>
+            </xs:restriction>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="preDataType">
+        <xs:attribute name="file" type="stringType"/>
+        <xs:attribute name="database" type="stringType"/>
+    </xs:complexType>
+
+    <xs:complexType name="loopType">
+        <xs:sequence>
+            <xs:choice maxOccurs="unbounded" minOccurs="1">
+                <xs:element name="prepareData" type="preDataType"/>
+                <xs:element name="call" type="callType"/>
+                <xs:element name="assert" type="assertType"/>
+                <xs:element name="sql" type="sqlType"/>
+                <xs:element name="print" type="stringType"/>
+                <xs:element name="wait" type="waitType"/>
+                <xs:element name="mock" type="mockType"/>
+                <xs:element name="transform" type="transformType"/>
+            </xs:choice>
+        </xs:sequence>
+        <xs:attribute name="time" type="intType" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="waitUntilType">
+        <xs:sequence>
+            <xs:choice maxOccurs="unbounded" minOccurs="1">
+                <xs:element name="prepareData" type="preDataType"/>
+                <xs:element name="call" type="callType"/>
+                <xs:element name="assert" type="assertType"/>
+                <xs:element name="sql" type="sqlType"/>
+                <xs:element name="print" type="stringType"/>
+                <xs:element name="wait" type="waitType"/>
+                <xs:element name="mock" type="mockType"/>
+                <xs:element name="transform" type="transformType"/>
+            </xs:choice>
+        </xs:sequence>
+        <xs:attribute name="timeout" type="intType" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="caseType">
+        <xs:sequence>
+            <xs:choice maxOccurs="unbounded" minOccurs="1">
+                <xs:element name="prepareData" type="preDataType"/>
+                <xs:element name="call" type="callType"/>
+                <xs:element name="assert" type="assertType"/>
+                <xs:element name="sql" type="sqlType"/>
+                <xs:element name="print" type="stringType"/>
+                <xs:element name="wait" type="waitType"/>
+                <xs:element name="waitUtil" type="waitType"/>
+                <xs:element name="mock" type="mockType"/>
+                <xs:element name="loop" type="loopType"/>
+                <xs:element name="transform" type="transformType"/>
+            </xs:choice>
+        </xs:sequence>
+        <xs:attribute name="tag" type="xs:string"/>
+        <xs:attribute name="id" type="xs:string"/>
+        <xs:attribute name="desc" type="xs:string" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="backGroundType">
+        <xs:sequence>
+            <xs:choice maxOccurs="unbounded" minOccurs="1">
+                <xs:element name="prepareData" type="preDataType"/>
+                <xs:element name="call" type="callType"/>
+                <xs:element name="assert" type="assertType"/>
+                <xs:element name="sql" type="sqlType"/>
+                <xs:element name="print" type="stringType"/>
+                <xs:element name="wait" type="waitType"/>
+                <xs:element name="waitUtil" type="waitType"/>
+                <xs:element name="mock" type="mockType"/>
+                <xs:element name="loop" type="loopType"/>
+                <xs:element name="transform" type="transformType"/>
+            </xs:choice>
+        </xs:sequence>
+        <xs:attribute name="id" type="xs:string"/>
+        <xs:attribute name="tag" type="xs:string"/>
+        <xs:attribute name="desc" type="xs:string" use="required"/>
+    </xs:complexType>
+
+    <xs:element name="testcase">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="backgrounds" maxOccurs="1" minOccurs="0">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="background" type="backGroundType" maxOccurs="unbounded" minOccurs="0"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="case" type="caseType" maxOccurs="unbounded" minOccurs="1"/>
+            </xs:sequence>
+            <xs:attribute name="id" type="xs:string"/>
+            <xs:attribute name="tag" type="xs:string"/>
+            <xs:attribute name="desc" type="xs:string" use="required"/>
+        </xs:complexType>
+    </xs:element>
+
+</xs:schema>

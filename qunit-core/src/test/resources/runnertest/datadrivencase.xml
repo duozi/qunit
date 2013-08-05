@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testcase id="datadriven-testcase" desc="数据驱动的testcase测试">
+    <data-case id="datadriven-1" desc="数据驱动的testcase测试-使用xml格式的数据">
+        <call service="register">
+            <user>
+                <name>${name}</name>
+                <password>${password}</password>
+                <age>1</age>
+                <address>
+                    <street>${street}</street>
+                    <streetNo>10</streetNo>
+                </address>
+            </user>
+        </call>
+        <print />
+        <data>
+            <tr>
+                <td>name</td
+                >
+                <td>password</td>
+                <td>street</td>
+            </tr>
+            <tr>
+                <td>admin</td>
+                <td>12345</td>
+                <td>beijing</td>
+            </tr>
+            <tr>
+                <td>guest</td>
+                <td>5678</td>
+                <td>shanghai</td>
+            </tr>
+        </data>
+    </data-case>
+    <data-case id="datadriven-2" desc="数据驱动的testcase测试-使用纯文本格式的数据">
+        <call service="register">
+            <user>
+                <name>${name}</name>
+                <password>${password}</password>
+                <age>1</age>
+                <address>
+                    <street>${street}</street>
+                    <streetNo>10</streetNo>
+                </address>
+            </user>
+        </call>
+        <data>
+            |name|password|street|
+            |admin|12345|beijing|
+            |guest|5678|shanghai|
+        </data>
+    </data-case>
+    <data-case id="datadriven-3" desc="数据驱动的testcase测试-使用键值对的xml格式的数据">
+    	<call service="register">
+    		<user>
+    			<name>${name}</name>
+    			<password>${password}</password>
+    			<age>1</age>
+    			<address>
+    				<street>${street}</street>
+    				<streetNo>10</streetNo>
+    			</address>
+    		</user>
+    	</call>
+    	<print />
+    	<data>
+    		<default>
+    			<param name="admin"/>
+    			<param name="street">shanghai</param>
+    		</default>
+    		<tr>
+    			<param password="12345" street="beijing"/>
+    		</tr>
+    		<tr>
+    			<param name="name">guest</param>
+    			<param name="password">5678</param>
+    		</tr>
+    	</data>
+    </data-case>
+
+</testcase>

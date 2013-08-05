@@ -1,0 +1,18 @@
+type  类型
+items 属性值
+optional 可选项
+required  必须参数
+minimum   最新个数（比如数组元素）
+maximum   最大个数
+minimumCanEqual  最小相等数
+maximumCanEqual  最大相等数
+minItems  最小
+maxItems
+uniqueItems
+pattern('',filed)   正则
+maxLength 最小长度
+minLength 最大长度
+format  格式化
+contentEncoding 字符编码
+disallow 不允许出现
+nonempty 不允许为空

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testcase id="测试restful接口对url参数的解析">
+    <case id="测试restful接口对url参数的解析-1" tag="demo">
+        <call service="restfulapi">
+            <param bloger="yuyijq" year="2012" month="06" day="07" id="2541019"/>
+        </call>
+        <assert>
+            <status>200</status>
+        </assert>
+    </case>
+
+</testcase>

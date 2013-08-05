@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testcase id="generateExcel-test">
+
+    <data-case id="generateExcel" desc="测试生成Excel" tag="automated">
+        <call service="content">
+        	<content>
+        		<param 适用舱位="$适用舱位" 返点="$返点" 留钱="$留钱" 销售起始日="$销售起始日" 销售结束日="$销售结束日" 旅行起始日="$旅行起始日" 旅行结束日="$旅行结束日"/>
+        	</content>
+        </call>
+        <data>
+        	<default>
+        		<param 适用舱位="F" 返点="10" 留钱="-3" 销售起始日="2012-9-10" 销售结束日="2012-9-30" 旅行起始日="2012-9-12" 旅行结束日="2012-9-30"></param>
+        	</default>
+        	<tr>
+        		<param  适用舱位="E" 返点="20"></param>
+        	</tr>
+        	<tr>
+        		<param  留钱="-5" 销售起始日="2012-9-13"></param>
+        	</tr>
+        </data>
+    </data-case>
+    
+
+</testcase>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testcase id="测试Dom4jReader的功能">
+    <case id="1234" desc="正确读取testcase文件" tag="fortest">
+
+        <call service="service-test">
+            <param username="$testName"/>
+        </call>
+        <assert>
+            <status>200</status>
+            <body>
+                {
+                   "ret":true,
+                   "data":[{
+                        "username":"${testName}"
+                    }]:size('1')
+                }
+            </body>
+        </assert>
+    </case>
+
+</testcase>

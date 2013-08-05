@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dataset>
+<account id="1" login_id="admin" role_id="1"
+			password="21232f297a57a5a743894a0e4a801fc3" name="管理员" notes="管理员"
+			status="0" record_user="aaaa" last_login_time="2012-04-18 16:13:12.654" />
+
+		<role id="1" name="管理员" notes="管理员" />
+
+		<role id="2" name="普通用户" notes="普通用户" />
+
+
+		<menu id="1" name="用户管理" type="0" sort_num="0" url="/" parent_id="0"
+			notes="''" />
+
+		<menu id="2" name="酒店管理" type="0" sort_num="0" url="/hotel"
+			parent_id="0" notes="''" />
+
+		<menu id="3" name="工作统计" type="0" sort_num="0" url="/statistics/"
+			parent_id="0" notes="''" />
+
+		<menu id="4" name="聚合审核" type="0" sort_num="0" url="/linkage/"
+			parent_id="0" notes="''" />
+
+		<menu id="5" name="系统管理" type="0" sort_num="0" url="/system"
+			parent_id="0" notes="''" />
+
+		<menu id="6" name="发布功能" type="0" sort_num="0" url="/online"
+			parent_id="0" notes="''" />
+
+		<menu id="7" name="工作量统计" type="0" sort_num="0" url="/workload"
+			parent_id="0" notes="''" />
+
+		<menu id="8" name="suggest" type="0" sort_num="0" url="/suggest"
+			parent_id="0" notes="''" />
+
+		<menu id="9" name="地图管理" type="0" sort_num="0" url="/maps"
+			parent_id="0" notes="''" />
+
+		<menu_role menu_id="1" role_id="1" />
+
+		<menu_role menu_id="2" role_id="1" />
+
+		<menu_role menu_id="2" role_id="2" />
+
+		<menu_role menu_id="3" role_id="1" />
+
+		<menu_role menu_id="3" role_id="2" />
+
+		<menu_role menu_id="4" role_id="2" />
+
+		<menu_role menu_id="5" role_id="1" />
+
+		<menu_role menu_id="9" role_id="1" />
+
+    <oneway_carrier_newer id="792093973" carrier="9C8992"
+                          dtime="2012-07-31" ffrom="PEK" fto="SHA" codebase="wstts9c0002" price="395"
+                          planetype="320" start_time="06:45:00" operate_time="2012-07-18 17:11:09.280426"
+                          arrival_time="09:00:00" yprice="" discount="3.5">
+        <bookinginfo>
+            <![CDATA[
+            "type:4||bookingurl:&cw=R&np=410&gx=||timestamp:1342689006265||extraurl:cn=R&ut=&ct="
+            ]]>
+        </bookinginfo>
+    </oneway_carrier_newer>
+
+</dataset>

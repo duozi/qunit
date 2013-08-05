@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testcase id="测试调用之间传递参数">
+    <case id="测试调用之间传递参数-本地调用" tag="automated">
+        <transform class="com.qunar.base.qunit.TestTransform" />
+        <wait time="1000"/>
+        <call service="register">
+            <user>
+                <param name="admin" password="admin" age="100" street="beijing"/>
+            </user>
+        </call>
+        <call service="logon">
+            <param name="$result[0].name" password="$result[0].password"/>
+        </call>
+        <assert>
+            <status value="200"/>
+            <body>
+                <![CDATA[
+    {"name":"admin","password":"admin"}
+    ]]>
+            </body>
+        </assert>
+    </case>
+</testcase>

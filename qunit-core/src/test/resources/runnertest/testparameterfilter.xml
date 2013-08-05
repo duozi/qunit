@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testcase id="测试参数过滤器与引用上一步参数相结合">
+    <case id="参数过滤器" tag="automated">
+        <call service="getCount"/>
+        <call service="getString">
+            <param input="str:$result.count" />
+        </call>
+    </case>
+</testcase>

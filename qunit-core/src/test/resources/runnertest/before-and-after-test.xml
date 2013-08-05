@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ $$Id$$
+  ~ Copyright (c) 2011 Qunar.com. All Rights Reserved.
+  -->
+
+<testcase id="before-after功能测试" tag="beforeAndAfter,automated">
+    <beforeSuit>
+        <set>
+            <param key="beforeSuit"/>
+        </set>
+    </beforeSuit>
+
+    <afterSuit>
+        <set>
+            <param key="afterSuit"/>
+        </set>
+    </afterSuit>
+
+    <beforeCase>
+        <set>
+            <param key="beforeCase"/>
+        </set>
+    </beforeCase>
+
+    <afterCase>
+        <set>
+            <param key="afterCase"/>
+        </set>
+    </afterCase>
+
+    <case id="test-param" desc="测试before和after标签功能" tag="automated">
+        <call service="service-test">
+            <param postalcode="100088" />
+            <param name="name">张宇</param>
+        </call>
+    </case>
+
+</testcase>

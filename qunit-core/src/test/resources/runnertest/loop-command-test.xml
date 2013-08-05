@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testcase id="测试Qunit各种Command的功能" tag="loop">
+
+    <case id="qunit-loop-command" desc="循环执行指定次数的command" tag="automated">
+        <loop time="10">
+            <call service="service-test">
+                <param username="$testName"/>
+            </call>
+            <print/>
+        </loop>
+        <assert>
+            <status>200</status>
+            <body>
+                {
+                    "ret":true,
+                    "data":[{
+                        "username":"${testName}"
+                    }]:size('1')
+                }
+            </body>
+        </assert>
+    </case>
+
+    <case id="qunit-set-command" desc="测试set环境变量功能" tag="automated">
+        <set>
+            <param testset="$testName"/>
+        </set>
+        <call service="service-test">
+            <param username="$testset"/>
+        </call>
+        <assert>
+            <status>200</status>
+            <body>
+                {
+                    "ret":true,
+                    "data":[{
+                    "username":"${testName}"
+                    }]:size('1')
+                }
+            </body>
+        </assert>
+    </case>
+
+    <case id="qunit-assert-command-read-set-command-config" desc="测试assert command解析环境变量的功能" tag="automated">
+        <set>
+            <param testset="$testName"/>
+        </set>
+        <call service="service-test">
+            <param username="$testset"/>
+        </call>
+        <assert>
+            <status>200</status>
+            <body>
+                {
+                "ret":true,
+                "data":[{
+                "username":"${testset}"
+                }]:size('1')
+                }
+            </body>
+        </assert>
+    </case>
+
+
+</testcase>

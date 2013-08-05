@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<services xmlns="http://l-docs.plat.cn6.qunar.com"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://l-docs.plat.cn6.qunar.com http://l-docs.plat.cn6.qunar.com/autotest/service.xsd">
+
+    <!-- HTTP 接口 -->
+    <http id="logon"
+          url="$demo.host/logon/logon.json"
+          method="post"
+          desc="登录Qhotel系统"/>
+
+    <http id="addCountry"
+          url="$demo.host/country/add.json"
+          method="post"
+          desc="添加国家"/>
+
+    <http id="queryCountry"
+          url="$demo.host/country/query.json"
+          method="get"
+          desc="查询国家" />
+
+    <!-- RPC 接口 -->
+    <!-- 只支持直连的方式，不支持通过zookeeper -->
+    <!-- 每个rpc方法一个配置 -->
+    <rpc id="hotelService_getHotel"
+         class="com.qunar.base.service.HotelService"
+         method="getHotel"
+         url="$rpc.host"
+         desc="获取给定id的酒店"/>
+
+    <rpc id="hotelService_save"
+         class="com.qunar.base.service.HotelService"
+         method="save"
+         url="$rpc.host"
+         desc="保存酒店" />
+
+    <rpc id="hotelService_batchSave"
+         class="com.qunar.base.service.HotelService"
+         method="batchSave"
+         url="$rpc.host"
+         desc="批量保存" />
+
+</services>
