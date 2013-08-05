@@ -12,6 +12,7 @@
         <module>qunit-sample</module>
         <module>qunit-rpc</module>
         <module>qunit-extension</module>
+        <module>qunit-hessian</module>
     </modules>
 
     <distributionManagement>
