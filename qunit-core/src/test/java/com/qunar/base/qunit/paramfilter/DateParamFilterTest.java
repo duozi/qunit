@@ -1,11 +1,13 @@
 package com.qunar.base.qunit.paramfilter;
 
+import org.apache.commons.lang.time.DateUtils;
 import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
@@ -18,42 +20,58 @@ import static org.mockito.Mockito.when;
  */
 public class DateParamFilterTest {
 
-    private Clock mockClock;
     private DateParamFilter filter;
+    private Date today;
 
     @Before
-    public void setUp() {
-        mockClock = mock(Clock.class);
-        filter = new DateParamFilter(mockClock);
+    public void setUp() throws ParseException {
+        Clock clock = mock(Clock.class);
+        today = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse("2013-08-02 10:10:10");
+        when(clock.current()).thenReturn(today);
+
+        filter = new DateParamFilter(clock);
     }
 
     @Test
     public void should_return_now() throws ParseException {
-        when(mockClock.afterDays(0)).thenReturn(new SimpleDateFormat("yyyy-MM-dd").parse("2012-07-20"));
+        String expression = "yyyy-MM-dd";
+        String expected = new SimpleDateFormat(expression).format(today);
 
-        assertThat(filter.handle("DATE(0,yyyy-MM-dd)").toString(), Is.is("2012-07-20"));
+        assertThat(filter.handle("DATE(0," + expression + ")").toString(), Is.is(expected));
     }
 
     @Test
-    public void should_return_date_with_space() throws ParseException {
-        when(mockClock.afterDays(0)).thenReturn(new SimpleDateFormat("yyyy-MM-dd").parse("2012-07-20"));
+    public void should_parse_date_even_though_with_empty_space() throws ParseException {
+        String expression = "yyyy-MM-dd";
+        String expected = new SimpleDateFormat(expression).format(today);
 
-        assertThat(filter.handle("DATE(0,  yyyy-MM-dd)").toString(), Is.is("2012-07-20"));
+        assertThat(filter.handle("DATE(0,  " + expression + " )").toString(), Is.is(expected));
     }
 
     @Test
-    public void should_plus_days() throws ParseException {
-        when(mockClock.afterDays(1)).thenReturn(new SimpleDateFormat("yyyy-MM-dd").parse("2012-07-21"));
+    public void should_get_tomorrow_in_given_format() throws ParseException {
+        String expression = "yyyy-MM-dd";
+        Date tomorrow = DateUtils.addDays(today, 1);
+        String expected = new SimpleDateFormat(expression).format(tomorrow);
 
-        assertThat(filter.handle("DATE(1,yyyy-MM-dd)").toString(), Is.is("2012-07-21"));
+        assertThat(filter.handle("DATE(1," + expression + ")").toString(), Is.is(expected));
     }
 
     @Test
-    public void should_minus_days() throws ParseException {
-        when(mockClock.afterDays(-1)).thenReturn(new SimpleDateFormat("yyyy-MM-dd").parse("2012-07-19"));
+    public void should_get_yesterday_in_given_format() throws ParseException {
+        String expression = "yyyy-MM-dd";
+        Date yesterday = DateUtils.addDays(today, -1);
+        String expected = new SimpleDateFormat(expression).format(yesterday);
 
-        assertThat(filter.handle("DATE(-1,yyyy-MM-dd)").toString(), Is.is("2012-07-19"));
+        assertThat(filter.handle("DATE(-1," + expression + ")").toString(), Is.is(expected));
     }
 
+    @Test
+    public void should_get_last_20_hours_in_given_format() {
+        String expression = "yyyy-MM-dd";
+        Date last20Hours_yesterday = DateUtils.addHours(today, -20);
+        String expected = new SimpleDateFormat(expression).format(last20Hours_yesterday);
 
+        assertThat(filter.handle("DATE(-20, " + expression + " , h )").toString(), Is.is(expected));
+    }
 }
