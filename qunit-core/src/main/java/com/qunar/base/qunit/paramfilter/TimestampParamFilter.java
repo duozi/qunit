@@ -1,14 +1,12 @@
 package com.qunar.base.qunit.paramfilter;
 
-import com.google.common.base.Strings;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -17,7 +15,7 @@ import java.util.regex.Pattern;
  * Date: 12/11/12
  */
 public class TimestampParamFilter extends ParamFilter {
-    private Pattern pattern = Pattern.compile("DATE\\((\\s*[+-]?[0-9]+\\s*),\\s*#([YyMmDdHhSsNnUuPp]+\\s*),?(\\s*[YMDHmS]?\\s*),?([^\\)]*)\\)");
+    private Pattern pattern = Pattern.compile("DATE\\(\\s*([+-]?[0-9]+)\\s*,\\s*#([MmDdHhSs]+)\\s*,?\\s*([YyMDdHhmSs]?)\\s*\\)");
 
     private final Clock clock;
 
@@ -38,13 +36,9 @@ public class TimestampParamFilter extends ParamFilter {
             String group3 = matcher.group(3);
             Step step = getStep(group3);
 
-            String group4 = matcher.group(4);
-            DateFormat format = getFormat(group4);
-
             Integer i = Integer.valueOf(diff);
             Date date = step.diff(i);
-            if (format != null) return format.format(date);
-            Integer integer = TIME_MAP.get(numberSuffix.toLowerCase());
+            Long integer = TIME_MAP.get(numberSuffix.toLowerCase());
             if (integer != null) {
                 return date.getTime() / integer;
             }
@@ -53,23 +47,19 @@ public class TimestampParamFilter extends ParamFilter {
         return expression;
     }
 
-    private DateFormat getFormat(String format) {
-        if (Strings.isNullOrEmpty(format)) return null;
-        return new SimpleDateFormat(format);
-    }
-
     @Override
     protected boolean support(String param) {
         return !StringUtils.isBlank(param) && pattern.matcher(param).find();
     }
 
-    private static final Map<String, Integer> TIME_MAP = new HashMap<String, Integer>();
+    private static final Map<String, Long> TIME_MAP = new HashMap<String, Long>();
 
     static {
-        TIME_MAP.put("ms", 1);
-        TIME_MAP.put("s", 1000);
-        TIME_MAP.put("m", 60 * 1000);
-        TIME_MAP.put("h", 60 * 1000);
+        TIME_MAP.put("ms", 1L);
+        TIME_MAP.put("s", TimeUnit.SECONDS.toMillis(1));
+        TIME_MAP.put("m", TimeUnit.MINUTES.toMillis(1));
+        TIME_MAP.put("h", TimeUnit.HOURS.toMillis(1));
+        TIME_MAP.put("d", TimeUnit.DAYS.toMillis(1));
     }
 
     private Step getStep(String step) {

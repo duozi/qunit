@@ -19,13 +19,12 @@ import static org.mockito.Mockito.when;
  */
 public class TimestampParamFilterTest {
 
-    private Clock clock;
     private Date today;
     private TimestampParamFilter filter;
 
     @Before
     public void setUp() throws Exception {
-        clock = mock(Clock.class);
+        Clock clock = mock(Clock.class);
         today = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse("2013-08-02 10:10:10");
         when(clock.current()).thenReturn(today);
         filter = new TimestampParamFilter(clock);
@@ -58,12 +57,11 @@ public class TimestampParamFilterTest {
     }
 
     @Test
-    public void should_get_last_10_minutes_in_seconds_format_output() {
-        String expectedFormat = "yyyy-MM-dd hh:mm:ss";
-        Object result = filter.handle("DATE(-10,#s,m," + expectedFormat + ")");
+    public void should_parse_even_has_empty_space() {
+        Object result = filter.handle("DATE( -10 , #s , m )");
 
         Date last10Minutes = DateUtils.addMinutes(today, -10);
-        String expected = new SimpleDateFormat(expectedFormat).format(last10Minutes);
-        assertThat(result.toString(), is(expected));
+        Long expected = last10Minutes.getTime() / 1000;
+        assertThat(result.toString(), is(expected.toString()));
     }
 }
