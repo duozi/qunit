@@ -4,6 +4,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 
 import java.util.Date;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -19,6 +20,33 @@ public abstract class AbstractDateParamFilter extends ParamFilter {
     }
 
     protected abstract Pattern getPattern();
+
+    @Override
+    protected String doHandle(String param) {
+        String result = param;
+        Matcher matcher = getPattern().matcher(param);
+        while (matcher.find()) {
+            String group1 = matcher.group(1);
+            String diff = StringUtils.trim(group1);
+
+            String group2 = matcher.group(2);
+            String formatExpression = StringUtils.trim(group2);
+
+            String group3 = matcher.group(3);
+            Step step = getStep(group3);
+
+            Integer i = Integer.valueOf(diff);
+            Date date = step.diff(i);
+
+            result = format(param, formatExpression, date);
+            result = postProcess(group1, group2, group3, result);
+        }
+        return result;
+    }
+
+    protected abstract String postProcess(String group1, String group2, String group3, String result);
+
+    protected abstract String format(String param, String formatExpression, Date date);
 
     protected Step getStep(String step) {
         step = StringUtils.trim(step);

@@ -1,12 +1,9 @@
 package com.qunar.base.qunit.paramfilter;
 
-import org.apache.commons.lang.StringUtils;
-
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -21,27 +18,17 @@ public class TimestampParamFilter extends AbstractDateParamFilter {
     }
 
     @Override
-    public Object doHandle(String expression) {
-        Matcher matcher = this.pattern.matcher(expression);
-        if (matcher.find()) {
-            String group1 = matcher.group(1);
-            String diff = StringUtils.trim(group1);
+    protected String postProcess(String group1, String group2, String group3, String result) {
+        return result;
+    }
 
-            String group2 = matcher.group(2);
-            String numberSuffix = StringUtils.trim(group2);
-
-            String group3 = matcher.group(3);
-            Step step = getStep(group3);
-
-            Integer i = Integer.valueOf(diff);
-            Date date = step.diff(i);
-            Long integer = TIME_MAP.get(numberSuffix.toLowerCase());
-            if (integer != null) {
-                return date.getTime() / integer;
-            }
-            return date.getTime();
+    @Override
+    protected String format(String param, String formatExpression, Date date) {
+        Long integer = TIME_MAP.get(formatExpression.toLowerCase());
+        if (integer != null) {
+            return String.valueOf(date.getTime() / integer);
         }
-        return expression;
+        return String.valueOf(date.getTime());
     }
 
     @Override
