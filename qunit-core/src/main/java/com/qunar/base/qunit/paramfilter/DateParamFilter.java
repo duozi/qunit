@@ -40,7 +40,8 @@ public class DateParamFilter extends AbstractDateParamFilter {
     }
 
     private DateFormat getDateFormat(String param, String formatExpression) {
-        if (StringUtils.isBlank(formatExpression)) throw new RuntimeException("时间格式化串非法 " + formatExpression + " in " + param);
+        if (StringUtils.isBlank(formatExpression))
+            throw new RuntimeException("时间格式化串非法 " + formatExpression + " in " + param);
         try {
             return new SimpleDateFormat(formatExpression);
         } catch (Exception e) {
