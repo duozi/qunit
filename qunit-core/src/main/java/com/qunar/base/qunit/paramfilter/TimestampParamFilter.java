@@ -18,7 +18,7 @@ public class TimestampParamFilter extends AbstractDateParamFilter {
     }
 
     @Override
-    protected String postProcess(String group1, String group2, String group3, String result) {
+    protected String postProcess(String param, String group1, String group2, String group3, String result) {
         return result;
     }
 

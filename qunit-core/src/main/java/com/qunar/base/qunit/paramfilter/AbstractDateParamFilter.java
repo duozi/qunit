@@ -38,13 +38,13 @@ public abstract class AbstractDateParamFilter extends ParamFilter {
             Integer i = Integer.valueOf(diff);
             Date date = step.diff(i);
 
-            result = format(param, formatExpression, date);
-            result = postProcess(group1, group2, group3, result);
+            String formatDate = format(param, formatExpression, date);
+            result = postProcess(result, group1, group2, group3, formatDate);
         }
         return result;
     }
 
-    protected abstract String postProcess(String group1, String group2, String group3, String result);
+    protected abstract String postProcess(String param, String group1, String group2, String group3, String result);
 
     protected abstract String format(String param, String formatExpression, Date date);
 

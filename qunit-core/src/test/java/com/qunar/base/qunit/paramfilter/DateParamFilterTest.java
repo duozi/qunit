@@ -74,4 +74,29 @@ public class DateParamFilterTest {
 
         assertThat(filter.handle("DATE(-20, " + expression + " , h )").toString(), Is.is(expected));
     }
+
+    @Test
+    public void should_parse_one_DATE_expression_nested_in_string() {
+        String expression = "yyyy-MM-dd";
+        String input = "{\"fromDate\":\"DATE(0, " + expression + ")\"}";
+
+        String formatDate = new SimpleDateFormat(expression).format(today);
+
+        String expected = "{\"fromDate\":\"" + formatDate + "\"}";
+        assertThat(filter.handle(input).toString(), Is.is(expected));
+    }
+
+    @Test
+    public void should_parse_two_different_DATE_expression_nested_in_string() {
+        String expression1 = "yyyy-MM-dd";
+        String expression2 = "yyyy-MM-dd hh:mm";
+        String input = "{\"fromDate\":\"DATE(0, " + expression1 + ")\",\"toDate\":\"DATE(0," + expression2 + ")\"}";
+
+        String formatDate1 = new SimpleDateFormat(expression1).format(today);
+        String formatDate2 = new SimpleDateFormat(expression2).format(today);
+
+        String expected = "{\"fromDate\":\"" + formatDate1 + "\",\"toDate\":\"" + formatDate2 + "\"}";
+        assertThat(filter.handle(input).toString(), Is.is(expected));
+    }
+
 }

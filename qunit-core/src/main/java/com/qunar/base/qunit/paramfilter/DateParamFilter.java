@@ -24,11 +24,11 @@ public class DateParamFilter extends AbstractDateParamFilter {
     private static final Pattern pattern = Pattern.compile("DATE\\((\\s*[+-]?[0-9]+\\s*),(\\s*[^\\),]*\\s*),?(\\s*[YyMDdHhmSs]?\\s*)\\)");
 
     @Override
-    protected String postProcess(String group1, String group2, String group3, String result) {
+    protected String postProcess(String param, String group1, String group2, String group3, String result) {
         if (StringUtils.isBlank(group3)) {
-            result = result.replace("DATE(" + group1 + "," + group2 + ")", result);
+            result = param.replace("DATE(" + group1 + "," + group2 + ")", result);
         } else {
-            result = result.replace("DATE(" + group1 + "," + group2 + "," + group3 + ")", result);
+            result = param.replace("DATE(" + group1 + "," + group2 + "," + group3 + ")", result);
         }
         return result;
     }
