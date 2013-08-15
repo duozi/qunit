@@ -56,6 +56,13 @@ public class PooledDataSource implements DataSource {
             logger.error(message);
             throw new RuntimeException(message);
         }
+        try {
+            Class.forName(driverClass);
+        } catch (ClassNotFoundException e) {
+            logger.error("{} 数据库驱动不存在，请确保你在pom文件里引入了对应的依赖，或者确认你配置的驱动类名称是否正确", driverClass, e);
+            throw new RuntimeException("数据库驱动不存在", e);
+        }
+
         PoolConfiguration p = new PoolProperties();
 
         p.setValidationQuery("select 1");
