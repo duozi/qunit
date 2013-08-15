@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -37,12 +38,15 @@ public class PropertyUtils {
         try {
             Properties PROPERTIES = new Properties();
 
-            PROPERTIES.load(PropertyUtils.class.getClassLoader().getResourceAsStream(propertiesFileName));
+            InputStream stream = PropertyUtils.class.getClassLoader().getResourceAsStream(propertiesFileName);
+            if (stream == null) return;
+
+            PROPERTIES.load(stream);
             Set<Map.Entry<Object, Object>> entries = PROPERTIES.entrySet();
             for (Map.Entry entry : entries) {
                 String key = entry.getKey() == null ? null : StringUtils.trim(entry.getKey().toString());
                 String value = entry.getValue() == null ? null : StringUtils.trim(entry.getValue().toString());
-                configs.put(key, value);
+                configs.put(new String(key.getBytes("ISO8859-1"), "UTF-8"), new String(value.getBytes("ISO8859-1"), "UTF-8"));
             }
         } catch (IOException e) {
             LOGGER.error("load properties file has error,", e);
