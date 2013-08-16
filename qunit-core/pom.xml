@@ -30,7 +30,7 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>com.qunar.base</groupId>
+            <groupId>com.qunar.autotest</groupId>
             <artifactId>json-validator</artifactId>
             <version>1.0.2-SNAPSHOT</version>
             <exclusions>
