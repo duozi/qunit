@@ -8,10 +8,8 @@
         <version>1.0.5-SNAPSHOT</version>
     </parent>
 
-    <groupId>com.qunar.base</groupId>
     <artifactId>qunit-extension</artifactId>
     <packaging>jar</packaging>
-    <version>1.0.5-SNAPSHOT</version>
 
     <name>qunit-extension</name>
 

@@ -10,28 +10,19 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.qunar.base</groupId>
     <artifactId>qunit-rpc</artifactId>
 
     <dependencies>
 
         <dependency>
-            <groupId>com.qunar.base</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>qunit-core</artifactId>
-            <version>1.0.5-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>qunar.common</groupId>
             <artifactId>common-rpc</artifactId>
-            <version>7.0.6</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-web</artifactId>
-            <version>3.0.6.RELEASE</version>
-            <scope>test</scope>
         </dependency>
 
     </dependencies>

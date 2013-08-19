@@ -13,14 +13,13 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.qunar.base</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>qunit-core</artifactId>
-            <version>${parent.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.qunar.3dparty.caucho</groupId>
             <artifactId>hessian</artifactId>
-            <version>4.0.7-fixed</version>
         </dependency>
     </dependencies>
 
