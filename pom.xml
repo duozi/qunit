@@ -47,6 +47,8 @@
         <log4j.version>1.2.16</log4j.version>
         <common-rpc.version>7.0.9</common-rpc.version>
         <hessian-3dparty.version>4.0.7-fixed</hessian-3dparty.version>
+        <mysql.version>5.1.12</mysql.version>
+        <postgresql.version>9.1-901-1.jdbc4</postgresql.version>
     </properties>
 
     <dependencyManagement>
@@ -182,6 +184,18 @@
                 <groupId>com.qunar.3dparty.caucho</groupId>
                 <artifactId>hessian</artifactId>
                 <version>${hessian-3dparty.version}</version>
+            </dependency>
+            <dependency>
+                <artifactId>mysql-connector-java</artifactId>
+                <groupId>mysql</groupId>
+                <version>${mysql.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>postgresql</groupId>
+                <artifactId>postgresql</artifactId>
+                <version>${postgresql.version}</version>
+                <scope>provided</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
