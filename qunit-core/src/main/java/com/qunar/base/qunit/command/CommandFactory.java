@@ -3,6 +3,7 @@ package com.qunar.base.qunit.command;
 import com.qunar.base.qunit.config.*;
 import com.qunar.base.qunit.exception.CommandNotFoundException;
 import com.qunar.base.qunit.extension.ExtensionLoader;
+import com.qunar.base.qunit.model.DataCase;
 import com.qunar.base.qunit.util.ConfigUtils;
 import org.dom4j.Element;
 import org.slf4j.Logger;
@@ -69,6 +70,30 @@ public class CommandFactory {
             return config.createCommand();
         } catch (Exception e) {
             throw new RuntimeException(String.format("初始化Command<%s>失败,error message=%s", element.getName(),
+                    e.getMessage()), e);
+        }
+    }
+
+    public List<StepCommand> getDataCommands(List<DataCase> caseChain) {
+        List<StepCommand> commands = new ArrayList<StepCommand>();
+        for (DataCase dataCase : caseChain){
+            StepCommand command = getDataCommand(dataCase.getExecutor(), dataCase.getId());
+            commands.add(command);
+        }
+
+        return commands;
+    }
+
+    private StepCommand getDataCommand(String executor, String caseId) {
+        Class<? extends StepConfig> clazz = CONFIG.get(executor);
+        if (clazz == null) {
+            throw new CommandNotFoundException(executor);
+        }
+        try {
+            StepConfig config = ConfigUtils.initDataCase(clazz, caseId, executor);
+            return config.createCommand();
+        } catch (Exception e) {
+            throw new RuntimeException(String.format("初始化Command<%s>失败,error message=%s", executor,
                     e.getMessage()), e);
         }
     }

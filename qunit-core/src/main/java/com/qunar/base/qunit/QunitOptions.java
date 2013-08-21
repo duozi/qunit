@@ -43,6 +43,10 @@ public class QunitOptions {
         return getTestFiles(this.options.files());
     }
 
+    public List<String> dataCases() {
+        return getTestFiles(this.options.dataFiles());
+    }
+
     public List<String> before() {
         return getTestFiles(this.options.before());
     }

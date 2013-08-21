@@ -1,5 +1,6 @@
 package com.qunar.base.qunit.dsl;
 
+import com.qunar.base.qunit.preprocessor.DataCaseProcessor;
 import com.qunar.base.qunit.reporter.Reporter;
 import com.qunar.base.qunit.util.ConfigUtils;
 import org.apache.commons.lang.StringUtils;
@@ -15,6 +16,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.net.URL;
 import java.util.Iterator;
+import java.util.Map;
 
 /**
  * User: zhaohuiyu
@@ -50,10 +52,11 @@ public class DSLCommandReader {
         while (serviceElements.hasNext()) {
             Element element = (Element) serviceElements.next();
             DefineDSLCommand defineDSLCommand = ConfigUtils.init(DefineDSLCommand.class, element);
+            defineDSLCommand.setData(DataCaseProcessor.dataCasesMap.get(defineDSLCommand.getId()));
             if (element.selectSingleNode("data") != null){
-            	Node dataNode = element.selectSingleNode("data");
-            	DSLDataProcess dslDataProcess = new DSLDataProcess();
-            	dslDataProcess.processData(defineDSLCommand.getId(), (Element)dataNode);
+                Node dataNode = element.selectSingleNode("data");
+                DSLDataProcess dslDataProcess = new DSLDataProcess();
+                dslDataProcess.processData(defineDSLCommand.getId(), (Element)dataNode);
             }
             defineDSLCommand.define(reporter);
         }

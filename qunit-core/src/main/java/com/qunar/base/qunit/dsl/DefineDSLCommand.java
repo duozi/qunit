@@ -7,6 +7,7 @@ import com.qunar.base.qunit.config.StepConfig;
 import com.qunar.base.qunit.reporter.Reporter;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * User: zhaohuiyu
@@ -18,7 +19,7 @@ import java.util.List;
  * 以id命名。
  * <p/>
  * 这个命令给你的主要作用是实现DSL。在各个team的测试中，往往有一些
- * 公共且通用的部分，开发人员可以利用这个命令定义自己的通用命令：
+ * 公共切通用的部分，开发人员可以利用这个命令定义自己的通用命令：
  * <p/>
  * 定义:
  * <def id="reload" desc="刷新内存" >
@@ -70,16 +71,29 @@ public class DefineDSLCommand {
     @ChildrenConfig
     private List<StepConfig> children;
 
+    private Map<String, Map<String, String>> data;
+
     public void define(Reporter reporter) {
-        DSLCommandDesc dslCommandDesc = new DSLCommandDesc(id, desc, Boolean.valueOf(runOnce), children);
+        DSLCommandDesc dslCommandDesc = new DSLCommandDesc(id, desc, Boolean.valueOf(runOnce), children, data);
         reporter.addDSLCommand(dslCommandDesc);
 
         DSLCommandConfig.map(id, dslCommandDesc);
         CommandFactory.getInstance().addConfig(id, DSLCommandConfig.class);
     }
 
-	public String getId() {
-		return id;
-	}
-    
+    public String getId() {
+        return id;
+    }
+
+    public Map<String, Map<String, String>> getData() {
+        return data;
+    }
+
+    public void setData(Map<String, Map<String, String>> data) {
+        this.data = data;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 }

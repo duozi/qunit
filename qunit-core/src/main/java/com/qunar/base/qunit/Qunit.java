@@ -7,15 +7,13 @@ package com.qunar.base.qunit;
 import com.qunar.base.qunit.annotation.Filter;
 import com.qunar.base.qunit.annotation.Interceptor;
 import com.qunar.base.qunit.casefilter.CaseFilter;
+import com.qunar.base.qunit.casereader.DatacaseReader;
 import com.qunar.base.qunit.casereader.Dom4jCaseReader;
 import com.qunar.base.qunit.context.Context;
 import com.qunar.base.qunit.dsl.DSLCommandReader;
 import com.qunar.base.qunit.intercept.InterceptorFactory;
 import com.qunar.base.qunit.intercept.StepCommandInterceptor;
-import com.qunar.base.qunit.model.Environment;
-import com.qunar.base.qunit.model.Operation;
-import com.qunar.base.qunit.model.SvnInfo;
-import com.qunar.base.qunit.model.TestSuite;
+import com.qunar.base.qunit.model.*;
 import com.qunar.base.qunit.paramfilter.FilterFactory;
 import com.qunar.base.qunit.paramfilter.ParamFilter;
 import com.qunar.base.qunit.reporter.Reporter;
@@ -26,6 +24,7 @@ import com.qunar.base.qunit.util.ReflectionUtils;
 import com.qunar.base.validator.JsonValidator;
 import com.qunar.base.validator.factories.ValidatorFactory;
 import com.qunar.base.validator.validators.Validator;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.dom4j.DocumentException;
 import org.junit.runner.Description;
@@ -68,7 +67,8 @@ public class Qunit extends ParentRunner<TestSuiteRunner> {
         setArrayValidateMethod();
 
         List<String> files = options.testCases();
-        ensureHasCases(files);
+        List<String> dataFiles = options.dataCases();
+        ensureHasCases(files, dataFiles);
         List<String> beforeFiles = options.before();
         List<String> afterFiles = options.after();
 
@@ -82,6 +82,13 @@ public class Qunit extends ParentRunner<TestSuiteRunner> {
         attatchHandlers(testClass);
         attatchInterceptors(testClass);
 
+        List<DataSuite> suites = null;
+        if (CollectionUtils.isNotEmpty(dataFiles)){
+            DatacaseReader datacaseReader = new DatacaseReader();
+            suites = datacaseReader.getSuites(dataFiles);
+            datacaseReader.processDataSuite(suites);
+        }
+
         new DSLCommandReader().read(options.dslFile(), qjsonReporter);
 
         ServiceFactory.getInstance().init(options.serviceConfig(), qjsonReporter);
@@ -89,9 +96,9 @@ public class Qunit extends ParentRunner<TestSuiteRunner> {
 
         filter = options.createCaseFilter();
 
-        addChildren(beforeFiles);
-        addChildren(files);
-        addChildren(afterFiles);
+        addChildren(beforeFiles, null);
+        addChildren(files, suites);
+        addChildren(afterFiles, null);
     }
 
     private void addJobAndIdToContext(QunitOptions options) {
@@ -106,8 +113,8 @@ public class Qunit extends ParentRunner<TestSuiteRunner> {
         JsonValidator.arrayDefaultOrderValidate = Boolean.valueOf(property);
     }
 
-    private void ensureHasCases(List<String> files) {
-        if (files == null || files.size() == 0) {
+    private void ensureHasCases(List<String> files, List<String> dataFiles) {
+        if ((files == null || files.size() == 0) && (dataFiles == null || dataFiles.size() == 0)) {
             throw new RuntimeException("Case文件不存在: 请检查你指定的case文件是否存在");
         }
     }
@@ -130,7 +137,7 @@ public class Qunit extends ParentRunner<TestSuiteRunner> {
         Field[] fields = testClass.getDeclaredFields();
         for (Field field : fields) {
             if (isFilter(field)) {
-                ParamFilter filter = (ParamFilter) ReflectionUtils.newInstance(field.getType());
+                ParamFilter filter = (ParamFilter) ReflectionUtils.newInstance((Class<? extends ParamFilter>) field.getType());
                 FilterFactory.register(filter);
             }
         }
@@ -165,7 +172,7 @@ public class Qunit extends ParentRunner<TestSuiteRunner> {
         }
     }
 
-    private void addChildren(List<String> files) throws InitializationError, DocumentException, FileNotFoundException {
+    private void addChildren(List<String> files, List<DataSuite> dataSuites) throws InitializationError, DocumentException, FileNotFoundException {
         List<TestSuite> suites = new ArrayList<TestSuite>(files.size());
         for (String file : files) {
             TestSuite testSuite = new Dom4jCaseReader().readTestCase(file);
@@ -174,6 +181,9 @@ public class Qunit extends ParentRunner<TestSuiteRunner> {
             if (!testSuite.getTestCases().isEmpty()) {
                 suites.add(testSuite);
             }
+        }
+        if (dataSuites != null){
+            suites.addAll(new DatacaseReader().convertDataSuiteToTestSuite(dataSuites));
         }
         Collections.sort(suites);
         for (TestSuite suite : suites) {
@@ -205,6 +215,8 @@ public class Qunit extends ParentRunner<TestSuiteRunner> {
         String[] service() default "service.xml";
 
         String dsl() default "";
+
+        String[] dataFiles() default "";
 
         Operation operation() default Operation.CLEAR_INSERT;
     }

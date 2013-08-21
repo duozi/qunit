@@ -20,7 +20,7 @@ import static org.apache.commons.lang.StringUtils.isNotBlank;
 public class ConfigUtils {
     public static <T> T init(Class<? extends T> clazz, Element element) {
         T target = ReflectionUtils.newInstance(clazz);
-        setCommandName(target, element);
+        setCommandName(target, element.getName());
         setDefaultProperty(target, clazz, element);
         List<Field> fields = ReflectionUtils.getAllFields(clazz);
         for (Field field : fields) {
@@ -49,9 +49,25 @@ public class ConfigUtils {
         return target;
     }
 
-    private static <T> void setCommandName(T target, Element element) {
+    public static <T> T initDataCase(Class<? extends T> clazz, String caseId, String executor) {
+        T target = ReflectionUtils.newInstance(clazz);
+        setCommandName(target, executor);
+        List<Field> fields = ReflectionUtils.getAllFields(clazz);
+        for (Field field : fields) {
+            if (target instanceof DSLCommandConfig) {
+                if (field.isAnnotationPresent(com.qunar.base.qunit.annotation.Element.class)) {
+                    List<KeyValueStore> params = new ArrayList<KeyValueStore>();
+                    params.add(new KeyValueStore("data", caseId));
+                    ReflectionUtils.setFieldValue(target, field, params);
+                }
+            }
+        }
+        return target;
+    }
+
+    private static <T> void setCommandName(T target, String elementName) {
         if (target instanceof StepConfig) {
-            ReflectionUtils.setFieldValue(target, "commandName", element.getName());
+            ReflectionUtils.setFieldValue(target, "commandName", elementName);
         }
     }
 

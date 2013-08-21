@@ -4,6 +4,7 @@ import com.qunar.base.qunit.command.ParameterizedCommand;
 import com.qunar.base.qunit.command.StepCommand;
 import com.qunar.base.qunit.context.Context;
 import com.qunar.base.qunit.model.KeyValueStore;
+import com.qunar.base.qunit.preprocessor.DataCaseProcessor;
 import com.qunar.base.qunit.response.Response;
 
 import java.util.*;
@@ -19,6 +20,7 @@ public class DSLCommand extends ParameterizedCommand {
 
     private DSLCommandDesc desc;
     private List<StepCommand> commands;
+    private Map<String, String> commandParam;
 
     public DSLCommand(DSLCommandDesc desc, List<KeyValueStore> params, List<StepCommand> commands) {
         super(params);
@@ -35,10 +37,11 @@ public class DSLCommand extends ParameterizedCommand {
         }
         COMMADND_RUNRECORD.add(desc.id());
         Context childContext = new Context(context);
-        Map<String, Map<String, String>> dataMap = DSLDataProcess.dataMap.get(desc.id()); 
+        Map<String, Map<String, String>> dataMap = desc.data();
         for (KeyValueStore processedParam : processedParams) {
             childContext.addContext(processedParam.getName(), processedParam.getValue());
             if ("data".equals(processedParam.getName())){
+                setCommandParam(dataMap.get(processedParam.getValue()));
             	addContext(dataMap, processedParam, childContext);
             }
         }
@@ -62,7 +65,7 @@ public class DSLCommand extends ParameterizedCommand {
         Map<String, Object> details = new HashMap<String, Object>();
         details.put("stepName", "执行:");
         details.put("name", desc.desc());
-        details.put("params", params);
+        details.put("params", convertMapToList(getCommandParam()));
         return details;
     }
     
@@ -73,5 +76,24 @@ public class DSLCommand extends ParameterizedCommand {
     		Map.Entry<String, String> entry = (Map.Entry<String, String>)iterator.next();
     		childContext.addContext(entry.getKey(), entry.getValue());
     	}
+    }
+
+    public Map<String, String> getCommandParam() {
+        return commandParam;
+    }
+
+    public void setCommandParam(Map<String, String> commandParam) {
+        this.commandParam = commandParam;
+    }
+
+    private List<KeyValueStore> convertMapToList(Map<String, String> map){
+        List<KeyValueStore> keyValueStores = new ArrayList<KeyValueStore>();
+        Iterator iterator = map.entrySet().iterator();
+        while (iterator.hasNext()){
+            Map.Entry<String, String> entry = (Map.Entry<String, String>)iterator.next();
+            keyValueStores.add(new KeyValueStore(entry.getKey(), entry.getValue()));
+        }
+
+        return keyValueStores;
     }
 }
