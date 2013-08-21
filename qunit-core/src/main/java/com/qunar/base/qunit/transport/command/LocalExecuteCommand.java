@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.List;
 
@@ -33,10 +34,12 @@ public class LocalExecuteCommand extends ExecuteCommand {
     @Override
     public Response execute(List<KeyValueStore> params) {
         Response response = new Response();
-        Object service = ReflectionUtils.newInstance(ReflectionUtils.loadClass(clazz));
-        Method executeMethod = ReflectionUtils.getMethod(service, method);
+        Class serviceClass = ReflectionUtils.loadClass(clazz);
+        Method executeMethod = ReflectionUtils.getMethod(method, serviceClass);
+        Object service = Modifier.isStatic(executeMethod.getModifiers()) ? null : ReflectionUtils.newInstance(serviceClass);
         Type[] genericParameterTypes = executeMethod.getGenericParameterTypes();
         try {
+            executeMethod.setAccessible(true);
             Object[] parameters = BeanUtils.getParameters(params, genericParameterTypes);
             logger.info("调用方法{}.{},参数:{}", new Object[]{clazz, method, JSON.toJSONString(parameters)});
             Object result = executeMethod.invoke(service, parameters);
