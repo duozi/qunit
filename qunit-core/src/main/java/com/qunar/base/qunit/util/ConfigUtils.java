@@ -182,10 +182,11 @@ public class ConfigUtils {
         while (iterator.hasNext()) {
             Element configElement = (Element) iterator.next();
             Class<? extends StepConfig> configClass = CommandFactory.getInstance().getConfig(configElement.getName());
-            if (configClass != null) {
-                StepConfig config = ConfigUtils.init(configClass, configElement);
-                result.add(config);
+            if (configClass == null) {
+                configClass = DSLCommandConfig.class;
             }
+            StepConfig config = ConfigUtils.init(configClass, configElement);
+            result.add(config);
         }
         return result;
     }

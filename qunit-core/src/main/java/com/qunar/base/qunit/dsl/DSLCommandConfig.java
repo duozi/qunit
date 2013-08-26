@@ -28,6 +28,9 @@ public class DSLCommandConfig extends StepConfig {
     @Override
     public StepCommand createCommand() {
         DSLCommandDesc dslCommandDesc = DSLMAPPING.get(commandName);
+        if (dslCommandDesc == null) {
+            throw new RuntimeException("未定义的DSL命令: " + commandName);
+        }
         List<StepCommand> commands = createCommands(dslCommandDesc.children());
         return new DSLCommand(dslCommandDesc, params, commands);
     }
