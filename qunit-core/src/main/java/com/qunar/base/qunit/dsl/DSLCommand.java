@@ -4,7 +4,6 @@ import com.qunar.base.qunit.command.ParameterizedCommand;
 import com.qunar.base.qunit.command.StepCommand;
 import com.qunar.base.qunit.context.Context;
 import com.qunar.base.qunit.model.KeyValueStore;
-import com.qunar.base.qunit.preprocessor.DataCaseProcessor;
 import com.qunar.base.qunit.response.Response;
 
 import java.util.*;
@@ -37,11 +36,15 @@ public class DSLCommand extends ParameterizedCommand {
         }
         COMMADND_RUNRECORD.add(desc.id());
         Context childContext = new Context(context);
+        Map<String, Map<String, String>> staticDataMap = DSLDataProcess.dataMap.get(desc.id());
         Map<String, Map<String, String>> dataMap = desc.data();
         for (KeyValueStore processedParam : processedParams) {
             childContext.addContext(processedParam.getName(), processedParam.getValue());
             if ("data".equals(processedParam.getName())){
-                setCommandParam(dataMap.get(processedParam.getValue()));
+                if (dataMap != null){
+                    setCommandParam(dataMap.get(processedParam.getValue()));
+                }
+                addContext(staticDataMap, processedParam, childContext);
             	addContext(dataMap, processedParam, childContext);
             }
         }
@@ -65,11 +68,18 @@ public class DSLCommand extends ParameterizedCommand {
         Map<String, Object> details = new HashMap<String, Object>();
         details.put("stepName", "执行:");
         details.put("name", desc.desc());
-        details.put("params", convertMapToList(getCommandParam()));
+        if (commandParam != null){
+            details.put("params", convertMapToList(getCommandParam()));
+        } else {
+            details.put("params", params);
+        }
         return details;
     }
     
     private void addContext(Map<String, Map<String, String>> dataMap, KeyValueStore processedParam, Context childContext){
+        if (dataMap == null){
+            return;
+        }
     	Map<String, String> keyValueMap = dataMap.get(processedParam.getValue());
     	Iterator iterator = keyValueMap.entrySet().iterator();
     	while(iterator.hasNext()){
