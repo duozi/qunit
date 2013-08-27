@@ -20,4 +20,8 @@ public abstract class StepConfig {
     protected String commandName;
 
     public abstract StepCommand createCommand();
+
+    public String getCommandName() {
+        return commandName;
+    }
 }

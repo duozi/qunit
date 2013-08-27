@@ -28,7 +28,7 @@ public class DSLCommandConfig extends StepConfig {
     @Override
     public StepCommand createCommand() {
         DSLCommandDesc dslCommandDesc = DSLMAPPING.get(commandName);
-        if (dslCommandDesc == null) {
+        if (dslCommandDesc == null && !"data".equalsIgnoreCase(commandName)) {
             throw new RuntimeException("未定义的DSL命令: " + commandName);
         }
         List<StepCommand> commands = createCommands(dslCommandDesc.children());
@@ -38,6 +38,9 @@ public class DSLCommandConfig extends StepConfig {
     private List<StepCommand> createCommands(List<StepConfig> stepConfigs) {
         List<StepCommand> commands = new ArrayList<StepCommand>();
         for (StepConfig config : stepConfigs) {
+            if ("data".equalsIgnoreCase(config.getCommandName())){
+                continue;
+            }
             StepCommand command = config.createCommand().cloneCommand();
             commands.add(command);
         }

@@ -3,6 +3,7 @@ package com.qunar.base.qunit.dsl;
 import com.qunar.base.qunit.preprocessor.DataCaseProcessor;
 import com.qunar.base.qunit.reporter.Reporter;
 import com.qunar.base.qunit.util.ConfigUtils;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -16,6 +17,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.net.URL;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -26,19 +28,24 @@ import java.util.Map;
 public class DSLCommandReader {
     private final static Logger logger = LoggerFactory.getLogger(DSLCommandReader.class);
 
-    public void read(String fileName, Reporter reporter) {
-        if (StringUtils.isBlank(fileName)) return;
-        init(fileName, reporter);
+    public void read(List<String> fileNames, Reporter reporter) {
+        if (CollectionUtils.isEmpty(fileNames)){
+            return;
+        }
+        for (String fileName : fileNames){
+            if (StringUtils.isBlank(fileName)) return;
+            init(fileName, reporter);
+        }
     }
 
     private void init(String fileName, Reporter reporter) {
         try {
-            URL url = this.getClass().getClassLoader().getResource(fileName);
+            /*URL url = this.getClass().getClassLoader().getResource(fileName);
             if (url == null) {
                 logger.error("指定的DSL命令配置文件不存在", fileName);
                 return;
-            }
-            Document document = load(url.getPath());
+            }*/
+            Document document = load(fileName);
             initCommands(document, reporter);
         } catch (FileNotFoundException e) {
             logger.error("指定的DSL命令配置文件不存在", fileName, e);
