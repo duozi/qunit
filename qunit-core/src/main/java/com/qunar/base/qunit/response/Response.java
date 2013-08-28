@@ -5,6 +5,10 @@
 package com.qunar.base.qunit.response;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.serializer.SerializeConfig;
+import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.qunar.base.qunit.fastjson.QunitDoubleSerializer;
+import com.qunar.base.qunit.util.PropertyUtils;
 import com.qunar.base.validator.JsonValidator;
 import org.apache.commons.lang.StringUtils;
 import org.custommonkey.xmlunit.Diff;
@@ -108,7 +112,16 @@ public class Response {
     private String bodyInString(Object body) {
         if (body instanceof String)
             return body.toString();
-        return com.alibaba.fastjson.JSON.toJSONString(body);
+        return responseJson(body);
+    }
+
+    private String responseJson(Object body) {
+        Boolean jsonWriteOriginalDoubleValue = Boolean.valueOf(PropertyUtils.getProperty("json_write_original_double_value", "false"));
+        SerializeConfig config = new SerializeConfig();
+        if (jsonWriteOriginalDoubleValue) {
+            config.put(Double.class, QunitDoubleSerializer.INSTANCE);
+        }
+        return JSON.toJSONString(body, config, SerializerFeature.WriteMapNullValue);
     }
 
     private void assertException(String expected) {
