@@ -86,8 +86,8 @@ public class QunitOptions {
         return this.options.service();
     }
 
-    public String dslFile() {
-        return this.options.dsl();
+    public List<String> dslFile() {
+        return getTestFiles(this.options.dsl());
     }
 
     public CaseFilter createCaseFilter() {

@@ -89,7 +89,8 @@ public class Qunit extends ParentRunner<TestSuiteRunner> {
             datacaseReader.processDataSuite(suites);
         }
 
-        new DSLCommandReader().read(options.dslFile(), qjsonReporter);
+        List<String> dslFiles = options.dslFile();
+        new DSLCommandReader().read(dslFiles, qjsonReporter);
 
         ServiceFactory.getInstance().init(options.serviceConfig(), qjsonReporter);
         Environment.initEnvironment(testClass);
@@ -214,7 +215,7 @@ public class Qunit extends ParentRunner<TestSuiteRunner> {
 
         String[] service() default "service.xml";
 
-        String dsl() default "";
+        String[] dsl() default "";
 
         String[] dataFiles() default "";
 

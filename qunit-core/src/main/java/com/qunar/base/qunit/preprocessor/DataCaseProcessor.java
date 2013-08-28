@@ -28,7 +28,11 @@ public class DataCaseProcessor {
                 defaultMap = getData(row);
             }else {
                 caseDataMap = getData(row);
-                caseDataMap.putAll(defaultMap);
+                Map<String, String> tempMap = copyMap(defaultMap);
+                if (tempMap != null){
+                    tempMap.putAll(caseDataMap);
+                    caseDataMap = tempMap;
+                }
 
                 Map<String, String> dataCaseAttributeMap = getAttributeMap(row);
                 String id = dataCaseAttributeMap.get("id");
@@ -61,11 +65,10 @@ public class DataCaseProcessor {
     private static Map<String, String> processRow(Element trRow) {
         Map<String, String> trMap = new HashMap<String, String>();
         String name = trRow.getName();
-        if (StringUtils.isNotBlank(trRow.getText())){
-            for (Iterator it = trRow.elementIterator(); it.hasNext();) {
-                Element element = (Element)it.next();
-                trMap.put(name + "." + element.getName(), element.getText());
-            }
+        Iterator iterator = trRow.elementIterator();
+        while (iterator.hasNext()){
+            Element element = (Element)iterator.next();
+            trMap.put(name + "." + element.getName(), element.getText());
         }
         Map<String, String> attributeMap = getAttributeMap(trRow);
         trMap.putAll(addPrefix(attributeMap, trRow.getName()));
@@ -107,5 +110,19 @@ public class DataCaseProcessor {
             map.put(kvs.getName(), (String) kvs.getValue());
         }
         return map;
+    }
+
+    private static Map<String, String> copyMap(Map<String, String> srcMap){
+        Map<String, String> destMap = new HashMap<String, String>();
+        if (srcMap == null){
+            return destMap;
+        }
+        Iterator iterator = srcMap.entrySet().iterator();
+        while (iterator.hasNext()){
+            Map.Entry<String, String> entry = (Map.Entry<String, String>) iterator.next();
+            destMap.put(entry.getKey(), entry.getValue());
+        }
+
+        return  destMap;
     }
 }
