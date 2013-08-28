@@ -119,6 +119,7 @@ public class Response {
         Boolean jsonWriteOriginalDoubleValue = Boolean.valueOf(PropertyUtils.getProperty("json_write_original_double_value", "false"));
         SerializeConfig config = new SerializeConfig();
         if (jsonWriteOriginalDoubleValue) {
+            config.setAsmEnable(false);
             config.put(Double.class, QunitDoubleSerializer.INSTANCE);
         }
         return JSON.toJSONString(body, config, SerializerFeature.WriteMapNullValue);
