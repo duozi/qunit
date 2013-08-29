@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
@@ -51,7 +52,7 @@ public class Response {
 
     public void verify(Map<String, String> expected) {
         assertBody(expected.get("body"));
-        assertException(expected.get("class"));
+        assertException(expected);
         assertXml(expected.get("xml"));
     }
 
@@ -125,16 +126,21 @@ public class Response {
         return JSON.toJSONString(body, config, SerializerFeature.WriteMapNullValue);
     }
 
-    private void assertException(String expected) {
-        String message = "";
+    private void assertException(Map<String, String> expected) {
+        String exceptionClassName = expected.get("class");
+        String exceptionMessage = expected.get("message");
+
+        String actualMessage = "";
         if (exception != null) {
-            message = exception.getMessage();
+            actualMessage = exception.getMessage();
         }
-        if (StringUtils.isNotBlank(expected)) {
-            Class<?> expectedException = getClass(expected);
-            assertThat(message, exception, Matchers.instanceOf(expectedException));
-        } else {
-            assertThat(message, exception, Matchers.nullValue());
+        if (StringUtils.isNotBlank(exceptionClassName)) {
+            Class<?> expectedException = getClass(exceptionClassName);
+            assertThat("实际抛出的异常的类型和期望的异常类型不同", exception, Matchers.instanceOf(expectedException));
+        }
+
+        if (StringUtils.isNotBlank(exceptionMessage)) {
+            assertThat("实际抛出异常的message和期望的异常message不同", actualMessage, containsString(exceptionMessage));
         }
     }
 
