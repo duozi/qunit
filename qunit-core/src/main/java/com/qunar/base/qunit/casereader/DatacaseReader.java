@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.*;
 
 public class DatacaseReader {
@@ -85,10 +86,11 @@ public class DatacaseReader {
         return command == null || !(command instanceof TearDownStepCommand);
     }
 
-    public List<DataSuite> getSuites(List<String> files) throws FileNotFoundException {
+    public List<DataSuite> getSuites(List<String> files, String keyFile) throws FileNotFoundException {
         List<DataSuite> suites = new ArrayList<DataSuite>(files.size());
+        Map<String, String> keyMap = parseKeyFile(keyFile);
         for (String file : files) {
-            DataSuite dataSuite = readDataCase(file);
+            DataSuite dataSuite = readDataCase(file, keyMap);
             if (dataSuite == null) continue;
             if (!dataSuite.getDataCases().isEmpty()){
                 suites.add(dataSuite);
@@ -98,7 +100,7 @@ public class DatacaseReader {
         return suites;
     }
 
-    private DataSuite readDataCase(String fileName) throws FileNotFoundException {
+    private DataSuite readDataCase(String fileName, Map<String, String> keyMap) throws FileNotFoundException {
         threadLocal.set(fileName);
         Document document = loadDocument(fileName);
         if (document == null) {
@@ -106,7 +108,7 @@ public class DatacaseReader {
             return null;
         }
 
-        DataSuite dataSuite = getDataCases(document);
+        DataSuite dataSuite = getDataCases(document, keyMap);
         setCaseFileName(dataSuite, fileName);
         return dataSuite;
     }
@@ -117,6 +119,58 @@ public class DatacaseReader {
         for (DataSuite dataSuite : suites){
             addFollowCase(dataSuite, allDataCaseMap);
         }
+    }
+
+    private Map<String, String> parseKeyFile(String fileName){
+        try {
+            URL url = this.getClass().getClassLoader().getResource(fileName);
+            if (url == null) {
+                logger.error(String.format("key文件不存在,file=<%s>", fileName));
+                return null;
+            }
+            String path = url.getPath();
+
+            Document document = loadKeyDocument(path);
+            if (document == null){
+                return null;
+            } else {
+                return getKeyMap(document);
+            }
+        } catch (FileNotFoundException e) {
+            logger.error(String.format("key文件不存在,file=<%s>", fileName));
+        } catch (DocumentException e) {
+            logger.error(String.format("key文件格式错误，是非法的xml文档,file=<%s>", fileName));
+        }
+        return null;
+    }
+
+    private Map<String, String> getKeyMap(Document document){
+        Map<String, String> keyMap = new HashMap<String, String>();
+        Element rootElement = document.getRootElement();
+        Iterator iterator = rootElement.elementIterator();
+        while (iterator.hasNext()){
+            Element row = (Element) iterator.next();
+            String name = row.getName();
+            String value = getValue(row);
+            if (StringUtils.isBlank(value)){
+                continue;
+            } else {
+                keyMap.put(name, value);
+            }
+        }
+
+        return keyMap;
+    }
+
+    private String getValue(Element element){
+        Iterator iterator = element.elementIterator();
+        String value = "";
+        while (iterator.hasNext()){
+            Element keyElement = (Element) iterator.next();
+            value = keyElement.getTextTrim();
+        }
+
+        return value;
     }
 
     private void setCaseFileName(DataSuite dataSuite, String fileName) {
@@ -173,7 +227,7 @@ public class DatacaseReader {
         return dataCaseMap;
     }
 
-    private DataSuite getDataCases(Document document){
+    private DataSuite getDataCases(Document document, Map<String, String> keyMap){
         DataSuite dataSuite = new DataSuite();
         Element rootElement = document.getRootElement();
         Map<String, String> attributeMap = DataCaseProcessor.getAttributeMap(rootElement);
@@ -188,7 +242,7 @@ public class DatacaseReader {
             for (Object caseElement : caseElements) {
                 Element next = (Element) caseElement;
                 dataCasesMap.putAll(getDataCase(next));
-                DataCaseProcessor.parseDataCases(next);
+                DataCaseProcessor.parseDataCases(next, keyMap);
             }
         }
         dataSuite.setDataCases(dataCasesMap);
@@ -216,6 +270,11 @@ public class DatacaseReader {
         }
 
         return dataCaseMap;
+    }
+
+    private Document loadKeyDocument(String fileName) throws FileNotFoundException, DocumentException {
+        SAXReader reader = new SAXReader();
+        return reader.read(new FileInputStream(fileName));
     }
 
     private Document loadDocument(String fileName) {

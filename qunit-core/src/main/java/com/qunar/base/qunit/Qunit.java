@@ -85,7 +85,7 @@ public class Qunit extends ParentRunner<TestSuiteRunner> {
         List<DataSuite> suites = null;
         if (CollectionUtils.isNotEmpty(dataFiles)){
             DatacaseReader datacaseReader = new DatacaseReader();
-            suites = datacaseReader.getSuites(dataFiles);
+            suites = datacaseReader.getSuites(dataFiles, options.keyFile());
             datacaseReader.processDataSuite(suites);
         }
 
@@ -218,6 +218,8 @@ public class Qunit extends ParentRunner<TestSuiteRunner> {
         String[] dsl() default "";
 
         String[] dataFiles() default "";
+
+        String keyFile() default "cases/key.xml";
 
         Operation operation() default Operation.CLEAR_INSERT;
     }

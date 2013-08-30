@@ -69,7 +69,7 @@ public class Context {
             expression = StringUtils.replace(expression,replacedPart,o.toString());
         }
         if (expression != null && expression.startsWith("$")){
-            expression = "null";
+            expression = "[null]";
         }
         return expression;
     }

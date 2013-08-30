@@ -86,6 +86,10 @@ public class QunitOptions {
         return this.options.service();
     }
 
+    public String keyFile(){
+        return this.options.keyFile();
+    }
+
     public List<String> dslFile() {
         return getTestFiles(this.options.dsl());
     }
