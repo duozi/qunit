@@ -44,7 +44,7 @@ public class QunitOptions {
         if (StringUtils.isNotBlank(statuss)){
             return Arrays.asList(StringUtils.split(statuss, ","));
         }
-        return Arrays.asList(this.options.levels());
+        return Arrays.asList(this.options.statuss());
     }
 
     public String ids() {

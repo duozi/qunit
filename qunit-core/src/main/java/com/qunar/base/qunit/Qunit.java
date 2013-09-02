@@ -84,9 +84,12 @@ public class Qunit extends ParentRunner<TestSuiteRunner> {
 
         List<DataSuite> suites = null;
         if (CollectionUtils.isNotEmpty(dataFiles)){
+            List<String> levels = options.levels();
+            List<String> statuss = options.statuss();
+
             DatacaseReader datacaseReader = new DatacaseReader();
             suites = datacaseReader.getSuites(dataFiles, options.keyFile());
-            datacaseReader.processDataSuite(suites);
+            datacaseReader.processDataSuite(suites, levels, statuss);
         }
 
         List<String> dslFiles = options.dslFile();

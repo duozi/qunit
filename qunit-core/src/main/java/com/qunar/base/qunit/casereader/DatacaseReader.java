@@ -46,20 +46,22 @@ public class DatacaseReader {
         return testSuites;
     }
 
-    private List<TestCase> convertDataCaseToTestCase(Map<String, DataCase> dataCases){
+    private List<TestCase> convertDataCaseToTestCase(Map<String, DataCase> dataCases) {
         List<TestCase> testCases = new ArrayList<TestCase>();
         Iterator iterator = dataCases.entrySet().iterator();
-        while (iterator.hasNext()){
-            Map.Entry<String, DataCase> entry = (Map.Entry<String, DataCase>)iterator.next();
+        while (iterator.hasNext()) {
+            Map.Entry<String, DataCase> entry = (Map.Entry<String, DataCase>) iterator.next();
             DataCase dataCase = entry.getValue();
-            TestCase testCase = new TestCase();
-            testCase.setId(dataCase.getId());
-            testCase.setDesc(dataCase.getDesc());
-            List<StepCommand> commands = CommandFactory.getInstance().getDataCommands(dataCase.getCaseChain());
-            testCase.setBodyCommand(getBodyCommand(filterBodyCommand(commands)));
-            testCases.add(testCase);
+            List<DataCase> caseChainList = dataCase.getCaseChain();
+            if (caseChainList != null) {
+                TestCase testCase = new TestCase();
+                testCase.setId(dataCase.getId());
+                testCase.setDesc(dataCase.getDesc());
+                List<StepCommand> commands = CommandFactory.getInstance().getDataCommands(caseChainList);
+                testCase.setBodyCommand(getBodyCommand(filterBodyCommand(commands)));
+                testCases.add(testCase);
+            }
         }
-
         return testCases;
     }
 
@@ -113,11 +115,11 @@ public class DatacaseReader {
         return dataSuite;
     }
 
-    public void processDataSuite(List<DataSuite> suites){
+    public void processDataSuite(List<DataSuite> suites, List<String> levels, List<String> statuss){
         Map<String, DataCase> allDataCaseMap = getAllDataCaseMap(suites);
 
         for (DataSuite dataSuite : suites){
-            addFollowCase(dataSuite, allDataCaseMap);
+            addFollowCase(dataSuite, allDataCaseMap, levels, statuss);
         }
     }
 
@@ -184,11 +186,15 @@ public class DatacaseReader {
         }
     }
 
-    private void addFollowCase(DataSuite dataSuite, Map<String, DataCase> allDataCaseMap){
+    private void addFollowCase(DataSuite dataSuite, Map<String, DataCase> allDataCaseMap, List<String> levels, List<String> statuss){
         Map<String, DataCase> dataCases = dataSuite.getDataCases();
         Iterator iterator = dataCases.entrySet().iterator();
         while (iterator.hasNext()){
             Map.Entry<String, DataCase> entry = (Map.Entry<String, DataCase>)iterator.next();
+            DataCase dataCase = entry.getValue();
+            if (!checkLevelAndStatus(levels, statuss, dataCase.getLevel(), dataCase.getStatus())){
+                continue;
+            }
             List<String> idList = getFollowId(entry, allDataCaseMap);
             setCaseChain(entry, allDataCaseMap, idList);
         }
@@ -201,6 +207,20 @@ public class DatacaseReader {
         }
         entry.getValue().setCaseChain(caseChain);
     }
+
+    private boolean checkLevelAndStatus(List<String> levels, List<String> statuss, String level, String status){
+        if (levels.contains("*") && statuss.contains("*")){
+            return true;
+        } else if (levels.contains("*") && statuss.contains(status)){
+            return true;
+        } else if (levels.contains(level) && statuss.contains("*")){
+            return true;
+        } else if (levels.contains(level) || statuss.contains(status)){
+            return true;
+        }
+        return false;
+    }
+
 
     private List<String> getFollowId(Map.Entry<String, DataCase> entry, Map<String, DataCase> allDataCaseMap){
         List<String> idList = new ArrayList<String>();
