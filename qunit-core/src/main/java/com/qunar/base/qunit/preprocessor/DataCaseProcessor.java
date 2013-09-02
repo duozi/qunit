@@ -2,6 +2,7 @@ package com.qunar.base.qunit.preprocessor;
 
 import com.qunar.base.qunit.model.KeyValueStore;
 import com.qunar.base.qunit.util.MapUtils;
+import com.qunar.base.qunit.util.PropertyUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.dom4j.Attribute;
@@ -238,7 +239,7 @@ public class DataCaseProcessor {
         Iterator iterator = listMap.entrySet().iterator();
         while (iterator.hasNext()){
             Map.Entry<String, List<String>> entry = (Map.Entry<String, List<String>>) iterator.next();
-            String value = StringUtils.join(entry.getValue(), "%");
+            String value = StringUtils.join(entry.getValue(), PropertyUtils.getProperty("join_split_process_data_char", "%#"));
             stringMap.put(entry.getKey(), value);
         }
         return stringMap;

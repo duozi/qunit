@@ -4,6 +4,7 @@ import com.qunar.base.qunit.annotation.Element;
 import com.qunar.base.qunit.command.StepCommand;
 import com.qunar.base.qunit.config.StepConfig;
 import com.qunar.base.qunit.model.KeyValueStore;
+import org.apache.commons.collections.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,19 +32,48 @@ public class DSLCommandConfig extends StepConfig {
         if (dslCommandDesc == null && !"data".equalsIgnoreCase(commandName)) {
             throw new RuntimeException("未定义的DSL命令: " + commandName);
         }
-        List<StepCommand> commands = createCommands(dslCommandDesc.children());
+        List<StepCommand> commands = createCommands(dslCommandDesc.children(), false);
         return new DSLCommand(dslCommandDesc, params, commands);
     }
 
-    private List<StepCommand> createCommands(List<StepConfig> stepConfigs) {
+    public StepCommand createCommand(boolean followed){
+        DSLCommandDesc dslCommandDesc = DSLMAPPING.get(commandName);
+        if (dslCommandDesc == null && !"data".equalsIgnoreCase(commandName)) {
+            throw new RuntimeException("未定义的DSL命令: " + commandName);
+        }
+        List<StepCommand> commands = createCommands(dslCommandDesc.children(), followed);
+        return new DSLCommand(dslCommandDesc, params, commands);
+    }
+
+    private List<StepCommand> createCommands(List<StepConfig> stepConfigs, boolean followed) {
         List<StepCommand> commands = new ArrayList<StepCommand>();
         for (StepConfig config : stepConfigs) {
             if ("data".equalsIgnoreCase(config.getCommandName())){
                 continue;
             }
-            StepCommand command = config.createCommand().cloneCommand();
+            if ((config instanceof DSLCommandConfig) && followed && checkFollow(((DSLCommandConfig) config).params)){
+                continue;
+            }
+            StepCommand command = null;
+            if ((config instanceof DSLCommandConfig)){
+                command = ((DSLCommandConfig) config).createCommand(followed).cloneCommand();
+            } else {
+                command = config.createCommand().cloneCommand();
+            }
             commands.add(command);
         }
         return commands;
+    }
+
+    private boolean checkFollow(List<KeyValueStore> params){
+        if (CollectionUtils.isEmpty(params)){
+            return false;
+        }
+        for (KeyValueStore kvs : params){
+            if ("notRunWhenFollowed".equalsIgnoreCase(kvs.getName()) && "true".equalsIgnoreCase((String) kvs.getValue())){
+                return true;
+            }
+        }
+        return false;
     }
 }

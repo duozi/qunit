@@ -211,6 +211,10 @@ public class Qunit extends ParentRunner<TestSuiteRunner> {
 
         String[] tags() default "*";
 
+        String[] levels() default "*";
+
+        String[] statuss() default "*";
+
         String ids() default "";
 
         String[] service() default "service.xml";

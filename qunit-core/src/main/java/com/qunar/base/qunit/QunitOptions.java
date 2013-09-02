@@ -31,6 +31,22 @@ public class QunitOptions {
         return Arrays.asList(this.options.tags());
     }
 
+    public List<String> levels(){
+        String levels = System.getProperty("levels");
+        if (StringUtils.isNotBlank(levels)){
+            return Arrays.asList(StringUtils.split(levels, ","));
+        }
+        return Arrays.asList(this.options.levels());
+    }
+
+    public List<String> statuss(){
+        String statuss = System.getProperty("statuss");
+        if (StringUtils.isNotBlank(statuss)){
+            return Arrays.asList(StringUtils.split(statuss, ","));
+        }
+        return Arrays.asList(this.options.levels());
+    }
+
     public String ids() {
         String ids = System.getProperty("ids");
         if (StringUtils.isNotBlank(ids)) {
