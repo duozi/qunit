@@ -31,19 +31,36 @@ public class DatacaseReader {
     protected final static Map<String, List<Object>> DATA_CASE_ID_CACHE = new HashMap<String, List<Object>>();
     protected final static Map<String, List<Object>> DATA_SUITE_ID_CACHE = new HashMap<String, List<Object>>();
 
-    public List<TestSuite> convertDataSuiteToTestSuite(List<DataSuite> dataSuites){
+    public List<TestSuite> convertDataSuiteToTestSuite(List<DataSuite> dataSuites, String ids){
         List<TestSuite> testSuites = new ArrayList<TestSuite>();
+        List<String> idsList = null;
+        if (StringUtils.isNotBlank(ids)){
+            idsList = Arrays.asList(StringUtils.split(ids, ","));
+        }
         for (DataSuite dataSuite : dataSuites){
             TestSuite testSuite = new TestSuite();
             testSuite.setId(dataSuite.getId());
             testSuite.setCaseFileName(dataSuite.getCaseFileName());
             testSuite.setDesc(dataSuite.getDesc());
             List<TestCase> testCases = convertDataCaseToTestCase(dataSuite.getDataCases());
-            testSuite.setTestCases(testCases);
+            if (idsList != null){
+                testSuite.setTestCases(filter(testCases, idsList));
+            } else {
+                testSuite.setTestCases(testCases);
+            }
             testSuites.add(testSuite);
         }
-
         return testSuites;
+    }
+
+    private List<TestCase> filter(List<TestCase> testCases, List<String> idsList) {
+        List<TestCase> needRerun = new ArrayList<TestCase>();
+        for (TestCase testCase : testCases) {
+            if (idsList.contains(testCase.getId())) {
+                needRerun.add(testCase);
+            }
+        }
+        return needRerun;
     }
 
     private List<TestCase> convertDataCaseToTestCase(Map<String, DataCase> dataCases) {

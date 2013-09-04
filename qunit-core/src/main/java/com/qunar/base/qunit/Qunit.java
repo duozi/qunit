@@ -187,7 +187,7 @@ public class Qunit extends ParentRunner<TestSuiteRunner> {
             }
         }
         if (dataSuites != null){
-            suites.addAll(new DatacaseReader().convertDataSuiteToTestSuite(dataSuites));
+            suites.addAll(new DatacaseReader().convertDataSuiteToTestSuite(dataSuites, this.options.ids()));
         }
         Collections.sort(suites);
         for (TestSuite suite : suites) {
