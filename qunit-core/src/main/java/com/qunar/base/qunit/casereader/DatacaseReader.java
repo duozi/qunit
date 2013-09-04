@@ -201,9 +201,6 @@ public class DatacaseReader {
     }
 
     private void setCaseChain(Map.Entry<String, DataCase> entry, Map<String, DataCase> allDataCaseMap, List<String> idList){
-        if (idList == null){
-            return;
-        }
         List<DataCase> caseChain = new ArrayList<DataCase>();
         for (int i = idList.size() - 1; i >= 0; i--){
             caseChain.add(allDataCaseMap.get(idList.get(i)));
@@ -226,9 +223,6 @@ public class DatacaseReader {
 
 
     private List<String> getFollowId(Map.Entry<String, DataCase> entry, Map<String, DataCase> allDataCaseMap){
-        if (entry == null || allDataCaseMap == null){
-            return null;
-        }
         List<String> idList = new ArrayList<String>();
         idList.add(entry.getKey());
         DataCase dataCase = entry.getValue();
@@ -236,6 +230,9 @@ public class DatacaseReader {
         while (follow != null){
             idList.add(follow);
             dataCase = allDataCaseMap.get(follow);
+            if (dataCase == null){
+                throw new RuntimeException("case [" + entry.getKey() + "] 依赖的case [" + follow + "]未定义");
+            }
             follow = dataCase.getFollow();
         }
 
