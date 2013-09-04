@@ -6,7 +6,6 @@ package com.qunar.base.qunit.transport.rpc;
 
 import com.alibaba.dubbo.config.ApplicationConfig;
 import com.alibaba.dubbo.config.ReferenceConfig;
-import com.qunar.base.qunit.transport.exception.InitRpcServiceException;
 import com.qunar.base.qunit.transport.model.ServiceDesc;
 import com.qunar.base.qunit.util.PropertyUtils;
 import com.qunar.base.qunit.util.ReflectionUtils;
@@ -38,7 +37,9 @@ public class RpcServiceFactory {
                 ReferenceConfig<?> reference = new ReferenceConfig();
                 reference.setApplication(application);
                 reference.setInterface(interfaceClass);
-                reference.setVersion(serviceDesc.getVersion());
+                if (StringUtils.isNotBlank(serviceDesc.getVersion()) && !serviceDesc.getVersion().equals("*")) {
+                    reference.setVersion(serviceDesc.getVersion());
+                }
                 reference.setUrl(rpcUrl);
                 if (StringUtils.isNotBlank(serviceDesc.getGroup())) {
                     reference.setGroup(serviceDesc.getGroup());

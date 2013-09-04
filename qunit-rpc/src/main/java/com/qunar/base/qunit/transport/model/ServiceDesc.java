@@ -58,8 +58,8 @@ public class ServiceDesc {
         sb.append("interface=")
                 .append(className)
                 .append("&");
-        if (StringUtils.isNotBlank(version)) {
-            sb.append("version=").append(version).append("&");
+        if (StringUtils.isNotBlank(getVersion())) {
+            sb.append("version=").append(getVersion()).append("&");
         }
         if (StringUtils.isNotBlank(group)) {
             sb.append("group=").append(group).append("&");
