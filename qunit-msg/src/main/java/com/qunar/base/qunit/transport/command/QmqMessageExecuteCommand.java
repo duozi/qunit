@@ -100,7 +100,7 @@ public class QmqMessageExecuteCommand extends ExecuteCommand {
 
     @Override
     public String toReport() {
-        return String.format("给%s发送qmq消息，subject: %s, consumer group: %s",
+        return String.format("给%s发送qmq消息，subject: %s",
                 PropertyUtils.getProperty("test.env", "dev"),
                 subject);
     }
