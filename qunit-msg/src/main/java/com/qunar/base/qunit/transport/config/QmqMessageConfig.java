@@ -13,14 +13,8 @@ public class QmqMessageConfig extends ServiceConfig {
     @Property
     private String subject;
 
-    @Property
-    private String consumerGroup;
-
-    @Property
-    private String host;
-
     @Override
     public ExecuteCommand createCommand() {
-        return new QmqMessageExecuteCommand(this.id, this.desc, subject, consumerGroup, host);
+        return new QmqMessageExecuteCommand(this.id, this.desc, subject);
     }
 }

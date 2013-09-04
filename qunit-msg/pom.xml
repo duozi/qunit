@@ -27,6 +27,16 @@
             <artifactId>qunit-rpc</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>qunar.tc</groupId>
+            <artifactId>common-zookeeper</artifactId>
+            <version>1.0.5</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.1</version>
+        </dependency>
     </dependencies>
 
 
