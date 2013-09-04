@@ -2,12 +2,14 @@ package com.qunar.base.qunit.transport.command;
 
 import com.qunar.base.qunit.model.KeyValueStore;
 import com.qunar.base.qunit.model.ServiceDesc;
-import com.qunar.base.qunit.objectfactory.BeanUtils;
 import com.qunar.base.qunit.response.Response;
 import com.qunar.base.qunit.transport.rpc.RpcServiceFactory;
 import com.qunar.base.qunit.util.ReflectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import qunar.tc.qmq.Message;
+import qunar.tc.qmq.MessageProducer;
+import qunar.tc.qmq.producer.MessageProducerProvider;
 import qunar.tc.qmq.service.ConsumerMessageHandler;
 
 import java.lang.reflect.InvocationTargetException;
@@ -26,6 +28,8 @@ public class QmqMessageExecuteCommand extends ExecuteCommand {
     private final String consumerGroup;
     private final String host;
 
+    private final MessageProducer producer = new MessageProducerProvider("l-zk1.plat.dev.cn6.qunar.com:2181");
+
     public QmqMessageExecuteCommand(String id, String desc, String subject, String consumerGroup, String host) {
         super(id, desc);
         this.subject = subject;
@@ -42,8 +46,11 @@ public class QmqMessageExecuteCommand extends ExecuteCommand {
                             "handle", host, "1.2.0", "");
             Object service = RpcServiceFactory.getRpcService(desc);
             Method executeMethod = ReflectionUtils.getMethod(desc.getMethod(), desc.getServiceClass());
-            Object result = executeMethod.invoke(service,
-                    BeanUtils.getParameters(params, executeMethod.getGenericParameterTypes()));
+            Message message = producer.generateMessage(subject);
+            for (KeyValueStore param : params) {
+                message.setProperty(param.getName(), param.getValue().toString());
+            }
+            Object result = executeMethod.invoke(service, message);
             response.setBody(result);
         } catch (IllegalAccessException e) {
             throw new RuntimeException("illegal access", e);
