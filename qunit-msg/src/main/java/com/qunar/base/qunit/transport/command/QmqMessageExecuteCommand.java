@@ -66,6 +66,7 @@ public class QmqMessageExecuteCommand extends ExecuteCommand {
             String prefix = entry.getKey();
             for (Group group : entry.getValue()) {
                 Endpoint endpoint = loadBalance.select(group);
+                if (endpoint == null) continue;
                 URL url = endpoint.getUrl();
                 String host = url.getHost() + ":" + url.getPort();
                 sendMessage(host, prefix, params, group);
