@@ -105,11 +105,11 @@ public class DatacaseReader {
         return command == null || !(command instanceof TearDownStepCommand);
     }
 
-    public List<DataSuite> getSuites(List<String> files, String keyFile) throws FileNotFoundException {
+    public List<DataSuite> getSuites(List<String> files, String keyFile, Map<String, Set<String>> dslParamMap) throws FileNotFoundException {
         List<DataSuite> suites = new ArrayList<DataSuite>(files.size());
         Map<String, String> keyMap = parseKeyFile(keyFile);
         for (String file : files) {
-            DataSuite dataSuite = readDataCase(file, keyMap);
+            DataSuite dataSuite = readDataCase(file, keyMap, dslParamMap);
             if (dataSuite == null) continue;
             if (!dataSuite.getDataCases().isEmpty()){
                 suites.add(dataSuite);
@@ -119,7 +119,7 @@ public class DatacaseReader {
         return suites;
     }
 
-    private DataSuite readDataCase(String fileName, Map<String, String> keyMap) throws FileNotFoundException {
+    private DataSuite readDataCase(String fileName, Map<String, String> keyMap, Map<String, Set<String>> dslParamMap) throws FileNotFoundException {
         threadLocal.set(fileName);
         Document document = loadDocument(fileName);
         if (document == null) {
@@ -127,7 +127,7 @@ public class DatacaseReader {
             return null;
         }
 
-        DataSuite dataSuite = getDataCases(document, keyMap);
+        DataSuite dataSuite = getDataCases(document, keyMap, dslParamMap);
         setCaseFileName(dataSuite, fileName);
         return dataSuite;
     }
@@ -267,7 +267,7 @@ public class DatacaseReader {
         return dataCaseMap;
     }
 
-    private DataSuite getDataCases(Document document, Map<String, String> keyMap){
+    private DataSuite getDataCases(Document document, Map<String, String> keyMap, Map<String, Set<String>> dslParamMap){
         DataSuite dataSuite = new DataSuite();
         Element rootElement = document.getRootElement();
         Map<String, String> attributeMap = DataCaseProcessor.getAttributeMap(rootElement);
@@ -282,7 +282,7 @@ public class DatacaseReader {
             for (Object caseElement : caseElements) {
                 Element next = (Element) caseElement;
                 dataCasesMap.putAll(getDataCase(next));
-                DataCaseProcessor.parseDataCases(next, keyMap);
+                DataCaseProcessor.parseDataCases(next, keyMap, dslParamMap);
             }
         }
         dataSuite.setDataCases(dataCasesMap);

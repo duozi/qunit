@@ -15,10 +15,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.net.URL;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 /**
  * User: zhaohuiyu
@@ -33,18 +31,13 @@ public class DSLCommandReader {
             return;
         }
         for (String fileName : fileNames){
-            if (StringUtils.isBlank(fileName)) return;
+            if (StringUtils.isBlank(fileName)) continue;
             init(fileName, reporter);
         }
     }
 
     private void init(String fileName, Reporter reporter) {
         try {
-            /*URL url = this.getClass().getClassLoader().getResource(fileName);
-            if (url == null) {
-                logger.error("指定的DSL命令配置文件不存在", fileName);
-                return;
-            }*/
             Document document = load(fileName);
             initCommands(document, reporter);
         } catch (FileNotFoundException e) {

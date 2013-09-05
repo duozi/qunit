@@ -11,6 +11,7 @@ import com.qunar.base.qunit.casereader.DatacaseReader;
 import com.qunar.base.qunit.casereader.Dom4jCaseReader;
 import com.qunar.base.qunit.context.Context;
 import com.qunar.base.qunit.dsl.DSLCommandReader;
+import com.qunar.base.qunit.dsl.DSLParamParse;
 import com.qunar.base.qunit.intercept.InterceptorFactory;
 import com.qunar.base.qunit.intercept.StepCommandInterceptor;
 import com.qunar.base.qunit.model.*;
@@ -88,12 +89,11 @@ public class Qunit extends ParentRunner<TestSuiteRunner> {
             List<String> statuss = options.statuss();
 
             DatacaseReader datacaseReader = new DatacaseReader();
-            suites = datacaseReader.getSuites(dataFiles, options.keyFile());
+            suites = datacaseReader.getSuites(dataFiles, options.keyFile(), new DSLParamParse().read(options.dslFile()));
             datacaseReader.processDataSuite(suites, levels, statuss);
         }
 
-        List<String> dslFiles = options.dslFile();
-        new DSLCommandReader().read(dslFiles, qjsonReporter);
+        new DSLCommandReader().read(options.dslFile(), qjsonReporter);
 
         ServiceFactory.getInstance().init(options.serviceConfig(), qjsonReporter);
         Environment.initEnvironment(testClass);

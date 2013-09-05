@@ -20,7 +20,7 @@ public class DataCaseProcessor {
 
     public final static Map<String, Map<String, Map<String, String>>> dataCasesMap = new HashMap<String, Map<String, Map<String, String>>>();
 
-    public static void parseDataCases(Element element, Map<String, String> keyMap) {
+    public static void parseDataCases(Element element, Map<String, String> keyMap, Map<String, Set<String>> dslParamMap) {
         Map<String, String> attributeMap = getAttributeMap(element);
         Iterator iterator = element.elementIterator();
         Map<String, List<Map<String,String>>> defaultMap = null;
@@ -33,7 +33,7 @@ public class DataCaseProcessor {
             }else {
                 orginCaseDataMap = getData(row);
                 mergeMap(orginCaseDataMap, defaultMap, keyMap);
-                caseDataMap = processData(orginCaseDataMap);
+                caseDataMap = processData(orginCaseDataMap, dslParamMap);
 
                 Map<String, String> dataCaseAttributeMap = getAttributeMap(row);
                 String id = dataCaseAttributeMap.get("id");
@@ -180,15 +180,43 @@ public class DataCaseProcessor {
         return dataCaseMap;
     }
 
-    private static Map<String, String> processData(Map<String, List<Map<String, String>>> dataCaseMap){
+    private static Map<String, String> processData(Map<String, List<Map<String, String>>> dataCaseMap, Map<String, Set<String>> dslParamMap){
         Map<String, String> map = new HashMap<String, String>();
         Iterator iterator = dataCaseMap.entrySet().iterator();
         while (iterator.hasNext()){
             Map.Entry<String, List<Map<String, String>>> entry = (Map.Entry<String, List<Map<String, String>>>)iterator.next();
+            int count = entry.getValue() == null ? 0 : entry.getValue().size();
+            String name = entry.getKey();
             map.putAll(parseList(entry.getKey(), entry.getValue()));
+
+            processOtherParam(map, count, name, dslParamMap.get(name));
         }
 
         return map;
+    }
+
+    private static void processOtherParam(Map<String, String> map, int count, String name, Set<String> dslParamSet){
+        if (dslParamSet == null){
+            return;
+        }
+        Iterator iterator = dslParamSet.iterator();
+        while (iterator.hasNext()){
+            String param = (String) iterator.next();
+            String key = name + "." + param;
+            if (map.get(key) == null){
+                String value = generateValue(count);
+                map.put(key, value);
+            }
+        }
+
+    }
+
+    private static String generateValue(int count){
+        List<String> valueList = new ArrayList<String>();
+        for (int i = 0; i < count; i++){
+            valueList.add("[null]");
+        }
+        return StringUtils.join(valueList, PropertyUtils.getProperty("join_split_process_data_char", "%#"));
     }
 
     private static Map<String, String> parseList(String name, List<Map<String, String>> mapList){
