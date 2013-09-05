@@ -13,9 +13,6 @@
 
     <name>qunit-extension</name>
 
-    <dependencies>
-    </dependencies>
-
     <build>
         <finalName>qunit-extension</finalName>
     </build>

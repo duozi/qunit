@@ -38,6 +38,7 @@
         <xmluni.version>1.3</xmluni.version>
         <javassist.version>3.12.1.GA</javassist.version>
         <commonlang.version>2.6</commonlang.version>
+        <commonlang3.version>3.1</commonlang3.version>
         <guava.version>13.0.1</guava.version>
         <commonio.version>2.3</commonio.version>
         <tomcat-jdbc.version>7.0.42</tomcat-jdbc.version>
@@ -50,10 +51,21 @@
         <hessian-3dparty.version>4.0.7-fixed</hessian-3dparty.version>
         <mysql.version>5.1.12</mysql.version>
         <postgresql.version>9.1-901-1.jdbc4</postgresql.version>
+        <qmq.version>1.2.7</qmq.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>qunit-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>qunit-rpc</artifactId>
+                <version>${project.version}</version>
+            </dependency>
             <dependency>
                 <groupId>commons-lang</groupId>
                 <artifactId>commons-lang</artifactId>
@@ -73,6 +85,11 @@
                 <groupId>log4j</groupId>
                 <artifactId>log4j</artifactId>
                 <version>${log4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>${commonlang3.version}</version>
             </dependency>
 
             <dependency>
@@ -197,6 +214,11 @@
                 <artifactId>postgresql</artifactId>
                 <version>${postgresql.version}</version>
                 <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>qunar.tc</groupId>
+                <artifactId>qmq-client</artifactId>
+                <version>${qmq.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

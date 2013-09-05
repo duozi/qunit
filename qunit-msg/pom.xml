@@ -13,19 +13,16 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.qunar.base</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>qunit-core</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>qunar.tc</groupId>
             <artifactId>qmq-client</artifactId>
-            <version>1.2.7</version>
         </dependency>
         <dependency>
-            <groupId>com.qunar.base</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>qunit-rpc</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>qunar.tc</groupId>
@@ -35,7 +32,6 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>3.1</version>
         </dependency>
     </dependencies>
 
