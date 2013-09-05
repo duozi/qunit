@@ -41,6 +41,9 @@ public class RpcExecuteCommand extends ExecuteCommand {
             response.setException(ite.getTargetException());
         } catch (IllegalAccessException e) {
             throw new RuntimeException("illegal access", e);
+        } catch (Exception e) {
+            logger.error("call rpc error", e);
+            response.setException(e);
         }
         return response;
     }
