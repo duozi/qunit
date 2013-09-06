@@ -12,7 +12,7 @@ import com.qunar.base.qunit.command.StepCommand;
  *
  * @author <a href="mailto:changjiang.tang@qunar.com">JarnTang</a>
  */
-public abstract class StepConfig {
+public abstract class StepConfig implements Cloneable{
 
     /*
     This is tricky
@@ -20,6 +20,17 @@ public abstract class StepConfig {
     protected String commandName;
 
     public abstract StepCommand createCommand();
+
+    public Object clone(){
+        StepConfig sc = null;
+        try {
+            sc = (StepConfig)super.clone();
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+        return sc;
+    }
+    //protected abstract StepConfig doClone();
 
     public String getCommandName() {
         return commandName;

@@ -1,6 +1,7 @@
 package com.qunar.base.qunit.dsl;
 
 import com.qunar.base.qunit.config.StepConfig;
+import com.qunar.base.qunit.util.CloneUtil;
 
 import java.util.List;
 import java.util.Map;
@@ -10,12 +11,12 @@ import java.util.Map;
  * Date: 2/20/13
  * Time: 4:40 PM
  */
-public class DSLCommandDesc {
-    private final String id;
-    private final String desc;
-    private final Boolean runOnce;
-    private final List<StepConfig> children;
-    private final Map<String, Map<String, String>> data;
+public class DSLCommandDesc implements Cloneable{
+    private  String id;
+    private  String desc;
+    private  Boolean runOnce;
+    private  List<StepConfig> children;
+    private  Map<String, Map<String, String>> data;
 
     public DSLCommandDesc(String id, String desc, Boolean runOnce, List<StepConfig> children, Map<String, Map<String, String>> data) {
         this.id = id;
@@ -43,5 +44,18 @@ public class DSLCommandDesc {
 
     public Map<String, Map<String, String>> data(){
         return data;
+    }
+
+    public Object clone(){
+        DSLCommandDesc dslCommandDesc = null;
+        try {
+            dslCommandDesc = (DSLCommandDesc) super.clone();
+        } catch (CloneNotSupportedException e) {
+
+        }
+
+        dslCommandDesc.children = CloneUtil.cloneStepConfig(children);
+
+        return dslCommandDesc;
     }
 }

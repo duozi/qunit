@@ -25,6 +25,8 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.*;
 
+import static com.qunar.base.qunit.util.XMLUtils.getAttributeMap;
+
 public class DatacaseReader {
     private final static Logger logger = LoggerFactory.getLogger(DatacaseReader.class);
     protected final static ThreadLocal<String> threadLocal = new ThreadLocal<String>();
@@ -270,7 +272,7 @@ public class DatacaseReader {
     private DataSuite getDataCases(Document document, Map<String, String> keyMap, Map<String, Set<String>> dslParamMap){
         DataSuite dataSuite = new DataSuite();
         Element rootElement = document.getRootElement();
-        Map<String, String> attributeMap = DataCaseProcessor.getAttributeMap(rootElement);
+        Map<String, String> attributeMap = getAttributeMap(rootElement);
         String suiteId = getId(attributeMap.get("id"));
         checkDuplicateId(suiteId, DATA_SUITE_ID_CACHE);
         dataSuite.setId(suiteId);
@@ -294,13 +296,13 @@ public class DatacaseReader {
     }
 
     private Map<String, DataCase> getDataCase(Element element) {
-        Map<String, String> attributeMap = DataCaseProcessor.getAttributeMap(element);
+        Map<String, String> attributeMap = getAttributeMap(element);
         Iterator iterator = element.elementIterator();
         Map<String, DataCase> dataCaseMap = new LinkedHashMap<String, DataCase>();
         while(iterator.hasNext()){
             Element row = (Element)iterator.next();
             if (!"default".equals(row.getName())){
-                Map<String, String> dataCaseAttributeMap = DataCaseProcessor.getAttributeMap(row);
+                Map<String, String> dataCaseAttributeMap = getAttributeMap(row);
                 String id = dataCaseAttributeMap.get("id");
                 checkDuplicateId(id, DATA_CASE_ID_CACHE);
                 String executor = attributeMap.get("executor");

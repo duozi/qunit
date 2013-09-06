@@ -4,6 +4,7 @@ import com.qunar.base.qunit.annotation.Element;
 import com.qunar.base.qunit.command.StepCommand;
 import com.qunar.base.qunit.config.StepConfig;
 import com.qunar.base.qunit.model.KeyValueStore;
+import com.qunar.base.qunit.util.CloneUtil;
 import org.apache.commons.collections.CollectionUtils;
 
 import java.util.ArrayList;
@@ -16,7 +17,7 @@ import java.util.Map;
  * Date: 2/18/13
  * Time: 7:28 PM
  */
-public class DSLCommandConfig extends StepConfig {
+public class DSLCommandConfig extends StepConfig implements Cloneable{
     private static Map<String, DSLCommandDesc> DSLMAPPING = new HashMap<String, DSLCommandDesc>();
 
     public static void map(String commandName, DSLCommandDesc dslCommandDesc) {
@@ -33,7 +34,7 @@ public class DSLCommandConfig extends StepConfig {
             throw new RuntimeException("未定义的DSL命令: " + commandName);
         }
         List<StepCommand> commands = createCommands(dslCommandDesc.children(), false);
-        return new DSLCommand(dslCommandDesc, params, commands);
+        return new DSLCommand((DSLCommandDesc) dslCommandDesc.clone(), CloneUtil.cloneKeyValueStore(params), commands);
     }
 
     public StepCommand createCommand(boolean followed){
@@ -42,7 +43,7 @@ public class DSLCommandConfig extends StepConfig {
             throw new RuntimeException("未定义的DSL命令: " + commandName);
         }
         List<StepCommand> commands = createCommands(dslCommandDesc.children(), followed);
-        return new DSLCommand(dslCommandDesc, params, commands);
+        return new DSLCommand((DSLCommandDesc) dslCommandDesc.clone(), CloneUtil.cloneKeyValueStore(params), commands);
     }
 
     private List<StepCommand> createCommands(List<StepConfig> stepConfigs, boolean followed) {
@@ -75,5 +76,12 @@ public class DSLCommandConfig extends StepConfig {
             }
         }
         return false;
+    }
+
+    public Object clone(){
+        DSLCommandConfig dslCommandConfig = null;
+        dslCommandConfig = (DSLCommandConfig) super.clone();
+        dslCommandConfig.params = CloneUtil.cloneKeyValueStore(params);
+        return dslCommandConfig;
     }
 }

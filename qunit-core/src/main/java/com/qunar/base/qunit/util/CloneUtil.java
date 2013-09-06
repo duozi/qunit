@@ -1,6 +1,7 @@
 package com.qunar.base.qunit.util;
 
 import com.qunar.base.qunit.command.StepCommand;
+import com.qunar.base.qunit.config.StepConfig;
 import com.qunar.base.qunit.model.KeyValueStore;
 
 import java.util.*;
@@ -43,6 +44,16 @@ public class CloneUtil {
         if (children != null) {
             for (StepCommand sc : children) {
                 result.add(sc.cloneCommand());
+            }
+        }
+        return result;
+    }
+
+    public static List<StepConfig> cloneStepConfig(List<StepConfig> children) {
+        List<StepConfig> result = new ArrayList<StepConfig>();
+        if (children != null){
+            for (StepConfig sc : children) {
+                result.add((StepConfig) sc.clone());
             }
         }
         return result;

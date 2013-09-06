@@ -1,14 +1,13 @@
 package com.qunar.base.qunit.preprocessor;
 
-import com.qunar.base.qunit.model.KeyValueStore;
-import com.qunar.base.qunit.util.MapUtils;
 import com.qunar.base.qunit.util.PropertyUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
-import org.dom4j.Attribute;
 import org.dom4j.Element;
 
 import java.util.*;
+
+import static com.qunar.base.qunit.util.XMLUtils.getAttributeMap;
 
 /**
  * User: zonghuang
@@ -77,9 +76,6 @@ public class DataCaseProcessor {
             caseMap.put(entry.getKey(), entry.getValue());
         } else {
             List<Map<String, String>> defaultList = entry.getValue();
-            /*if (defaultList != null && defaultList.size() > 1){
-                throw new RuntimeException("default中数据超过1条，请定义key");
-            }*/
             caseMap.put(entry.getKey(), replaceList(caseList, defaultList));
 
         }
@@ -290,42 +286,6 @@ public class DataCaseProcessor {
         trMap.putAll(getAttributeMap(trRow));
 
         return trMap;
-    }
-
-    private static Map<String, String> addPrefix(Map<String, String> original, String name){
-        Iterator iterator = original.entrySet().iterator();
-        Map<String, String> afterMap = new HashMap<String, String>();
-        while (iterator.hasNext()){
-            Map.Entry<String, String> entry = (Map.Entry<String, String>)iterator.next();
-            afterMap.put(name + "." + entry.getKey(), entry.getValue());
-        }
-
-        return afterMap;
-    }
-
-    private static List<KeyValueStore> getAttribute(Element element) {
-        List<KeyValueStore> attributes = new ArrayList<KeyValueStore>();
-        Iterator iterator = element.attributeIterator();
-        while (iterator.hasNext()) {
-            Attribute attribute = (Attribute) iterator.next();
-            String attributeName = attribute.getName();
-            String attributeValue = attribute.getValue();
-            attributes.add(new KeyValueStore(attributeName, attributeValue));
-        }
-        return attributes;
-    }
-
-    public static Map<String, String> getAttributeMap(Element element) {
-        List<KeyValueStore> attribute = getAttribute(element);
-        return convertListKeyValueToMap(attribute);
-    }
-
-    private static Map<String, String> convertListKeyValueToMap(List<KeyValueStore> list) {
-        Map<String, String> map = new HashMap<String, String>();
-        for (KeyValueStore kvs : list) {
-            map.put(kvs.getName(), (String) kvs.getValue());
-        }
-        return map;
     }
 
     private static Map<String, String> copyMap(Map<String, String> srcMap){
