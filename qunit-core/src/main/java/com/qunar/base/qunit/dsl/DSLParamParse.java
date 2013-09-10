@@ -109,6 +109,9 @@ public class DSLParamParse {
     }
 
     private Map<String, Set<String>> mergeDef(Element document, Map<String, Set<String>> wholeMap) {
+        if (wholeMap == null){
+            return Collections.EMPTY_MAP;
+        }
         Iterator iterator = document.elementIterator();
         Set<String> resultSet = new HashSet<String>();
         while (iterator.hasNext()){
