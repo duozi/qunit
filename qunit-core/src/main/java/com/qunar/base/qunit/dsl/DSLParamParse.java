@@ -77,49 +77,16 @@ public class DSLParamParse {
         return paramSet;
     }
 
-    public Map<String, Set<String>> getParamMap(List<String> fileNames, String executor, Map<String, Set<String>> wholeMap){
-        if (CollectionUtils.isEmpty(fileNames) || StringUtils.isBlank(executor)) {
+    public Map<String, Set<String>> getParamMap(String executor, Map<String, Set<String>> wholeMap){
+        if (StringUtils.isBlank(executor) || wholeMap == null) {
             return Collections.emptyMap();
         }
-        for (String fileName : fileNames) {
-            if (StringUtils.isBlank(fileName)) continue;
-            try {
-                Document document = load(fileName);
-                return mergeDsl(document, executor, wholeMap);
-            } catch (FileNotFoundException e) {
-                logger.error("指定的DSL命令配置文件不存在", fileName, e);
-            } catch (DocumentException e) {
-                logger.error("DSL命令定义文件格式错误，是非法的xml文档,file={}", fileName, e);
-            }
+        Set<String> paramSet = wholeMap.get(executor);
+        if (paramSet == null) {
+            throw new RuntimeException("DSL " + executor + "不存在");
         }
 
-        return Collections.EMPTY_MAP;
-    }
-
-    private Map<String, Set<String>> mergeDsl(Document document, String executor, Map<String, Set<String>> wholeMap) {
-        Iterator iterator = document.getRootElement().elementIterator();
-        while (iterator.hasNext()){
-            Element element = (Element) iterator.next();
-            Map<String, String> attribute = XMLUtils.getAttributeMap(element);
-            if (executor.equals(attribute.get("id"))){
-                return mergeDef(element, wholeMap);
-            }
-        }
-        return Collections.EMPTY_MAP;
-    }
-
-    private Map<String, Set<String>> mergeDef(Element document, Map<String, Set<String>> wholeMap) {
-        if (wholeMap == null){
-            return Collections.EMPTY_MAP;
-        }
-        Iterator iterator = document.elementIterator();
-        Set<String> resultSet = new HashSet<String>();
-        while (iterator.hasNext()){
-            Element element = (Element) iterator.next();
-            resultSet.addAll(wholeMap.get(element.getName()));
-        }
-
-        return processParams(resultSet);
+        return processParams(paramSet);
     }
 
     private Map<String, Map<String, Set<String>>> processDsl(Document document) {

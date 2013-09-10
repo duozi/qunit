@@ -37,7 +37,7 @@ public class DataCaseProcessor {
                 String id = dataCaseAttributeMap.get("id");
                 String executor = attributeMap.get("executor");
 
-                Map<String, Set<String>> dslParamMap = dslParamParse.getParamMap(dslFiles, executor, dslParamParse.read(dslFiles));
+                Map<String, Set<String>> dslParamMap = dslParamParse.getParamMap(executor, dslParamParse.read(dslFiles));
                 caseDataMap = processData(orginCaseDataMap, dslParamMap);
 
                 Map<String, Map<String, Object>> caseMap = new HashMap<String, Map<String, Object>>();
