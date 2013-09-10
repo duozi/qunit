@@ -71,7 +71,7 @@ public class DefineDSLCommand {
     @ChildrenConfig
     private List<StepConfig> children;
 
-    private Map<String, Map<String, String>> data;
+    private Map<String, Map<String, Object>> data;
 
     public void define(Reporter reporter) {
         DSLCommandDesc dslCommandDesc = new DSLCommandDesc(id, desc, Boolean.valueOf(runOnce), children, data);
@@ -85,11 +85,11 @@ public class DefineDSLCommand {
         return id;
     }
 
-    public Map<String, Map<String, String>> getData() {
+    public Map<String, Map<String, Object>> getData() {
         return data;
     }
 
-    public void setData(Map<String, Map<String, String>> data) {
+    public void setData(Map<String, Map<String, Object>> data) {
         this.data = data;
     }
 

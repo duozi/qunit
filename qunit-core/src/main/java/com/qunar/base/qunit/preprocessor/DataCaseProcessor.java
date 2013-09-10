@@ -1,8 +1,7 @@
 package com.qunar.base.qunit.preprocessor;
 
-import com.qunar.base.qunit.util.PropertyUtils;
+import com.qunar.base.qunit.dsl.DSLParamParse;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
 import org.dom4j.Element;
 
 import java.util.*;
@@ -17,14 +16,15 @@ public class DataCaseProcessor {
 
     private final static String DEFAULT = "default";
 
-    public final static Map<String, Map<String, Map<String, String>>> dataCasesMap = new HashMap<String, Map<String, Map<String, String>>>();
+    public final static Map<String, Map<String, Map<String, Object>>> dataCasesMap = new HashMap<String, Map<String, Map<String, Object>>>();
 
-    public static void parseDataCases(Element element, Map<String, String> keyMap, Map<String, Set<String>> dslParamMap) {
+    public static void parseDataCases(Element element, Map<String, String> keyMap, List<String> dslFiles) {
         Map<String, String> attributeMap = getAttributeMap(element);
         Iterator iterator = element.elementIterator();
         Map<String, List<Map<String,String>>> defaultMap = null;
         Map<String, List<Map<String,String>>> orginCaseDataMap = null;
-        Map<String, String> caseDataMap = null;
+        Map<String, Object> caseDataMap = null;
+        DSLParamParse dslParamParse = new DSLParamParse();
         while(iterator.hasNext()){
             Element row = (Element)iterator.next();
             if (DEFAULT.equals(row.getName())){
@@ -32,15 +32,18 @@ public class DataCaseProcessor {
             }else {
                 orginCaseDataMap = getData(row);
                 mergeMap(orginCaseDataMap, defaultMap, keyMap);
-                caseDataMap = processData(orginCaseDataMap, dslParamMap);
 
                 Map<String, String> dataCaseAttributeMap = getAttributeMap(row);
                 String id = dataCaseAttributeMap.get("id");
                 String executor = attributeMap.get("executor");
-                Map<String, Map<String, String>> caseMap = new HashMap<String, Map<String, String>>();
+
+                Map<String, Set<String>> dslParamMap = dslParamParse.getParamMap(dslFiles, executor, dslParamParse.read(dslFiles));
+                caseDataMap = processData(orginCaseDataMap, dslParamMap);
+
+                Map<String, Map<String, Object>> caseMap = new HashMap<String, Map<String, Object>>();
                 caseMap.put(id, caseDataMap);
 
-                Map<String, Map<String, String>> checkMap = dataCasesMap.get(executor);
+                Map<String, Map<String, Object>> checkMap = dataCasesMap.get(executor);
                 if (checkMap == null){
                     dataCasesMap.put(executor, caseMap);
                 } else{
@@ -176,8 +179,8 @@ public class DataCaseProcessor {
         return dataCaseMap;
     }
 
-    private static Map<String, String> processData(Map<String, List<Map<String, String>>> dataCaseMap, Map<String, Set<String>> dslParamMap){
-        Map<String, String> map = new HashMap<String, String>();
+    private static Map<String, Object> processData(Map<String, List<Map<String, String>>> dataCaseMap, Map<String, Set<String>> dslParamMap){
+        Map<String, Object> map = new HashMap<String, Object>();
         Iterator iterator = dataCaseMap.entrySet().iterator();
         while (iterator.hasNext()){
             Map.Entry<String, List<Map<String, String>>> entry = (Map.Entry<String, List<Map<String, String>>>)iterator.next();
@@ -188,10 +191,29 @@ public class DataCaseProcessor {
             processOtherParam(map, count, name, dslParamMap.get(name));
         }
 
-        return map;
+        return convertOneListToString(map);
     }
 
-    private static void processOtherParam(Map<String, String> map, int count, String name, Set<String> dslParamSet){
+    private static Map<String, Object> convertOneListToString(final Map<String, Object> map){
+        if (map == null){
+            return Collections.EMPTY_MAP;
+        }
+        Map<String, Object> newMap = new HashMap<String, Object>();
+        Iterator iterator = map.entrySet().iterator();
+        while (iterator.hasNext()){
+            Map.Entry<String, Object> entry = (Map.Entry<String, Object>) iterator.next();
+            List<String> list = (ArrayList)entry.getValue();
+            if (list.size() == 1){
+                newMap.put(entry.getKey(), list.get(0));
+            } else {
+                newMap.put(entry.getKey(), entry.getValue());
+            }
+        }
+
+        return newMap;
+    }
+
+    private static void processOtherParam(Map<String, Object> map, int count, String name, Set<String> dslParamSet){
         if (dslParamSet == null){
             return;
         }
@@ -200,22 +222,22 @@ public class DataCaseProcessor {
             String param = (String) iterator.next();
             String key = name + "." + param;
             if (map.get(key) == null){
-                String value = generateValue(count);
-                map.put(key, value);
+                List<String> valueList = generateValue(count);
+                map.put(key, valueList);
             }
         }
 
     }
 
-    private static String generateValue(int count){
+    private static List<String> generateValue(int count){
         List<String> valueList = new ArrayList<String>();
         for (int i = 0; i < count; i++){
             valueList.add("[null]");
         }
-        return StringUtils.join(valueList, PropertyUtils.getProperty("join_split_process_data_char", "%#"));
+        return valueList;
     }
 
-    private static Map<String, String> parseList(String name, List<Map<String, String>> mapList){
+    private static Map<String, List<String>> parseList(String name, List<Map<String, String>> mapList){
         Map<String, List<String>> map = new HashMap<String, List<String>>();
         if (CollectionUtils.isEmpty(mapList)){
             return null;
@@ -226,7 +248,7 @@ public class DataCaseProcessor {
         }
         checkNumber(map, mapList.size());
 
-        return convertListToString(map);
+        return map;
     }
 
     private static void checkNumber(Map<String, List<String>> map, int count){
@@ -256,18 +278,6 @@ public class DataCaseProcessor {
             valueList.add(entry.getValue());
             map.put(key, valueList);
         }
-    }
-
-    private static Map<String, String> convertListToString(Map<String, List<String>> listMap){
-        Map<String, String> stringMap = new HashMap<String, String>();
-        Iterator iterator = listMap.entrySet().iterator();
-        while (iterator.hasNext()){
-            Map.Entry<String, List<String>> entry = (Map.Entry<String, List<String>>) iterator.next();
-            String value = StringUtils.join(entry.getValue(), PropertyUtils.getProperty("join_split_process_data_char", "%#"));
-            stringMap.put(entry.getKey(), value);
-        }
-        return stringMap;
-
     }
 
     private static void addList(List<String> valueList, int index){

@@ -10,7 +10,7 @@ import org.dom4j.Element;
 
 public class DSLDataProcess {
 	
-	public final static Map<String, Map<String, Map<String, String>>> dataMap = new HashMap<String, Map<String, Map<String, String>>>();
+	public final static Map<String, Map<String, Map<String, Object>>> dataMap = new HashMap<String, Map<String, Map<String, Object>>>();
 
 	public final static String PARAM = "param";
 	
@@ -19,12 +19,12 @@ public class DSLDataProcess {
 	public void processData(String defId, Element instruction) {
 
 		Iterator iterator = instruction.elementIterator();
-		Map<String, Map<String, String>> trMap = new HashMap<String, Map<String, String>>();
+		Map<String, Map<String, Object>> trMap = new HashMap<String, Map<String, Object>>();
 		while (iterator.hasNext()) {
 			Element row = (Element) iterator.next();
 			if (TR.equals(row.getName())) {
 				String id = getId(row);
-				Map<String, String> rowMap = processRow(row);
+				Map<String, Object> rowMap = processRow(row);
 				trMap.put(id, rowMap);
 			}
 		}
@@ -33,9 +33,9 @@ public class DSLDataProcess {
 	}
 
 
-	private Map<String, String> processRow(Element trRow) {
+	private Map<String, Object> processRow(Element trRow) {
 		Iterator lineIterator = trRow.elementIterator();
-		Map<String, String> paramMap = new HashMap<String, String>();
+		Map<String, Object> paramMap = new HashMap<String, Object>();
 		while (lineIterator.hasNext()) {
 			Element row = (Element) lineIterator.next();
 			if (!PARAM.equals(row.getName())) {

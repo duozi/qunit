@@ -16,9 +16,9 @@ public class DSLCommandDesc implements Cloneable{
     private  String desc;
     private  Boolean runOnce;
     private  List<StepConfig> children;
-    private  Map<String, Map<String, String>> data;
+    private  Map<String, Map<String, Object>> data;
 
-    public DSLCommandDesc(String id, String desc, Boolean runOnce, List<StepConfig> children, Map<String, Map<String, String>> data) {
+    public DSLCommandDesc(String id, String desc, Boolean runOnce, List<StepConfig> children, Map<String, Map<String, Object>> data) {
         this.id = id;
         this.desc = desc;
         this.runOnce = runOnce;
@@ -42,7 +42,7 @@ public class DSLCommandDesc implements Cloneable{
         return children;
     }
 
-    public Map<String, Map<String, String>> data(){
+    public Map<String, Map<String, Object>> data(){
         return data;
     }
 

@@ -107,11 +107,11 @@ public class DatacaseReader {
         return command == null || !(command instanceof TearDownStepCommand);
     }
 
-    public List<DataSuite> getSuites(List<String> files, String keyFile, Map<String, Set<String>> dslParamMap) throws FileNotFoundException {
+    public List<DataSuite> getSuites(List<String> files, String keyFile, List<String> dslFiles) throws FileNotFoundException {
         List<DataSuite> suites = new ArrayList<DataSuite>(files.size());
         Map<String, String> keyMap = parseKeyFile(keyFile);
         for (String file : files) {
-            DataSuite dataSuite = readDataCase(file, keyMap, dslParamMap);
+            DataSuite dataSuite = readDataCase(file, keyMap, dslFiles);
             if (dataSuite == null) continue;
             if (!dataSuite.getDataCases().isEmpty()){
                 suites.add(dataSuite);
@@ -121,7 +121,7 @@ public class DatacaseReader {
         return suites;
     }
 
-    private DataSuite readDataCase(String fileName, Map<String, String> keyMap, Map<String, Set<String>> dslParamMap) throws FileNotFoundException {
+    private DataSuite readDataCase(String fileName, Map<String, String> keyMap, List<String> dslFiles) throws FileNotFoundException {
         threadLocal.set(fileName);
         Document document = loadDocument(fileName);
         if (document == null) {
@@ -129,7 +129,7 @@ public class DatacaseReader {
             return null;
         }
 
-        DataSuite dataSuite = getDataCases(document, keyMap, dslParamMap);
+        DataSuite dataSuite = getDataCases(document, keyMap, dslFiles);
         setCaseFileName(dataSuite, fileName);
         return dataSuite;
     }
@@ -234,7 +234,7 @@ public class DatacaseReader {
             return true;
         } else if (levels.contains(level) && statuss.contains("*")){
             return true;
-        } else if (levels.contains(level) || statuss.contains(status)){
+        } else if (levels.contains(level) && statuss.contains(status)){
             return true;
         }
         return false;
@@ -269,7 +269,7 @@ public class DatacaseReader {
         return dataCaseMap;
     }
 
-    private DataSuite getDataCases(Document document, Map<String, String> keyMap, Map<String, Set<String>> dslParamMap){
+    private DataSuite getDataCases(Document document, Map<String, String> keyMap, List<String> dslFiles){
         DataSuite dataSuite = new DataSuite();
         Element rootElement = document.getRootElement();
         Map<String, String> attributeMap = getAttributeMap(rootElement);
@@ -284,7 +284,7 @@ public class DatacaseReader {
             for (Object caseElement : caseElements) {
                 Element next = (Element) caseElement;
                 dataCasesMap.putAll(getDataCase(next));
-                DataCaseProcessor.parseDataCases(next, keyMap, dslParamMap);
+                DataCaseProcessor.parseDataCases(next, keyMap, dslFiles);
             }
         }
         dataSuite.setDataCases(dataCasesMap);

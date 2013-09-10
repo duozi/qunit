@@ -1,5 +1,6 @@
 package com.qunar.base.qunit.dsl;
 
+import com.qunar.base.qunit.command.CommandFactory;
 import com.qunar.base.qunit.util.XMLUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -26,17 +27,16 @@ public class DSLParamParse {
 
     private static final Pattern pattern = Pattern.compile("\\$\\{?([a-zA-Z0-9_\\.]*)\\}?");
 
-    private Map<String, Set<String>> paramMap = new HashMap<String, Set<String>>();
-
     public Map<String, Set<String>> read(List<String> fileNames) {
-        if (CollectionUtils.isEmpty(fileNames)){
+        if (CollectionUtils.isEmpty(fileNames)) {
             return Collections.emptyMap();
         }
-        for (String fileName : fileNames){
+        Map<String, Map<String, Set<String>>> paramMap = new HashMap<String, Map<String, Set<String>>>();
+        for (String fileName : fileNames) {
             if (StringUtils.isBlank(fileName)) continue;
             try {
                 Document document = load(fileName);
-                processDsl(document);
+                paramMap.putAll(processDsl(document));
             } catch (FileNotFoundException e) {
                 logger.error("指定的DSL命令配置文件不存在", fileName, e);
             } catch (DocumentException e) {
@@ -44,63 +44,171 @@ public class DSLParamParse {
             }
         }
 
+        return getFinallyMap(paramMap);
+    }
+
+    private Map<String, Set<String>> getFinallyMap(final Map<String, Map<String, Set<String>>> orginMap){
+        if (orginMap == null){
+            return Collections.EMPTY_MAP;
+        }
+        Map<String, Set<String>> paramMap = new HashMap<String, Set<String>>();
+        Iterator iterator = orginMap.entrySet().iterator();
+        while (iterator.hasNext()){
+            Map.Entry<String, Map<String, Set<String>>> entry = (Map.Entry<String, Map<String, Set<String>>>) iterator.next();
+            paramMap.put(entry.getKey(), getParamByDef(entry.getValue(), orginMap));
+        }
         return paramMap;
     }
 
-    private void processDsl(Document document){
-        Iterator elementIterator = document.getRootElement().elementIterator();
-        while (elementIterator.hasNext()){
-            Element defElement = (Element) elementIterator.next();
-            processDef(defElement);
+    private Set<String> getParamByDef(final Map<String, Set<String>> childMap, final Map<String, Map<String, Set<String>>> orginMap){
+        if (childMap == null){
+            return Collections.EMPTY_SET;
         }
-
-    }
-
-    private void processDef(Element document){
-        Iterator iterator = document.elementIterator();
+        Set<String> paramSet = new HashSet<String>();
+        Iterator iterator = childMap.entrySet().iterator();
         while (iterator.hasNext()){
-            Element element = (Element) iterator.next();
-            Map<String, String> attributeMap = XMLUtils.getAttributeMap(element);
-            Collection<String> values = attributeMap.values();
-            processParams(values);
-            if (StringUtils.isNotBlank(element.getTextTrim())){
-                processParam(element.getTextTrim());
-            } else{
-                processDef(element);
+            Map.Entry<String, Set<String>> entry = (Map.Entry<String, Set<String>>) iterator.next();
+            if (CommandFactory.getInstance().getConfig(entry.getKey()) == null){
+                paramSet.addAll(getParamByDef(orginMap.get(entry.getKey()), orginMap));
+            } else {
+                paramSet.addAll(entry.getValue());
             }
         }
+        return paramSet;
     }
 
-    private void processParams(Collection<String> values){
-        if (CollectionUtils.isEmpty(values)){
-            return;
+    public Map<String, Set<String>> getParamMap(List<String> fileNames, String executor, Map<String, Set<String>> wholeMap){
+        if (CollectionUtils.isEmpty(fileNames) || StringUtils.isBlank(executor)) {
+            return Collections.emptyMap();
         }
-        for (String value : values){
-            processParam(value);
+        for (String fileName : fileNames) {
+            if (StringUtils.isBlank(fileName)) continue;
+            try {
+                Document document = load(fileName);
+                return mergeDsl(document, executor, wholeMap);
+            } catch (FileNotFoundException e) {
+                logger.error("指定的DSL命令配置文件不存在", fileName, e);
+            } catch (DocumentException e) {
+                logger.error("DSL命令定义文件格式错误，是非法的xml文档,file={}", fileName, e);
+            }
         }
+
+        return Collections.EMPTY_MAP;
     }
 
-    private void processParam(String value){
-        if (StringUtils.isBlank(value)){
+    private Map<String, Set<String>> mergeDsl(Document document, String executor, Map<String, Set<String>> wholeMap) {
+        Iterator iterator = document.getRootElement().elementIterator();
+        while (iterator.hasNext()){
+            Element element = (Element) iterator.next();
+            Map<String, String> attribute = XMLUtils.getAttributeMap(element);
+            if (executor.equals(attribute.get("id"))){
+                return mergeDef(element, wholeMap);
+            }
+        }
+        return Collections.EMPTY_MAP;
+    }
+
+    private Map<String, Set<String>> mergeDef(Element document, Map<String, Set<String>> wholeMap) {
+        Iterator iterator = document.elementIterator();
+        Set<String> resultSet = new HashSet<String>();
+        while (iterator.hasNext()){
+            Element element = (Element) iterator.next();
+            resultSet.addAll(wholeMap.get(element.getName()));
+        }
+
+        return processParams(resultSet);
+    }
+
+    private Map<String, Map<String, Set<String>>> processDsl(Document document) {
+        Map<String, Map<String, Set<String>>> dslMap = new HashMap<String, Map<String, Set<String>>>();
+        Iterator elementIterator = document.getRootElement().elementIterator();
+        while (elementIterator.hasNext()) {
+            Element defElement = (Element) elementIterator.next();
+            Map<String, String> attributeMap = XMLUtils.getAttributeMap(defElement);
+            String id = attributeMap.get("id");
+            if (id == null){
+                throw new RuntimeException("DSL id不存在");
+            }
+            dslMap.put(id, processDef(defElement));
+        }
+
+        return dslMap;
+    }
+
+    private Map<String, Set<String>> processDef(Element document) {
+        Iterator iterator = document.elementIterator();
+        Map<String, Set<String>> defMap = new HashMap<String, Set<String>>();
+        while (iterator.hasNext()) {
+            Element element = (Element) iterator.next();
+            defMap.put(element.getName(), processUnit(element));
+        }
+
+        return defMap;
+    }
+
+    private Set<String> processUnit(Element document){
+        Set<String> defSet = new HashSet<String>();
+        Map<String, String> attributeMap = XMLUtils.getAttributeMap(document);
+        defSet.addAll(convertMapValueToSet(attributeMap));
+        if (StringUtils.isNotBlank(document.getTextTrim())) {
+            defSet.add(document.getTextTrim());
+        } else {
+            Iterator iterator = document.elementIterator();
+            while (iterator.hasNext()) {
+                Element element = (Element) iterator.next();
+                defSet.addAll(processUnit(element));
+            }
+        }
+        return defSet;
+    }
+
+    private Set<String> convertMapValueToSet(Map<String, String> map){
+        if (map == null){
+            return Collections.EMPTY_SET;
+        }
+        Set<String> paramSet = new HashSet<String>();
+        Iterator iterator = map.entrySet().iterator();
+        while (iterator.hasNext()){
+            Map.Entry<String, String> entry = (Map.Entry<String, String>) iterator.next();
+            paramSet.add(entry.getValue());
+
+        }
+        return paramSet;
+    }
+
+    private Map<String, Set<String>> processParams(Set<String> values) {
+        if (CollectionUtils.isEmpty(values)) {
+            return null;
+        }
+        Map<String, Set<String>> paramMap = new HashMap<String, Set<String>>();
+        for (String value : values) {
+            processParam(value, paramMap);
+        }
+
+        return paramMap;
+    }
+
+    private void processParam(String value, Map<String, Set<String>> defMap) {
+        if (StringUtils.isBlank(value)) {
             return;
         }
         Matcher matcher = pattern.matcher(value);
-        while (matcher.find()){
+        while (matcher.find()) {
             String matchResult = matcher.group(1);
             String[] array = StringUtils.split(matchResult, ".");
-            if (array.length == 2){
-                save(array[0], array[1]);
+            if (array.length == 2) {
+                save(array[0], array[1], defMap);
             }
         }
     }
 
-    private void save(String key, String value){
-        Set<String> valueSet = paramMap.get(key);
-        if (valueSet == null){
+    private void save(String key, String value, Map<String, Set<String>> defMap) {
+        Set<String> valueSet = defMap.get(key);
+        if (valueSet == null) {
             valueSet = new HashSet<String>();
         }
         valueSet.add(value);
-        paramMap.put(key, valueSet);
+        defMap.put(key, valueSet);
     }
 
     private Document load(String fileName) throws FileNotFoundException, DocumentException {

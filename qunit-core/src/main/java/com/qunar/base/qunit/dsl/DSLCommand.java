@@ -19,7 +19,7 @@ public class DSLCommand extends ParameterizedCommand {
 
     private DSLCommandDesc desc;
     private List<StepCommand> commands;
-    private Map<String, String> commandParam;
+    private Map<String, Object> commandParam;
 
     public DSLCommand(DSLCommandDesc desc, List<KeyValueStore> params, List<StepCommand> commands) {
         super(params);
@@ -36,8 +36,8 @@ public class DSLCommand extends ParameterizedCommand {
         }
         COMMADND_RUNRECORD.add(desc.id());
         Context childContext = new Context(context);
-        Map<String, Map<String, String>> staticDataMap = DSLDataProcess.dataMap.get(desc.id());
-        Map<String, Map<String, String>> dataMap = desc.data();
+        Map<String, Map<String, Object>> staticDataMap = DSLDataProcess.dataMap.get(desc.id());
+        Map<String, Map<String, Object>> dataMap = desc.data();
         for (KeyValueStore processedParam : processedParams) {
             childContext.addContext(processedParam.getName(), processedParam.getValue());
             if ("data".equals(processedParam.getName())){
@@ -76,11 +76,11 @@ public class DSLCommand extends ParameterizedCommand {
         return details;
     }
     
-    private void addContext(Map<String, Map<String, String>> dataMap, KeyValueStore processedParam, Context childContext){
+    private void addContext(Map<String, Map<String, Object>> dataMap, KeyValueStore processedParam, Context childContext){
         if (dataMap == null){
             return;
         }
-    	Map<String, String> keyValueMap = dataMap.get(processedParam.getValue());
+    	Map<String, Object> keyValueMap = dataMap.get(processedParam.getValue());
     	Iterator iterator = keyValueMap.entrySet().iterator();
     	while(iterator.hasNext()){
     		Map.Entry<String, String> entry = (Map.Entry<String, String>)iterator.next();
@@ -88,15 +88,15 @@ public class DSLCommand extends ParameterizedCommand {
     	}
     }
 
-    public Map<String, String> getCommandParam() {
+    public Map<String, Object> getCommandParam() {
         return commandParam;
     }
 
-    public void setCommandParam(Map<String, String> commandParam) {
+    public void setCommandParam(Map<String, Object> commandParam) {
         this.commandParam = commandParam;
     }
 
-    private List<KeyValueStore> convertMapToList(Map<String, String> map){
+    private List<KeyValueStore> convertMapToList(Map<String, Object> map){
         List<KeyValueStore> keyValueStores = new ArrayList<KeyValueStore>();
         Iterator iterator = map.entrySet().iterator();
         while (iterator.hasNext()){
