@@ -70,9 +70,8 @@ public class DSLParamParse {
             Map.Entry<String, Set<String>> entry = (Map.Entry<String, Set<String>>) iterator.next();
             if (CommandFactory.getInstance().getConfig(entry.getKey()) == null){
                 paramSet.addAll(getParamByDef(orginMap.get(entry.getKey()), orginMap));
-            } else {
-                paramSet.addAll(entry.getValue());
             }
+            paramSet.addAll(entry.getValue());
         }
         return paramSet;
     }
