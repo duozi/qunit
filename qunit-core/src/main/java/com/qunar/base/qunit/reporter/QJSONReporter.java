@@ -9,6 +9,7 @@ import com.qunar.autotest.CaseIdHolder;
 import com.qunar.base.qunit.command.CallStepCommand;
 import com.qunar.base.qunit.command.StepCommand;
 import com.qunar.base.qunit.context.Context;
+import com.qunar.base.qunit.dsl.DSLCommand;
 import com.qunar.base.qunit.dsl.DSLCommandDesc;
 import com.qunar.base.qunit.event.StepEventListener;
 import com.qunar.base.qunit.model.*;
@@ -204,17 +205,50 @@ public class QJSONReporter implements Reporter {
                     serviceDesc.addDuration(duration);
                 }
             }
-            Map<Object, Object> stepMap = new HashMap<Object, Object>();
             Map<String, Object> details = sc.toReport();
-            Map<String, Object> result = new HashMap<String, Object>();
-            result.put("duration", duration);
-            result.put("status", "failed");
-            if (e != null) {
-                result.put("error_message", e.getMessage());
+            if (details.get("dslReport") == null) {
+                Map<String, Object> result = new HashMap<String, Object>();
+                Map<Object, Object> stepMap = new HashMap<Object, Object>();
+                result.put("duration", duration);
+                result.put("status", "failed");
+                if (e != null) {
+                    result.put("error_message", e.getMessage());
+                }
+                append(details, stepMap, duration);
+                stepMap.put("result", result);
+                getSteps().add(stepMap);
+            } else {
+                List<Map<String, Object>> dslReprotList = (List<Map<String, Object>>) details.get("dslReport");
+                int count = dslReprotList.size();
+                for (int i = 0; i < count; i++) {
+                    Map<String, Object> result = new HashMap<String, Object>();
+                    Map<Object, Object> stepMap = new HashMap<Object, Object>();
+                    result.put("duration", duration);
+                    result.put("status", "passed");
+                    stepMap.put("result", result);
+                    append(dslReprotList.get(i), stepMap, duration);
+                    getSteps().add(stepMap);
+                }
+                Map<String, Object> reportMap = new HashMap<String, Object>();
+                StepCommand lastCommand = (StepCommand) details.get("currentCommand");
+                if (lastCommand instanceof DSLCommand){
+                    lastCommand = ((DSLCommand) lastCommand).getCurrentCommand();
+                    reportMap.put("stepName", ((DSLCommand) lastCommand).getDesc().desc());
+                }
+                reportMap.putAll(lastCommand.toReport());
+                Map<String, Object> result = new HashMap<String, Object>();
+                Map<Object, Object> stepMap = new HashMap<Object, Object>();
+                result.put("duration", duration);
+                result.put("status", "failed");
+                if (e != null) {
+                    result.put("error_message", e.getMessage());
+                }
+                stepMap.put("result", result);
+
+                append(reportMap, stepMap, duration);
+                getSteps().add(stepMap);
+                DSLCommand.reportList.clear();
             }
-            append(details, stepMap, duration);
-            stepMap.put("result", result);
-            getSteps().add(stepMap);
         }
 
         private void append(Map<String, Object> details, Map<Object, Object> stepMap, long duration) {
