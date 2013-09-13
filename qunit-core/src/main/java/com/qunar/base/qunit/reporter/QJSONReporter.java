@@ -275,14 +275,39 @@ public class QJSONReporter implements Reporter {
                     serviceDesc.addDuration(duration);
                 }
             }
-            Map<Object, Object> stepMap = new HashMap<Object, Object>();
+            /*Map<Object, Object> stepMap = new HashMap<Object, Object>();
             Map<String, Object> details = sc.toReport();
             Map<String, Object> result = new HashMap<String, Object>();
             result.put("duration", duration);
             result.put("status", "passed");
             stepMap.put("result", result);
             append(details, stepMap, duration);
-            getSteps().add(stepMap);
+            getSteps().add(stepMap);*/
+
+
+            Map<String, Object> details = sc.toReport();
+            if (details.get("dslReport") == null) {
+                Map<String, Object> result = new HashMap<String, Object>();
+                Map<Object, Object> stepMap = new HashMap<Object, Object>();
+                result.put("duration", duration);
+                result.put("status", "passed");
+                stepMap.put("result", result);
+                append(details, stepMap, duration);
+                getSteps().add(stepMap);
+            } else {
+                List<Map<String, Object>> dslReprotList = (List<Map<String, Object>>) details.get("dslReport");
+                int count = dslReprotList.size();
+                for (int i = 0; i < count; i++) {
+                    Map<String, Object> result = new HashMap<String, Object>();
+                    Map<Object, Object> stepMap = new HashMap<Object, Object>();
+                    result.put("duration", duration);
+                    result.put("status", "passed");
+                    stepMap.put("result", result);
+                    append(dslReprotList.get(i), stepMap, duration);
+                    getSteps().add(stepMap);
+                }
+                DSLCommand.reportList.clear();
+            }
         }
     }
 }
