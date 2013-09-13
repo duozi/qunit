@@ -50,9 +50,7 @@ public class DatacaseReader {
             } else {
                 testSuite.setTestCases(testCases);
             }
-            if (!testSuite.getTestCases().isEmpty()) {
-                testSuites.add(testSuite);
-            }
+            testSuites.add(testSuite);
         }
         return testSuites;
     }
