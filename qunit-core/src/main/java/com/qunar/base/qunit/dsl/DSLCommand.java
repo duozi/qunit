@@ -20,20 +20,6 @@ public class DSLCommand extends ParameterizedCommand {
     private DSLCommandDesc desc;
     private List<StepCommand> commands;
     private Map<String, Object> commandParam;
-    private StepCommand currentCommand;
-    public static List<Map<String, Object>> reportList = new ArrayList<Map<String, Object>>();
-
-    public void addReportList(Map<String, Object> map){
-        reportList.add(map);
-    }
-
-    public void setCurrentCommand(StepCommand currentCommand){
-        this.currentCommand = currentCommand;
-    }
-
-    public StepCommand getCurrentCommand(){
-        return currentCommand;
-    }
 
     public DSLCommand(DSLCommandDesc desc, List<KeyValueStore> params, List<StepCommand> commands) {
         super(params);
@@ -63,11 +49,7 @@ public class DSLCommand extends ParameterizedCommand {
             }
         }
         for (StepCommand child : commands) {
-            setCurrentCommand(child);
             response = child.doExecute(response, childContext);
-            if (!(child instanceof DSLCommand)) {
-                addReportList(child.toReport());
-            }
         }
         return response;
     }
@@ -83,18 +65,13 @@ public class DSLCommand extends ParameterizedCommand {
 
     @Override
     public Map<String, Object> toReport() {
-        /*Map<String, Object> details = new HashMap<String, Object>();
+        Map<String, Object> details = new HashMap<String, Object>();
         details.put("stepName", "执行:");
         details.put("name", desc.desc());
         if (commandParam != null){
             details.put("params", convertMapToList(getCommandParam()));
         } else {
             details.put("params", params);
-        }*/
-        Map<String, Object> details = new HashMap<String, Object>();
-        if (reportList != null){
-            details.put("dslReport", reportList);
-            details.put("currentCommand", getCurrentCommand());
         }
         return details;
     }
@@ -117,10 +94,6 @@ public class DSLCommand extends ParameterizedCommand {
 
     public void setCommandParam(Map<String, Object> commandParam) {
         this.commandParam = commandParam;
-    }
-
-    public DSLCommandDesc getDesc(){
-        return desc;
     }
 
     private List<KeyValueStore> convertMapToList(Map<String, Object> map){
