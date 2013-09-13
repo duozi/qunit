@@ -39,18 +39,20 @@ public class DatacaseReader {
         if (StringUtils.isNotBlank(ids)){
             idsList = Arrays.asList(StringUtils.split(ids, ","));
         }
-        for (DataSuite dataSuite : dataSuites){
+        for (DataSuite dataSuite : dataSuites) {
             TestSuite testSuite = new TestSuite();
             testSuite.setId(dataSuite.getId());
             testSuite.setCaseFileName(dataSuite.getCaseFileName());
             testSuite.setDesc(dataSuite.getDesc());
             List<TestCase> testCases = convertDataCaseToTestCase(dataSuite.getDataCases());
-            if (idsList != null){
+            if (idsList != null) {
                 testSuite.setTestCases(filter(testCases, idsList));
             } else {
                 testSuite.setTestCases(testCases);
             }
-            testSuites.add(testSuite);
+            if (!testSuite.getTestCases().isEmpty()) {
+                testSuites.add(testSuite);
+            }
         }
         return testSuites;
     }
