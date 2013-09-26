@@ -33,31 +33,34 @@ public class DSLCommandConfig extends StepConfig implements Cloneable{
         if (dslCommandDesc == null && !"data".equalsIgnoreCase(commandName)) {
             throw new RuntimeException("未定义的DSL命令: " + commandName);
         }
-        List<StepCommand> commands = createCommands(dslCommandDesc.children(), false);
+        List<StepCommand> commands = createCommands(dslCommandDesc.children(), false, false);
         return new DSLCommand((DSLCommandDesc) dslCommandDesc.clone(), CloneUtil.cloneKeyValueStore(params), commands);
     }
 
-    public StepCommand createCommand(boolean followed){
+    public StepCommand createCommand(boolean follow, boolean beFollowed){
         DSLCommandDesc dslCommandDesc = DSLMAPPING.get(commandName);
         if (dslCommandDesc == null && !"data".equalsIgnoreCase(commandName)) {
             throw new RuntimeException("未定义的DSL命令: " + commandName);
         }
-        List<StepCommand> commands = createCommands(dslCommandDesc.children(), followed);
+        List<StepCommand> commands = createCommands(dslCommandDesc.children(), follow, beFollowed);
         return new DSLCommand((DSLCommandDesc) dslCommandDesc.clone(), CloneUtil.cloneKeyValueStore(params), commands);
     }
 
-    private List<StepCommand> createCommands(List<StepConfig> stepConfigs, boolean followed) {
+    private List<StepCommand> createCommands(List<StepConfig> stepConfigs, boolean follow, boolean beFollowed) {
         List<StepCommand> commands = new ArrayList<StepCommand>();
         for (StepConfig config : stepConfigs) {
             if ("data".equalsIgnoreCase(config.getCommandName())){
                 continue;
             }
-            if ((config instanceof DSLCommandConfig) && followed && checkFollow(((DSLCommandConfig) config).params)){
+            if ((config instanceof DSLCommandConfig) && follow && checkFollow(((DSLCommandConfig) config).params, "notRunWhenFollow")){
+                continue;
+            }
+            if ((config instanceof DSLCommandConfig) && beFollowed && checkFollow(((DSLCommandConfig) config).params, "notRunWhenBeFollowed")){
                 continue;
             }
             StepCommand command = null;
             if ((config instanceof DSLCommandConfig)){
-                command = ((DSLCommandConfig) config).createCommand(followed).cloneCommand();
+                command = ((DSLCommandConfig) config).createCommand(follow, beFollowed).cloneCommand();
             } else {
                 command = config.createCommand().cloneCommand();
             }
@@ -66,12 +69,12 @@ public class DSLCommandConfig extends StepConfig implements Cloneable{
         return commands;
     }
 
-    private boolean checkFollow(List<KeyValueStore> params){
+    private boolean checkFollow(List<KeyValueStore> params, String keyWord){
         if (CollectionUtils.isEmpty(params)){
             return false;
         }
         for (KeyValueStore kvs : params){
-            if ("notRunWhenFollowed".equalsIgnoreCase(kvs.getName()) && "true".equalsIgnoreCase((String) kvs.getValue())){
+            if ((keyWord.equalsIgnoreCase(kvs.getName()) && "true".equalsIgnoreCase((String) kvs.getValue()))){
                 return true;
             }
         }

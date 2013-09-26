@@ -79,18 +79,22 @@ public class CommandFactory {
         List<StepCommand> commands = new ArrayList<StepCommand>();
         int count = caseChain.size();
         for (int i = 0; i < count; i++){
-            boolean followed = false;
+            boolean beFollowed = false;
+            boolean follow = false;
             if (i < count -1){
-                followed = true;
+                beFollowed = true;
             }
-            StepCommand command = getDataCommand(caseChain.get(i).getExecutor(), caseChain.get(i).getId(), followed);
+            if (i != 0){
+                follow = true;
+            }
+            StepCommand command = getDataCommand(caseChain.get(i).getExecutor(), caseChain.get(i).getId(), follow, beFollowed);
             commands.add(command);
         }
 
         return commands;
     }
 
-    private StepCommand getDataCommand(String executor, String caseId, boolean followed) {
+    private StepCommand getDataCommand(String executor, String caseId, boolean follow, boolean beFollowed) {
         Class<? extends StepConfig> clazz = CONFIG.get(executor);
         if (clazz == null) {
             throw new CommandNotFoundException(executor);
@@ -98,7 +102,7 @@ public class CommandFactory {
         try {
             StepConfig config = ConfigUtils.initDataCase(clazz, caseId, executor);
             if (config instanceof DSLCommandConfig){
-                return ((DSLCommandConfig) config).createCommand(followed);
+                return ((DSLCommandConfig) config).createCommand(follow, beFollowed);
             } else {
                 return config.createCommand();
             }
