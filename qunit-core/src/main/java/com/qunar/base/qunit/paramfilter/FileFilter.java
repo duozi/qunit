@@ -52,11 +52,11 @@ public class FileFilter extends ParamFilter {
     }
 
     private InputStream readInputStream(String fileName) throws FileNotFoundException {
-        if (fileName.startsWith("/home/q/")) {
+        InputStream stream = FileFilter.class.getClassLoader().getResourceAsStream(fileName);
+        if(stream == null){
             return new FileInputStream(fileName);
-        } else {
-            return FileFilter.class.getClassLoader().getResourceAsStream(fileName);
         }
+        return stream;
     }
 
     @Override
