@@ -5,9 +5,13 @@
 package com.qunar.base.qunit.command;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.serializer.SerializeConfig;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.qunar.base.qunit.context.Context;
+import com.qunar.base.qunit.fastjson.QunitDoubleSerializer;
 import com.qunar.base.qunit.model.KeyValueStore;
 import com.qunar.base.qunit.response.Response;
+import com.qunar.base.qunit.util.PropertyUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
@@ -29,7 +33,13 @@ public class PrintStepCommand extends StepCommand {
     @Override
     public Response doExecute(Response param, Context context) throws Throwable {
         if (isOnJenkins()) return param;
-        result = JSON.toJSONString(param);
+        Boolean jsonWriteOriginalDoubleValue = Boolean.valueOf(PropertyUtils.getProperty("json_write_original_double_value", "false"));
+        SerializeConfig config = new SerializeConfig();
+        if (jsonWriteOriginalDoubleValue) {
+            config.setAsmEnable(false);
+            config.put(Double.class, QunitDoubleSerializer.INSTANCE);
+        }
+        result = JSON.toJSONString(param, config, SerializerFeature.WriteMapNullValue);
         logger.info(result);
         return param;
     }
