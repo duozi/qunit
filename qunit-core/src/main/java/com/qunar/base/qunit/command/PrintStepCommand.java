@@ -40,7 +40,11 @@ public class PrintStepCommand extends StepCommand {
             config.put(Double.class, QunitDoubleSerializer.INSTANCE);
         }
         result = JSON.toJSONString(param, config, SerializerFeature.WriteMapNullValue);
-        logger.info(result);
+        if (result != null) {
+            logger.info(result.replaceAll("\\\\\\\"", "\""));
+        } else {
+            logger.info(result);
+        }
         return param;
     }
 
