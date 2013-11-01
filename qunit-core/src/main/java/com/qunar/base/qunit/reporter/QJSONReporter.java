@@ -9,6 +9,7 @@ import com.qunar.autotest.CaseIdHolder;
 import com.qunar.base.qunit.command.CallStepCommand;
 import com.qunar.base.qunit.command.StepCommand;
 import com.qunar.base.qunit.context.Context;
+import com.qunar.base.qunit.dsl.DSLCommand;
 import com.qunar.base.qunit.dsl.DSLCommandDesc;
 import com.qunar.base.qunit.event.StepEventListener;
 import com.qunar.base.qunit.model.*;
@@ -140,7 +141,7 @@ public class QJSONReporter implements Reporter {
         this.svninfo = svnInfo;
     }
 
-    private Map<String, ServiceDesc> serviceDescMap = new HashMap<String, ServiceDesc>();
+    public static Map<String, ServiceDesc> serviceDescMap = new HashMap<String, ServiceDesc>();
 
     @Override
     public void addService(ServiceDesc serviceDesc) {
@@ -196,25 +197,30 @@ public class QJSONReporter implements Reporter {
         }
 
         public void stepFailed(StepCommand sc, Throwable e) {
-            long duration = System.nanoTime() - startTime;
-            if (sc instanceof CallStepCommand) {
-                CallStepCommand callStepCommand = (CallStepCommand) sc;
-                ServiceDesc serviceDesc = serviceDescMap.get(callStepCommand.serviceId());
-                if (serviceDesc != null) {
-                    serviceDesc.addDuration(duration);
-                }
-            }
             Map<String, Object> details = sc.toReport();
-            Map<String, Object> result = new HashMap<String, Object>();
-            Map<Object, Object> stepMap = new HashMap<Object, Object>();
-            result.put("duration", duration);
-            result.put("status", "failed");
-            if (e != null) {
-                result.put("error_message", e.getMessage());
+            if (details.get("dslReport") == null) {
+                long duration = System.nanoTime() - startTime;
+                if (sc instanceof CallStepCommand) {
+                    CallStepCommand callStepCommand = (CallStepCommand) sc;
+                    ServiceDesc serviceDesc = serviceDescMap.get(callStepCommand.serviceId());
+                    if (serviceDesc != null) {
+                        serviceDesc.addDuration(duration);
+                    }
+                }
+
+                Map<String, Object> result = new HashMap<String, Object>();
+                Map<Object, Object> stepMap = new HashMap<Object, Object>();
+                result.put("duration", duration);
+                result.put("status", "failed");
+                if (e != null) {
+                    result.put("error_message", e.getMessage());
+                }
+                append(details, stepMap, duration);
+                stepMap.put("result", result);
+                getSteps().add(stepMap);
+            } else {
+                dslStepFailed(details, e);
             }
-            append(details, stepMap, duration);
-            stepMap.put("result", result);
-            getSteps().add(stepMap);
         }
 
         private void append(Map<String, Object> details, Map<Object, Object> stepMap, long duration) {
@@ -231,24 +237,82 @@ public class QJSONReporter implements Reporter {
         }
 
         public void stepFinished(StepCommand sc) {
-            long duration = System.nanoTime() - startTime;
+            Map<String, Object> details = sc.toReport();
+            if (details.get("dslReport") == null) {
+                long duration = System.nanoTime() - startTime;
+                if (sc instanceof CallStepCommand) {
+                    CallStepCommand callStepCommand = (CallStepCommand) sc;
+                    ServiceDesc serviceDesc = serviceDescMap.get(callStepCommand.serviceId());
+                    if (serviceDesc != null) {
+                        serviceDesc.callSuccess();
+                        serviceDesc.addDuration(duration);
+                    }
+                }
 
-            if (sc instanceof CallStepCommand) {
-                CallStepCommand callStepCommand = (CallStepCommand) sc;
+                Map<String, Object> result = new HashMap<String, Object>();
+                Map<Object, Object> stepMap = new HashMap<Object, Object>();
+                result.put("duration", duration);
+                result.put("status", "passed");
+                stepMap.put("result", result);
+                append(details, stepMap, duration);
+                getSteps().add(stepMap);
+            } else {
+                List<Map<String, Object>> dslReprotList = (List<Map<String, Object>>) details.get("dslReport");
+                int count = dslReprotList.size();
+                for (int i = 0; i < count; i++) {
+                    Map<String, Object> current = dslReprotList.get(i);
+
+                    Map<String, Object> result = new HashMap<String, Object>();
+                    Map<Object, Object> stepMap = new HashMap<Object, Object>();
+                    result.put("duration", current.get("duration"));
+                    result.put("status", "passed");
+                    stepMap.put("result", result);
+                    append(dslReprotList.get(i), stepMap, Long.valueOf(current.get("duration").toString()));
+                    getSteps().add(stepMap);
+                }
+                DSLCommand.reportList.clear();
+            }
+        }
+
+        private void dslStepFailed(Map<String, Object> details, Throwable e){
+            List<Map<String, Object>> dslReprotList = (List<Map<String, Object>>) details.get("dslReport");
+            int count = dslReprotList.size();
+            for (int i = 0; i < count; i++) {
+                Map<String, Object> current = dslReprotList.get(i);
+                Map<String, Object> result = new HashMap<String, Object>();
+                Map<Object, Object> stepMap = new HashMap<Object, Object>();
+                result.put("duration", current.get("duration"));
+                result.put("status", "passed");
+                stepMap.put("result", result);
+                append(current, stepMap, Long.valueOf(current.get("duration").toString()));
+                getSteps().add(stepMap);
+            }
+
+            StepCommand lastCommand = (StepCommand) details.get("currentCommand");
+            while (lastCommand instanceof DSLCommand){
+                lastCommand = ((DSLCommand) lastCommand).getCurrentCommand();
+            }
+            long lastDuration = System.nanoTime() - startTime;
+            if (lastCommand instanceof CallStepCommand) {
+                CallStepCommand callStepCommand = (CallStepCommand) lastCommand;
                 ServiceDesc serviceDesc = serviceDescMap.get(callStepCommand.serviceId());
                 if (serviceDesc != null) {
-                    serviceDesc.callSuccess();
-                    serviceDesc.addDuration(duration);
+                    serviceDesc.addDuration(lastDuration);
                 }
             }
-            Map<Object, Object> stepMap = new HashMap<Object, Object>();
-            Map<String, Object> details = sc.toReport();
+
             Map<String, Object> result = new HashMap<String, Object>();
-            result.put("duration", duration);
-            result.put("status", "passed");
+            Map<Object, Object> stepMap = new HashMap<Object, Object>();
+            result.put("duration", lastDuration);
+            result.put("status", "failed");
+            if (e != null) {
+                result.put("error_message", e.getMessage());
+            }
             stepMap.put("result", result);
-            append(details, stepMap, duration);
+
+            append(lastCommand.toReport(), stepMap, lastDuration);
             getSteps().add(stepMap);
+            DSLCommand.reportList.clear();
         }
     }
 }

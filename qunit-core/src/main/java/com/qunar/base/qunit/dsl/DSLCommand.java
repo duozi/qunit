@@ -1,9 +1,12 @@
 package com.qunar.base.qunit.dsl;
 
+import com.qunar.base.qunit.command.CallStepCommand;
 import com.qunar.base.qunit.command.ParameterizedCommand;
 import com.qunar.base.qunit.command.StepCommand;
 import com.qunar.base.qunit.context.Context;
 import com.qunar.base.qunit.model.KeyValueStore;
+import com.qunar.base.qunit.model.ServiceDesc;
+import com.qunar.base.qunit.reporter.QJSONReporter;
 import com.qunar.base.qunit.response.Response;
 
 import java.util.*;
@@ -20,6 +23,25 @@ public class DSLCommand extends ParameterizedCommand {
     private DSLCommandDesc desc;
     private List<StepCommand> commands;
     private Map<String, Object> commandParam;
+    private StepCommand currentCommand;
+    private long startTime;
+    public static List<Map<String, Object>> reportList = new ArrayList<Map<String, Object>>();
+
+    public void addReportList(Map<String, Object> map){
+        reportList.add(map);
+    }
+
+    public void setCurrentCommand(StepCommand currentCommand){
+        this.currentCommand = currentCommand;
+    }
+
+    public StepCommand getCurrentCommand(){
+        return currentCommand;
+    }
+
+    public long getStartTime(){
+        return startTime;
+    }
 
     public DSLCommand(DSLCommandDesc desc, List<KeyValueStore> params, List<StepCommand> commands) {
         super(params);
@@ -49,7 +71,35 @@ public class DSLCommand extends ParameterizedCommand {
             }
         }
         for (StepCommand child : commands) {
-            response = child.doExecute(response, childContext);
+            if (!(child instanceof DSLCommand)) {
+                startTime = System.nanoTime();
+                if (child instanceof CallStepCommand) {
+                    CallStepCommand callStepCommand = (CallStepCommand) child;
+                    ServiceDesc serviceDesc = QJSONReporter.serviceDescMap.get(callStepCommand.serviceId());
+                    if (serviceDesc != null) {
+                        serviceDesc.called();
+                    }
+
+                    setCurrentCommand(child);
+                    response = child.doExecute(response, childContext);
+
+                    long duration = System.nanoTime() - startTime;
+                    if (serviceDesc != null) {
+                        serviceDesc.callSuccess();
+                        serviceDesc.addDuration(duration);
+                    }
+                } else {
+                    setCurrentCommand(child);
+                    response = child.doExecute(response, childContext);
+                }
+
+                Map<String, Object> reportMap = child.toReport();
+                reportMap.put("duration", System.nanoTime() - startTime);
+                addReportList(reportMap);
+            } else {
+                setCurrentCommand(child);
+                response = child.doExecute(response, childContext);
+            }
         }
         return response;
     }
@@ -65,17 +115,22 @@ public class DSLCommand extends ParameterizedCommand {
 
     @Override
     public Map<String, Object> toReport() {
-        Map<String, Object> details = new HashMap<String, Object>();
+        /*Map<String, Object> details = new HashMap<String, Object>();
         details.put("stepName", "执行:");
         details.put("name", desc.desc());
         if (commandParam != null){
             details.put("params", convertMapToList(getCommandParam()));
         } else {
             details.put("params", params);
+        }*/
+        Map<String, Object> details = new HashMap<String, Object>();
+        if (reportList != null){
+            details.put("dslReport", reportList);
+            details.put("currentCommand", getCurrentCommand());
         }
         return details;
     }
-    
+
     private void addContext(Map<String, Map<String, Object>> dataMap, KeyValueStore processedParam, Context childContext){
         if (dataMap == null){
             return;
@@ -94,6 +149,10 @@ public class DSLCommand extends ParameterizedCommand {
 
     public void setCommandParam(Map<String, Object> commandParam) {
         this.commandParam = commandParam;
+    }
+
+    public DSLCommandDesc getDesc(){
+        return desc;
     }
 
     private List<KeyValueStore> convertMapToList(Map<String, Object> map){

@@ -1,0 +1,4 @@
+<services>
+    <http id="mock-query" url="http://l-qtest25.tc.beta.cn6.qunar.com:9238/mock.query" method="get"/>
+    <http id="testsms" url="http://l-qtest25.tc.beta.cn6.qunar.com/testsms" method="get"/>
+</services>

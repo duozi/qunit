@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.net.URL;
 import java.util.Iterator;
 import java.util.List;
 
@@ -27,6 +28,7 @@ public class DSLCommandReader {
     private final static Logger logger = LoggerFactory.getLogger(DSLCommandReader.class);
 
     public void read(List<String> fileNames, Reporter reporter) {
+        readDslTemplate(reporter);
         if (CollectionUtils.isEmpty(fileNames)){
             return;
         }
@@ -65,5 +67,15 @@ public class DSLCommandReader {
     private Document load(String fileName) throws FileNotFoundException, DocumentException {
         SAXReader reader = new SAXReader();
         return reader.read(new FileInputStream(fileName));
+    }
+
+    private void readDslTemplate(Reporter reporter){
+        URL url = this.getClass().getClassLoader().getResource("dslInnerTemplate.xml");
+        if (url == null) {
+            logger.error(String.format("dslTemplate.xml文件不存在"));
+            return;
+        }
+        String path = url.getPath();
+        init(path, reporter);
     }
 }

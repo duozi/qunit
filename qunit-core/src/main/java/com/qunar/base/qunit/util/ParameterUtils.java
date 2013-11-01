@@ -4,6 +4,7 @@ import com.qunar.base.qunit.context.Context;
 import com.qunar.base.qunit.model.KeyValueStore;
 import com.qunar.base.qunit.paramfilter.FilterFactory;
 import com.qunar.base.qunit.response.Response;
+import org.apache.commons.lang.StringUtils;
 
 import java.lang.reflect.Array;
 import java.util.*;
@@ -16,10 +17,12 @@ import static com.qunar.base.qunit.util.PropertyUtils.replaceConfigValue;
  * Time: 4:49 PM
  */
 public class ParameterUtils {
+    private static final String SPLIT = "|";
+
     public static List<KeyValueStore> prepareParameters(List<KeyValueStore> params, Response preResult, Context context) {
         List<KeyValueStore> processedParams = prepareParameters(params, preResult);
         processedParams = replaceValueFromContext(context, processedParams);
-        return filter(processedParams);
+        return filter(splitParameters(processedParams));
     }
 
     private static List<KeyValueStore> prepareParameters(List<KeyValueStore> params, Response preResult) {
@@ -27,6 +30,24 @@ public class ParameterUtils {
             replaceVariables(param, param.getValue(), preResult == null ? null : preResult.getBody());
         }
         return params;
+    }
+
+    private static List<KeyValueStore> splitParameters(List<KeyValueStore> params){
+        if (params == null) {
+            return params;
+        }
+        List<KeyValueStore> result= new ArrayList<KeyValueStore>(params.size());
+        for (KeyValueStore param : params) {
+            Object value = param.getValue();
+            if ((value instanceof String) && ((String) value).contains(SPLIT)) {
+                String[] valueArray = StringUtils.split((String)value, SPLIT);
+                result.add(new KeyValueStore(param.getName(), valueArray[0].trim()));
+                result.add(new KeyValueStore(param.getName(), valueArray[1].trim()));
+            } else {
+                result.add(param);
+            }
+        }
+        return result;
     }
 
     private static void replaceVariables(Object entry, Object value, Object preResult) {

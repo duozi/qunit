@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dsl>
+    <def id="expectSendSMS" desc="验证短信mock接口">
+        <call service="mock-query">
+            <param productNo="ZHAOHUI" api="/testsms" mobiles="${mobiles}"/>
+        </call>
+        <assert>
+            <body>
+                ${expected}
+            </body>
+        </assert>
+    </def>
+
+    <def id="expectSendEmail" desc="验证邮件mock接口">
+        <call service="query">
+            <param productNo="MAIL" api="/mail:mail" from="$from" to="$to" />
+        </call>
+        <assert>
+            <body>
+                ${expected}
+            </body>
+        </assert>
+    </def>
+</dsl>
