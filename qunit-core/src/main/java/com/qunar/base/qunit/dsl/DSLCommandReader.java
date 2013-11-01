@@ -28,7 +28,7 @@ public class DSLCommandReader {
     private final static Logger logger = LoggerFactory.getLogger(DSLCommandReader.class);
 
     public void read(List<String> fileNames, Reporter reporter) {
-        readDslTemplate(reporter);
+        //readDslTemplate(reporter);
         if (CollectionUtils.isEmpty(fileNames)){
             return;
         }

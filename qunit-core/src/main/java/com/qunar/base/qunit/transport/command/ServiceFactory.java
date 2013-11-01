@@ -49,7 +49,7 @@ public class ServiceFactory {
         for (String fileName : fileNames) {
             init(fileName, reporter);
         }
-        init("serviceInner.xml", reporter);
+        //init("serviceInner.xml", reporter);
     }
 
     private void init(String fileName, Reporter reporter) {
