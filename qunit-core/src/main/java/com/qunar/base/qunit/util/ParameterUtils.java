@@ -22,7 +22,8 @@ public class ParameterUtils {
     public static List<KeyValueStore> prepareParameters(List<KeyValueStore> params, Response preResult, Context context) {
         List<KeyValueStore> processedParams = prepareParameters(params, preResult);
         processedParams = replaceValueFromContext(context, processedParams);
-        return filter(splitParameters(processedParams));
+        //return filter(splitParameters(processedParams));
+        return filter(processedParams);
     }
 
     private static List<KeyValueStore> prepareParameters(List<KeyValueStore> params, Response preResult) {
