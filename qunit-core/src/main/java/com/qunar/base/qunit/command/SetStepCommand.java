@@ -18,6 +18,7 @@ public class SetStepCommand extends ParameterizedCommand {
 
     @Override
     protected Response doExecuteInternal(Response preResult, List<KeyValueStore> processedParams, Context context) {
+        logger.info("set command<{}> is staring ...", getParamsAsString(processedParams));
         context.addContext(convertToMap(processedParams));
         return preResult;
     }
@@ -41,6 +42,18 @@ public class SetStepCommand extends ParameterizedCommand {
             result.put(kvs.getName(), kvs.getValue());
         }
         return result;
+    }
+
+    private String getParamsAsString(List<KeyValueStore> params) {
+        if (params == null) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder();
+        for (KeyValueStore kv : params) {
+            sb.append(kv.getName()).append("=").append(kv.getValue()).append("&");
+        }
+
+        return sb.toString();
     }
 
 
