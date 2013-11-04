@@ -42,9 +42,9 @@ public class HttpExecuteCommand extends ExecuteCommand {
 
     @Override
     public Response execute(List<KeyValueStore> params) {
-        List<KeyValueStore> processParams = splitParameters(params);
-        Map headers = getHttpHeaders(processParams);
-        this.params = removedHttpHeaders(processParams);
+        //List<KeyValueStore> processParams = splitParameters(params);
+        Map headers = getHttpHeaders(params);
+        this.params = removedHttpHeaders(params);
 
         if (logger.isInfoEnabled()) {
             logger.info("Http request start: url={}, method={}, headers={}, params={}", new Object[]{url, method, headers, getParamsAsString(this.params)});
@@ -69,7 +69,7 @@ public class HttpExecuteCommand extends ExecuteCommand {
             return response;
         }*/
         if (logger.isInfoEnabled()) {
-            logger.info("Http Execute : method={}, url={}, params={}, response={}", new Object[]{method, url, getParamsAsString(processParams), response});
+            logger.info("Http Execute : method={}, url={}, params={}, response={}", new Object[]{method, url, getParamsAsString(params), response});
         }
         return response;
     }
