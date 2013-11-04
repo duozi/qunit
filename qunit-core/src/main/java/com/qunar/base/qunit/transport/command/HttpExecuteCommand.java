@@ -8,7 +8,6 @@ import com.qunar.base.qunit.model.KeyValueStore;
 import com.qunar.base.qunit.model.ServiceDesc;
 import com.qunar.base.qunit.response.Response;
 import com.qunar.base.qunit.transport.http.HttpService;
-import com.qunar.base.qunit.transport.http.XSSService;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
@@ -18,8 +17,6 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import static org.junit.Assert.fail;
 
 /**
  * HTTP类型的请求执行器,负责http请求的执行
@@ -31,6 +28,7 @@ import static org.junit.Assert.fail;
 public class HttpExecuteCommand extends ExecuteCommand {
 
     protected final static Logger logger = LoggerFactory.getLogger(HttpExecuteCommand.class);
+    private final static String SPLIT = "|";
 
     protected String url;
     protected String method;
@@ -44,8 +42,9 @@ public class HttpExecuteCommand extends ExecuteCommand {
 
     @Override
     public Response execute(List<KeyValueStore> params) {
-        Map headers = getHttpHeaders(params);
-        this.params = removedHttpHeaders(params);
+        List<KeyValueStore> processParams = splitParameters(params);
+        Map headers = getHttpHeaders(processParams);
+        this.params = removedHttpHeaders(processParams);
 
         if (logger.isInfoEnabled()) {
             logger.info("Http request start: url={}, method={}, headers={}, params={}", new Object[]{url, method, headers, getParamsAsString(this.params)});
@@ -70,9 +69,28 @@ public class HttpExecuteCommand extends ExecuteCommand {
             return response;
         }*/
         if (logger.isInfoEnabled()) {
-            logger.info("Http Execute : method={}, url={}, params={}, response={}", new Object[]{method, url, getParamsAsString(params), response});
+            logger.info("Http Execute : method={}, url={}, params={}, response={}", new Object[]{method, url, getParamsAsString(processParams), response});
         }
         return response;
+    }
+
+    private static List<KeyValueStore> splitParameters(List<KeyValueStore> params){
+        if (params == null) {
+            return params;
+        }
+        List<KeyValueStore> result= new ArrayList<KeyValueStore>(params.size());
+        for (KeyValueStore param : params) {
+            Object value = param.getValue();
+            if ((value instanceof String) && ((String) value).contains(SPLIT)) {
+                String[] valueArray = StringUtils.split((String)value, SPLIT);
+                for (int i = 0; i < valueArray.length; i++) {
+                    result.add(new KeyValueStore(param.getName(), valueArray[i].trim()));
+                }
+            } else {
+                result.add(param);
+            }
+        }
+        return result;
     }
 
     protected String fixMethod(String method) {
