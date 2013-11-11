@@ -1,6 +1,7 @@
 package com.qunar.base.qunit.transport.command;
 
 import com.alibaba.dubbo.common.URL;
+import com.alibaba.fastjson.JSON;
 import com.qunar.base.qunit.model.KeyValueStore;
 import com.qunar.base.qunit.model.ServiceDesc;
 import com.qunar.base.qunit.response.Response;
@@ -84,7 +85,11 @@ public class QmqMessageExecuteCommand extends ExecuteCommand {
             Method executeMethod = ReflectionUtils.getMethod(desc.getMethod(), desc.getServiceClass());
             Message message = producer.generateMessage(subject);
             for (KeyValueStore param : params) {
-                message.setProperty(param.getName(), param.getValue().toString());
+                if (param.getName().equals(BaseMessage.keys.qmq_data.name())){
+                    message.setData(JSON.parse(param.getValue().toString()));
+                }else {
+                    message.setProperty(param.getName(), param.getValue().toString());
+                }
             }
             ((BaseMessage) message).setProperty(BaseMessage.keys.qmq_brokerGroupName, Constants.DEFAULT_GROUP);
             ((BaseMessage) message).setProperty(BaseMessage.keys.qmq_prefix, prefix);
