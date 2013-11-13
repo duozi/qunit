@@ -94,6 +94,7 @@ public class QmqMessageExecuteCommand extends ExecuteCommand {
             ((BaseMessage) message).setProperty(BaseMessage.keys.qmq_brokerGroupName, Constants.DEFAULT_GROUP);
             ((BaseMessage) message).setProperty(BaseMessage.keys.qmq_prefix, prefix);
             ((BaseMessage) message).setProperty(BaseMessage.keys.qmq_consumerGroupName, group.getName());
+            logger.info("发送的消息为:{}", message);
 
             executeMethod.invoke(service, message);
         } catch (IllegalAccessException e) {
