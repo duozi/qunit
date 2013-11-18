@@ -39,7 +39,7 @@ public class ExamplesCommand extends StepCommand {
     private Map<String, String> readExample(List<String> keys, String line) {
         Iterable<String> result = SPLITTER.split(line);
         List<String> values = covertToList(result);
-        if (values.size() != keys.size()) throw new RuntimeException("数据驱动的Case数据格式错误");
+        if (values.size() != keys.size()) throw new RuntimeException(String.format("数据驱动的Case数据格式错误:表头有%s字段，而值有%s字段", keys.size(), values.size()));
         Map<String, String> examples = new HashMap<String, String>();
         for (int i = 0; i < keys.size(); ++i) {
             examples.put(keys.get(i), values.get(i));

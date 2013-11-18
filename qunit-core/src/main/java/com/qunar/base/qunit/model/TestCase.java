@@ -1,7 +1,6 @@
 package com.qunar.base.qunit.model;
 
 import com.qunar.base.qunit.command.StepCommand;
-import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
