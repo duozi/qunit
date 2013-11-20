@@ -3,6 +3,7 @@ package com.qunar.base.qunit;
 import com.qunar.base.qunit.casefilter.CaseFilter;
 import com.qunar.base.qunit.casefilter.CaseIDsFilter;
 import com.qunar.base.qunit.casefilter.TagFilter;
+import com.qunar.base.qunit.casereader.TestCaseReader;
 import com.qunar.base.qunit.reporter.QJSONReporter;
 import com.qunar.base.qunit.reporter.Reporter;
 import org.apache.commons.lang.StringUtils;
@@ -53,6 +54,10 @@ public class QunitOptions {
             return ids;
         }
         return this.options.ids();
+    }
+
+    public Class<? extends TestCaseReader> reader() {
+        return this.options.reader();
     }
 
     public List<String> testCases() {

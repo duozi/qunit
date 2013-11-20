@@ -9,6 +9,7 @@ import com.qunar.base.qunit.annotation.Interceptor;
 import com.qunar.base.qunit.casefilter.CaseFilter;
 import com.qunar.base.qunit.casereader.DatacaseReader;
 import com.qunar.base.qunit.casereader.Dom4jCaseReader;
+import com.qunar.base.qunit.casereader.TestCaseReader;
 import com.qunar.base.qunit.context.Context;
 import com.qunar.base.qunit.dsl.DSLCommandReader;
 import com.qunar.base.qunit.intercept.InterceptorFactory;
@@ -98,10 +99,11 @@ public class Qunit extends ParentRunner<TestSuiteRunner> {
         Environment.initEnvironment(testClass);
 
         filter = options.createCaseFilter();
+        Class<? extends TestCaseReader> clazz = options.reader();
 
-        addChildren(beforeFiles, null);
-        addChildren(files, suites);
-        addChildren(afterFiles, null);
+        addChildren(beforeFiles, null, clazz);
+        addChildren(files, suites, clazz);
+        addChildren(afterFiles, null, clazz);
     }
 
     private void addJobAndIdToContext(QunitOptions options) {
@@ -175,10 +177,11 @@ public class Qunit extends ParentRunner<TestSuiteRunner> {
         }
     }
 
-    private void addChildren(List<String> files, List<DataSuite> dataSuites) throws InitializationError, DocumentException, FileNotFoundException {
+    private void addChildren(List<String> files, List<DataSuite> dataSuites, Class<? extends TestCaseReader> clazz) throws InitializationError, DocumentException, FileNotFoundException {
         List<TestSuite> suites = new ArrayList<TestSuite>(files.size());
         for (String file : files) {
-            TestSuite testSuite = new Dom4jCaseReader().readTestCase(file);
+            //TestSuite testSuite = new Dom4jCaseReader().readTestCase(file);
+            TestSuite testSuite = createReader(clazz).readTestCase(file);
             if (testSuite == null) continue;
             filter.filter(testSuite);
             if (!testSuite.getTestCases().isEmpty()) {
@@ -192,6 +195,14 @@ public class Qunit extends ParentRunner<TestSuiteRunner> {
         for (TestSuite suite : suites) {
             Context suitContext = new Context(GLOBALCONTEXT);
             children.add(new TestSuiteRunner(getTestClass().getJavaClass(), suite, suitContext, this.qjsonReporter));
+        }
+    }
+
+    private TestCaseReader createReader(Class<?> clazz) {
+        try {
+            return (TestCaseReader) clazz.newInstance();
+        } catch (Exception e) {
+            throw new RuntimeException("createReader error");
         }
     }
 
@@ -228,6 +239,8 @@ public class Qunit extends ParentRunner<TestSuiteRunner> {
         String keyFile() default "cases/key.xml";
 
         Operation operation() default Operation.CLEAR_INSERT;
+
+        Class<? extends TestCaseReader> reader() default Dom4jCaseReader.class;
     }
 
 }
