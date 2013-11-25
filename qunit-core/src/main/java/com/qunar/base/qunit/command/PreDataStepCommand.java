@@ -73,7 +73,7 @@ public class PreDataStepCommand extends ParameterizedCommand {
     @Override
     public Map<String, Object> toReport() {
         Map<String, Object> details = new HashMap<String, Object>();
-        details.put("stepName", "准备数据：");
+        details.put("stepName", "准备数据:");
         if (StringUtils.isNotEmpty(this.file)) {
             StringBuilder sb = new StringBuilder();
             sb.append("数据库:").append(database).append(",");

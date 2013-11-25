@@ -47,7 +47,7 @@ public class CallStepCommand extends ParameterizedCommand {
     @Override
     public Map<String, Object> toReport() {
         Map<String, Object> details = new HashMap<String, Object>();
-        details.put("stepName", "执行：");
+        details.put("stepName", "执行:");
         details.put("name", command.toReport());
         details.put("params", getReportParameter());
         return details;

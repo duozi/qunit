@@ -37,7 +37,7 @@ public class RemoveHeaderCommand extends StepCommand {
     @Override
     public Map<String, Object> toReport() {
         Map<String, Object> details = new HashMap<String, Object>();
-        details.put("stepName", "删除指定HTTP头");
+        details.put("stepName", "删除指定HTTP头:");
         List<KeyValueStore> params = new ArrayList<KeyValueStore>();
         params.add(new KeyValueStore("header", header));
         details.put("params", params);

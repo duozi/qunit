@@ -85,7 +85,7 @@ public class SqlStepCommand extends ParameterizedCommand {
     @Override
     public Map<String, Object> toReport() {
         Map<String, Object> details = new HashMap<String, Object>();
-        details.put("stepName", String.format("在数据库 %s 上执行 ", getDatabase(params)));
+        details.put("stepName", String.format("在数据库 %s 上执行:", getDatabase(params)));
         details.put("name", String.format("SQL: %s", getSql(params)));
         List<KeyValueStore> params = new ArrayList<KeyValueStore>();
         details.put("params", params);

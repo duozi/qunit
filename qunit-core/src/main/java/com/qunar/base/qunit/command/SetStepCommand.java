@@ -31,7 +31,7 @@ public class SetStepCommand extends ParameterizedCommand {
     @Override
     public Map<String, Object> toReport() {
         Map<String, Object> details = new HashMap<String, Object>();
-        details.put("stepName", "设置Case环境变量");
+        details.put("stepName", "设置Case环境变量:");
         details.put("params", params);
         return details;
     }

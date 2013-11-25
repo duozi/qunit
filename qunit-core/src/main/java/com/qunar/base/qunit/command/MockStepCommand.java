@@ -63,7 +63,7 @@ public class MockStepCommand extends ParameterizedCommand {
     @Override
     public Map<String, Object> toReport() {
         Map<String, Object> details = new HashMap<String, Object>();
-        details.put("stepName", "设置期望：");
+        details.put("stepName", "设置期望:");
         details.put("name", String.format("当来自%s的应用调用业务线%s下的接口%s,并且标识是%s返回如下数据",
                 mockInfo.getSource(), mockInfo.getTarget(), mockInfo.getService(), mockInfo.getKey()));
         details.put("params", getReturnValues(expectation));

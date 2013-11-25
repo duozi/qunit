@@ -57,7 +57,7 @@ public class PrintStepCommand extends StepCommand {
     @Override
     public Map<String, Object> toReport() {
         Map<String, Object> details = new HashMap<String, Object>();
-        details.put("stepName", "打印上一步执行器的结果信息");
+        details.put("stepName", "打印上一步执行器的结果信息:");
         details.put("name", result);
         List<KeyValueStore> params = new ArrayList<KeyValueStore>();
         details.put("params", params);

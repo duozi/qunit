@@ -56,7 +56,7 @@ public class AssertStepCommand extends ParameterizedCommand {
     @Override
     public Map<String, Object> toReport() {
         Map<String, Object> details = new HashMap<String, Object>();
-        details.put("stepName", "验证：");
+        details.put("stepName", "验证:");
         List<KeyValueStore> params = new ArrayList<KeyValueStore>();
         params.addAll(this.params);
         //if (StringUtils.isNotBlank(error)) {
