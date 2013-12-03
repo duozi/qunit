@@ -165,6 +165,7 @@ public class HttpService {
         if (isBodyEntity(params)) {
             logger.info("params: {}", params);
             Object entityBody = getEntityBody(params);
+            logger.info("entityBody type: {}", entityBody.getClass());
             logger.info("entityBody: {}", entityBody.toString());
             if (isByteArray(entityBody)) {
                 entity = new ByteArrayEntity(getByteArray((Object[]) entityBody));
