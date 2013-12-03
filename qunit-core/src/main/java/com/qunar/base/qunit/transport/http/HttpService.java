@@ -94,6 +94,7 @@ public class HttpService {
     public static Response entityRequest(String url, String method, List<KeyValueStore> params) {
         HttpRequestBase request = null;
         try {
+            logger.info("entityRequest params: {}", params);
             request = doEntityRequest(url, method, params);
             HttpResponse httpResponse = httpClient.execute(request);
             return response(httpResponse);

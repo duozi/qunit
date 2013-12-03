@@ -36,6 +36,7 @@ public class CallStepCommand extends ParameterizedCommand {
     @Override
     protected Response doExecuteInternal(Response preResult, List<KeyValueStore> processedParams, Context context) {
         logger.info("call command<{}> is staring ...", command);
+        logger.info("processedParams: {}", processedParams);
         return command.execute(processedParams);
     }
 
