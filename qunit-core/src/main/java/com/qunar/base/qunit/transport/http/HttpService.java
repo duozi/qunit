@@ -162,7 +162,9 @@ public class HttpService {
     private static HttpRequestBase doEntityRequest(String url, final String method, List<KeyValueStore> params) throws Exception {
         AbstractHttpEntity entity = null;
         if (isBodyEntity(params)) {
+            logger.info("params: {}", params);
             Object entityBody = getEntityBody(params);
+            logger.info("entityBody: {}", entityBody.toString());
             if (isByteArray(entityBody)) {
                 entity = new ByteArrayEntity(getByteArray((Object[]) entityBody));
             } else if (isString(entityBody)) {
