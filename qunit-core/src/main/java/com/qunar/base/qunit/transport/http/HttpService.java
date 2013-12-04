@@ -94,7 +94,6 @@ public class HttpService {
     public static Response entityRequest(String url, String method, List<KeyValueStore> params) {
         HttpRequestBase request = null;
         try {
-            logger.info("entityRequest params: {}", params);
             request = doEntityRequest(url, method, params);
             HttpResponse httpResponse = httpClient.execute(request);
             return response(httpResponse);
@@ -163,10 +162,7 @@ public class HttpService {
     private static HttpRequestBase doEntityRequest(String url, final String method, List<KeyValueStore> params) throws Exception {
         AbstractHttpEntity entity = null;
         if (isBodyEntity(params)) {
-            logger.info("params: {}", params);
             Object entityBody = getEntityBody(params);
-            logger.info("entityBody type: {}", entityBody.getClass());
-            logger.info("entityBody: {}", entityBody.toString());
             if (isByteArray(entityBody)) {
                 entity = new ByteArrayEntity(getByteArray((Object[]) entityBody));
             } else if (isString(entityBody)) {

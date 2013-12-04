@@ -23,7 +23,6 @@ public abstract class ParameterizedCommand extends StepCommand {
 
     @Override
     public Response doExecute(Response preResult, Context context) throws Throwable {
-        logger.info("parameterized params:", params);
         List<KeyValueStore> processedParameters = prepareParameters(this.params, preResult, context);
         return doExecuteInternal(preResult, processedParameters, context);
     }
