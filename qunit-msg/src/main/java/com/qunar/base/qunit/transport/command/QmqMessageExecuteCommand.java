@@ -40,43 +40,58 @@ public class QmqMessageExecuteCommand extends ExecuteCommand {
     private static final LoadBalance loadBalance = new RandomLoadBalance();
 
     static {
-        zkMap.put("dev", "l-zk1.plat.dev.cn6.qunar.com:2181");
-        zkMap.put("beta", "l-zk1.plat.beta.cn6:2181,l-zk2.plat.beta.cn6:2181,l-zk3.plat.beta.cn6:2181");
+        String type = PropertyUtils.getProperty("qmq.message.redirect", "true");
+        if ("true".equalsIgnoreCase(type)){
+            zkMap.put("dev", "l-zk1.plat.dev.cn6.qunar.com:2181");
+            zkMap.put("beta", "l-zk1.plat.beta.cn6:2181,l-zk2.plat.beta.cn6:2181,l-zk3.plat.beta.cn6:2181");
 
-        String env = PropertyUtils.getProperty("test.env", "dev");
-        ZKObserver observer = new ZKObserver(zkMap.get(env));
-        resolver = new EventResolver();
-        observer.onConsumerChanged(resolver);
-        observer.start();
+            String env = PropertyUtils.getProperty("test.env", "dev");
+            ZKObserver observer = new ZKObserver(zkMap.get(env));
+            resolver = new EventResolver();
+            observer.onConsumerChanged(resolver);
+            observer.start();
+        } else {
+            resolver = null;
+        }
     }
 
     private final String subject;
 
+    private final String host;
+
+    private final String group;
+
     private final MessageProducer producer = new MessageProducerProvider("l-zk1.plat.dev.cn6.qunar.com:2181");
 
-    public QmqMessageExecuteCommand(String id, String desc, String subject) {
+    public QmqMessageExecuteCommand(String id, String desc, String subject, String host, String group) {
         super(id, desc);
         this.subject = subject;
+        this.host = host;
+        this.group = group;
     }
 
     @Override
     public Response execute(List<KeyValueStore> params) {
         Response response = new Response();
-        Map<String, Collection<Group>> list = resolver.resolve(subject);
-        for (Map.Entry<String, Collection<Group>> entry : list.entrySet()) {
-            String prefix = entry.getKey();
-            for (Group group : entry.getValue()) {
-                Endpoint endpoint = loadBalance.select(group);
-                if (endpoint == null) continue;
-                URL url = endpoint.getUrl();
-                String host = url.getHost() + ":" + url.getPort();
-                sendMessage(host, prefix, params, group);
+        if ("true".equalsIgnoreCase(PropertyUtils.getProperty("qmq.message.redirect", "true"))) {
+            Map<String, Collection<Group>> list = resolver.resolve(subject);
+            for (Map.Entry<String, Collection<Group>> entry : list.entrySet()) {
+                String prefix = entry.getKey();
+                for (Group group : entry.getValue()) {
+                    Endpoint endpoint = loadBalance.select(group);
+                    if (endpoint == null) continue;
+                    URL url = endpoint.getUrl();
+                    String host = url.getHost() + ":" + url.getPort();
+                    sendMessage(host, prefix, params, group.getName());
+                }
             }
+        } else {
+            sendMessage(host, subject, params, group);
         }
         return response;
     }
 
-    private void sendMessage(String host, String prefix, List<KeyValueStore> params, Group group) {
+    private void sendMessage(String host, String prefix, List<KeyValueStore> params, String group) {
         try {
             com.qunar.base.qunit.transport.model.ServiceDesc desc =
                     new com.qunar.base.qunit.transport.model.ServiceDesc(ConsumerMessageHandler.class.getCanonicalName(),
@@ -93,7 +108,7 @@ public class QmqMessageExecuteCommand extends ExecuteCommand {
             }
             ((BaseMessage) message).setProperty(BaseMessage.keys.qmq_brokerGroupName, Constants.DEFAULT_GROUP);
             ((BaseMessage) message).setProperty(BaseMessage.keys.qmq_prefix, prefix);
-            ((BaseMessage) message).setProperty(BaseMessage.keys.qmq_consumerGroupName, group.getName());
+            ((BaseMessage) message).setProperty(BaseMessage.keys.qmq_consumerGroupName, group);
             logger.info("发送的消息为:{}", message);
 
             executeMethod.invoke(service, message);
