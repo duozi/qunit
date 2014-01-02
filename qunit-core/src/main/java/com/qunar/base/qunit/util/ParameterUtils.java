@@ -56,6 +56,16 @@ public class ParameterUtils {
     }
 
     private static void filter(Object entry, Object value) {
+        if (value instanceof List) {
+            List<Object> params = new ArrayList<Object>();
+            for (Object str : (List)value) {
+                if (str instanceof String) {
+                    Object param = FilterFactory.handle(str.toString());
+                    params.add(param);
+                }
+            }
+            ReflectionUtils.setFieldValue(entry, "value", params);
+        }
         if (value instanceof String) {
             Object param = FilterFactory.handle(value.toString());
             ReflectionUtils.setFieldValue(entry, "value", param);
