@@ -62,6 +62,8 @@ public class ParameterUtils {
                 if (str instanceof String) {
                     Object param = FilterFactory.handle(str.toString());
                     params.add(param);
+                } else {
+                    params.add(str);
                 }
             }
             ReflectionUtils.setFieldValue(entry, "value", params);
