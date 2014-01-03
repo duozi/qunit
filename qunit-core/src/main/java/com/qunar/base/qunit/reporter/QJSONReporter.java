@@ -37,6 +37,8 @@ public class QJSONReporter implements Reporter {
 
     private Map<Object, Object> suiteMap;
 
+    private CaseStatistics caseStatistics = new CaseStatistics();
+
     public QJSONReporter(Appendable out) {
         this.out = out;
     }
@@ -67,6 +69,22 @@ public class QJSONReporter implements Reporter {
             logger.error(e.getMessage(), e);
             throw new RuntimeException(e);
         }
+    }
+
+    public Map<Object, Object> getSuiteMap() {
+        return suiteMap;
+    }
+
+    synchronized public void addFailed(String id){
+        caseStatistics.addFailed(id);
+    }
+
+    synchronized public void addSuccess() {
+        caseStatistics.addSuccess();
+    }
+
+    public CaseStatistics getCaseStatistics() {
+        return caseStatistics;
     }
 
     public String reportAsString() {

@@ -17,6 +17,7 @@ import com.qunar.base.qunit.intercept.StepCommandInterceptor;
 import com.qunar.base.qunit.model.*;
 import com.qunar.base.qunit.paramfilter.FilterFactory;
 import com.qunar.base.qunit.paramfilter.ParamFilter;
+import com.qunar.base.qunit.reporter.QJSONReporter;
 import com.qunar.base.qunit.reporter.Reporter;
 import com.qunar.base.qunit.transport.command.ServiceFactory;
 import com.qunar.base.qunit.util.IpUtil;
@@ -74,6 +75,10 @@ public class Qunit extends ParentRunner<TestSuiteRunner> {
         List<String> afterFiles = options.after();
 
         this.qjsonReporter = options.reporter();
+
+        CaseStatistics caseStatistics = ((QJSONReporter)this.qjsonReporter).getCaseStatistics();
+        caseStatistics.setJob(options.jobName());
+        caseStatistics.setBuild(options.buildNumber());
 
         SvnInfo svnInfo = new SvnInfoReader().read();
         this.qjsonReporter.addSvnInfo(svnInfo);
@@ -193,9 +198,18 @@ public class Qunit extends ParentRunner<TestSuiteRunner> {
         }
         Collections.sort(suites);
         for (TestSuite suite : suites) {
+            ((QJSONReporter)this.qjsonReporter).getCaseStatistics().addRunSum(statictisCase(suite));
             Context suitContext = new Context(GLOBALCONTEXT);
             children.add(new TestSuiteRunner(getTestClass().getJavaClass(), suite, suitContext, this.qjsonReporter));
         }
+    }
+
+    private int statictisCase(TestSuite suite) {
+        List<TestCase> testCases = suite.getTestCases();
+        if (testCases == null) {
+            return 0;
+        }
+        return testCases.size();
     }
 
     private TestCaseReader createReader(Class<?> clazz) {

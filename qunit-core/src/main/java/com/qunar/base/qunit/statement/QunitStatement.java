@@ -5,11 +5,17 @@
 package com.qunar.base.qunit.statement;
 
 import com.qunar.base.qunit.QunitFrameworkMethod;
+import com.qunar.base.qunit.Statistics;
 import com.qunar.base.qunit.command.StepCommand;
 import com.qunar.base.qunit.event.StepNotifier;
 import com.qunar.base.qunit.model.TestCase;
+import com.qunar.base.qunit.reporter.ParseCase;
+import com.qunar.base.qunit.reporter.QJSONReporter;
 import com.qunar.base.qunit.reporter.Reporter;
 import org.junit.runners.model.Statement;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * 描述：
@@ -41,6 +47,14 @@ public class QunitStatement extends Statement {
             runTearDownCommand(sNotifier, testCase);
             runAfterCommand(sNotifier, testCase);
             sNotifier.fireCaseFinished(testCase, frameworkMethod.getContext());
+
+            QJSONReporter qjsonReporter = (QJSONReporter)reporter;
+            Map<Object, Object> suitMap = qjsonReporter.getSuiteMap();
+            List<Object> elements = (List<Object>)suitMap.get("elements");
+            Map<Object, Object> lastElement = (Map<Object, Object>)elements.get(elements.size() - 1);
+            ParseCase parseCase = new ParseCase(qjsonReporter, lastElement);
+            new Thread(parseCase).start();
+            Statistics.start(qjsonReporter.getCaseStatistics());
         }
     }
 
