@@ -3,7 +3,7 @@ package com.qunar.base.qunit;
 import com.qunar.base.qunit.model.CaseStatistics;
 import com.qunar.base.qunit.model.KeyValueStore;
 import com.qunar.base.qunit.transport.http.HttpService;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
