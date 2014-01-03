@@ -52,9 +52,9 @@ public class QunitStatement extends Statement {
             Map<Object, Object> suitMap = qjsonReporter.getSuiteMap();
             List<Object> elements = (List<Object>)suitMap.get("elements");
             Map<Object, Object> lastElement = (Map<Object, Object>)elements.get(elements.size() - 1);
-            ParseCase parseCase = new ParseCase(qjsonReporter, lastElement);
-            new Thread(parseCase).start();
-            Statistics.start(qjsonReporter.getCaseStatistics());
+            //ParseCase parseCase = new ParseCase(qjsonReporter, lastElement);
+            //new Thread(parseCase).start();
+            //Statistics.start(qjsonReporter.getCaseStatistics());
         }
     }
 
