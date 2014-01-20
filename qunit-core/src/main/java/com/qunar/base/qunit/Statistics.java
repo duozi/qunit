@@ -23,7 +23,7 @@ public class Statistics {
     public static void start(CaseStatistics caseStatistics) {
         try {
             if (!isValid(caseStatistics)) return;
-            HttpService.get("http://autotest.corp.qunar.com/api/set/statistics.do", buildParameters(caseStatistics));
+            HttpService.getTest("http://autotest.corp.qunar.com/api/set/statistics.do", buildParameters(caseStatistics));
         } catch (Exception e) {
             logger.error("Start set memcached error", e);
         }
