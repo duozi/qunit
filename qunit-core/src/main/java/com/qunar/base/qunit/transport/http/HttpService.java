@@ -306,10 +306,10 @@ public class HttpService {
         } catch (IOException e) {
             throw new RuntimeException(String.format("访问(%s)出错", url), e);
         } finally {
-            if (httpGet != null) {
+            /*if (httpGet != null) {
                 httpGet.abort();
-            }
-            //closeEntity(response);
+            }*/
+            closeEntity(response);
         }
     }
 
