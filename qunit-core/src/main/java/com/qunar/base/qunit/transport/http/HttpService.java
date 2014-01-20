@@ -304,12 +304,12 @@ public class HttpService {
             response = httpClient.execute(httpGet);
             return response;
         } catch (IOException e) {
-            throw new RuntimeException(String.format("访问(%s)出错", url), e);
-        } finally {
-            closeEntity(response);
             if (httpGet != null) {
                 httpGet.abort();
             }
+            throw new RuntimeException(String.format("访问(%s)出错", url), e);
+        } finally {
+            closeEntity(response);
         }
     }
 
