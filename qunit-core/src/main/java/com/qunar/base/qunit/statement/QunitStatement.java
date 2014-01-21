@@ -48,13 +48,13 @@ public class QunitStatement extends Statement {
             runAfterCommand(sNotifier, testCase);
             sNotifier.fireCaseFinished(testCase, frameworkMethod.getContext());
 
-            QJSONReporter qjsonReporter = (QJSONReporter)reporter;
+            /*QJSONReporter qjsonReporter = (QJSONReporter)reporter;
             Map<Object, Object> suitMap = qjsonReporter.getSuiteMap();
             List<Object> elements = (List<Object>)suitMap.get("elements");
             Map<Object, Object> lastElement = (Map<Object, Object>)elements.get(elements.size() - 1);
             ParseCase parseCase = new ParseCase(qjsonReporter, lastElement);
             new Thread(parseCase).start();
-            Statistics.start(qjsonReporter.getCaseStatistics());
+            Statistics.start(qjsonReporter.getCaseStatistics());*/
         }
     }
 
