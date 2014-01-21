@@ -35,7 +35,7 @@ public class Statistics {
         KeyValueStore runNum = new KeyValueStore("runNum", String.valueOf(caseStatistics.getRunSum()));
         KeyValueStore successedNum = new KeyValueStore("successedNum", String.valueOf(caseStatistics.getSuccess()));
         KeyValueStore failedNum = new KeyValueStore("failedNum", String.valueOf(caseStatistics.getFailed()));
-        KeyValueStore caseDescs = new KeyValueStore("caseDescs", StringUtils.join(caseStatistics.getFailedIdList(), "`"));
+        KeyValueStore caseDescs = new KeyValueStore("caseDescs", StringUtils.join(caseStatistics.getFailedIdList(), ";"));
         return Arrays.asList(job, build, runNum, failedNum, successedNum, caseDescs);
     }
 

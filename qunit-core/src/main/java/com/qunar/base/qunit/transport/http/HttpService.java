@@ -86,11 +86,6 @@ public class HttpService {
         return response(httpResponse);
     }
 
-    public static Response getTest(String url, List<KeyValueStore> params) {
-        HttpResponse httpResponse = doGetTest(url, params);
-        return response(httpResponse);
-    }
-
     public static Response getWithStream(String url, List<KeyValueStore> params) {
         HttpResponse httpResponse = doGet(url, params);
         return responseWithStream(httpResponse);
@@ -289,37 +284,6 @@ public class HttpService {
                 httpGet.abort();
             }
             throw new RuntimeException(String.format("访问(%s)出错", url), e);
-        }
-    }
-
-    private static HttpResponse doGetTest(String url, List<KeyValueStore> params) {
-        HttpGet httpGet = null;
-        HttpResponse response = null;
-        try {
-            String host = DNS.getHost(url);
-            url = urlWithIp(url);
-            httpGet = new HttpGet(getHttpGetURL(url, params));
-            httpGet.setHeader("Host", host);
-            setHeaders(httpGet);
-            response = httpClient.execute(httpGet);
-            return response;
-        } catch (IOException e) {
-            throw new RuntimeException(String.format("访问(%s)出错", url), e);
-        } finally {
-            /*if (httpGet != null) {
-                httpGet.abort();
-            }*/
-            closeEntity(response);
-        }
-    }
-
-    private static void closeEntity(HttpResponse response) {
-        if (response != null) {
-            try {
-                EntityUtils.consume(response.getEntity());
-            } catch (IOException e) {
-                throw new RuntimeException("close Entity error", e);
-            }
         }
     }
 
