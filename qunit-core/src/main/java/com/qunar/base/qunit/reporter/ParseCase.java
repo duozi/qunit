@@ -1,5 +1,7 @@
 package com.qunar.base.qunit.reporter;
 
+import com.qunar.base.qunit.Statistics;
+
 import java.util.List;
 import java.util.Map;
 
@@ -26,6 +28,7 @@ public class ParseCase implements Runnable{
         } else {
             reporter.addFailed(name);
         }
+        Statistics.start(reporter.getCaseStatistics());
 
     }
 
