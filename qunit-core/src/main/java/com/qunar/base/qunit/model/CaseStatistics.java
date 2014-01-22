@@ -1,8 +1,6 @@
 package com.qunar.base.qunit.model;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * User: zonghuang
@@ -24,15 +22,15 @@ public class CaseStatistics implements Serializable{
 
     private int failed;
 
-    private List<String> failedIdList = new ArrayList<String>();
+    private StringBuffer failedDescBuffer = new StringBuffer();
 
     public int getFailed() {
         return failed;
     }
 
-    public void addFailed(String id) {
+    public void addFailed(String desc) {
         failed++;
-        failedIdList.add(id);
+        failedDescBuffer.append(desc).append(";");
     }
 
     public void addSuccess() {
@@ -67,8 +65,8 @@ public class CaseStatistics implements Serializable{
         runSum += num;
     }
 
-    public List<String> getFailedIdList() {
-        return failedIdList;
+    public String getFailedIdList() {
+        return failedDescBuffer.toString();
     }
 
     public String getBuild() {

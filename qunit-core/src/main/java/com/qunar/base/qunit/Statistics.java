@@ -3,7 +3,6 @@ package com.qunar.base.qunit;
 import com.qunar.base.qunit.model.CaseStatistics;
 import com.qunar.base.qunit.model.KeyValueStore;
 import com.qunar.base.qunit.transport.http.HttpService;
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +22,7 @@ public class Statistics {
     public static void start(CaseStatistics caseStatistics) {
         try {
             if (!isValid(caseStatistics)) return;
-            HttpService.get("http://autotest.corp.qunar.com/api/set/statistics.do", buildParameters(caseStatistics));
+            HttpService.entityRequest("http://autotest.corp.qunar.com/api/set/statistics.do", "POST", buildParameters(caseStatistics));
         } catch (Exception e) {
             logger.error("Start set memcached error", e);
         }
@@ -35,7 +34,7 @@ public class Statistics {
         KeyValueStore runNum = new KeyValueStore("runNum", String.valueOf(caseStatistics.getRunSum()));
         KeyValueStore successedNum = new KeyValueStore("successedNum", String.valueOf(caseStatistics.getSuccess()));
         KeyValueStore failedNum = new KeyValueStore("failedNum", String.valueOf(caseStatistics.getFailed()));
-        KeyValueStore caseDescs = new KeyValueStore("caseDescs", StringUtils.join(caseStatistics.getFailedIdList(), ";"));
+        KeyValueStore caseDescs = new KeyValueStore("caseDescs", caseStatistics.getFailedIdList());
         return Arrays.asList(job, build, runNum, failedNum, successedNum, caseDescs);
     }
 
