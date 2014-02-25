@@ -48,11 +48,20 @@ public class PooledDataSource implements DataSource {
         String username = PropertyUtils.getProperty(database + ".jdbc.username");
         String password = PropertyUtils.getProperty(database + ".jdbc.password");
 
-        if (StringUtils.isBlank(driverClass) ||
-                StringUtils.isBlank(url) ||
-                StringUtils.isBlank(username) ||
-                StringUtils.isBlank(password)) {
-            String message = String.format("数据库%s的配置不正确,请检查qunit.properties中的配置", database);
+        if (StringUtils.isBlank(driverClass)) {
+            String message = String.format("数据库%s driver配置不正确(正确格式%s.jdbc.driver=)", database, database);
+            logger.error(message);
+            throw new RuntimeException(message);
+        } else if (StringUtils.isBlank(url)) {
+            String message = String.format("数据库%s url配置不正确(正确格式%s.jdbc.url=)", database, database);
+            logger.error(message);
+            throw new RuntimeException(message);
+        } else if (StringUtils.isBlank(username)) {
+            String message = String.format("数据库%s username配置不正确(正确格式%s.jdbc.username=)", database, database);
+            logger.error(message);
+            throw new RuntimeException(message);
+        } else if (StringUtils.isBlank(password)) {
+            String message = String.format("数据库%s password配置不正确(正确格式%s.jdbc.password=)", database, database);
             logger.error(message);
             throw new RuntimeException(message);
         }

@@ -4,6 +4,7 @@
 */
 package com.qunar.base.qunit.casereader;
 
+import com.alibaba.fastjson.JSONObject;
 import com.qunar.base.qunit.command.CallStepCommand;
 import com.qunar.base.qunit.command.CommandFactory;
 import com.qunar.base.qunit.command.StepCommand;
@@ -295,10 +296,23 @@ public class Dom4jCaseReader implements TestCaseReader {
     private void collectionParameters(List<KeyValueStore> parameters, Set<String> parameterNames) {
         for (KeyValueStore parameter : parameters) {
             Object value = parameter.getValue();
-            if (value instanceof String) {
+            if (isJson(value)) {
+                collectionJsonParameter(parameter.getName(), (String) value, parameterNames);
+            } else if (value instanceof String) {
                 parameterNames.add(parameter.getName());
             } else if (value instanceof Map) {
                 collectParameterInternal((Map) value, parameterNames);
+            }
+        }
+    }
+
+    private void collectionJsonParameter(String key, String json, Set<String> parameterNames) {
+        Object object = JSONObject.parse(json);
+        Iterator iterator = ((Map)object).entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry entry = (Map.Entry) iterator.next();
+            if (entry.getKey() instanceof String) {
+                parameterNames.add(key + "." + entry.getKey().toString().trim());
             }
         }
     }
@@ -317,7 +331,10 @@ public class Dom4jCaseReader implements TestCaseReader {
     private void replaceParameter(List<KeyValueStore> parameters, String value, String replaceName) {
         for (KeyValueStore parameter : parameters) {
             Object parameterValue = parameter.getValue();
-            if (parameterValue instanceof Map) {
+            if (isJson(parameterValue)) {
+                String json = replaceJsonParameter(parameter.getName(), (String) parameterValue, value, replaceName);
+                parameter.setValue(json);
+            } else if (parameterValue instanceof Map) {
                 replaceParameterInternal((Map) parameterValue, value, replaceName);
             } else if (parameterValue instanceof String) {
                 String key = parameter.getName();
@@ -327,6 +344,20 @@ public class Dom4jCaseReader implements TestCaseReader {
                 parameter.setValue(value);
             }
         }
+    }
+
+    private String replaceJsonParameter(String key, String json, String value, String replaceName) {
+        Map map = (Map) JSONObject.parse(json);
+        Iterator iterator = map.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry entry = (Map.Entry) iterator.next();
+            if (entry.getKey() instanceof String) {
+                if (replaceName.equals(key + "." + entry.getKey().toString().trim())) {
+                    map.put(entry.getKey(), value);
+                }
+            }
+        }
+        return JSONObject.toJSONString(map);
     }
 
     private void replaceParameterInternal(Map parameters, String value, String replaceName) {
@@ -441,5 +472,11 @@ public class Dom4jCaseReader implements TestCaseReader {
             }
         }
         return null;
+    }
+
+    private boolean isJson(Object value) {
+        if (!(value instanceof String)) return false;
+        String json = value.toString();
+        return json.startsWith("{") && json.endsWith("}");
     }
 }
