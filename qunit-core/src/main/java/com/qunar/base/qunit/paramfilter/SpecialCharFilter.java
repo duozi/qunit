@@ -4,6 +4,12 @@
  */
 package com.qunar.base.qunit.paramfilter;
 
+import com.alibaba.fastjson.JSONObject;
+import com.qunar.base.qunit.util.Util;
+
+import java.util.Iterator;
+import java.util.Map;
+
 import static com.qunar.base.qunit.util.PropertyUtils.getProperty;
 
 /**
@@ -27,12 +33,35 @@ public class SpecialCharFilter extends ParamFilter{
 
     @Override
     protected String doHandle(String param) {
-        return specialChar;
+        if (Util.isJson(param)) {
+            return setSpecialParam(param);
+        } else if ("[SPECIAL]".equals(param)){
+            return specialChar;
+        } else {
+            return param;
+        }
     }
 
     @Override
     protected boolean support(String param) {
-        return "[SPECIAL]".equals(param);
+        return "[SPECIAL]".equals(param) || param.contains("[SPECIAL]");
+    }
+
+    private String setSpecialParam(String param) {
+        Map map = null;
+        try {
+            map = (Map) JSONObject.parse(param);
+        } catch (Exception e) {
+            return param;
+        }
+        Iterator iterator = map.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry entry = (Map.Entry) iterator.next();
+            if ("[SPECIAL]".equals(entry.getValue())) {
+                map.put(entry.getKey(), specialChar);
+            }
+        }
+        return JSONObject.toJSONString(map);
     }
 
 }

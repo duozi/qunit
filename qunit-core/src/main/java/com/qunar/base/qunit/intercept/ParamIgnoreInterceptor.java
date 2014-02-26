@@ -4,10 +4,14 @@
  */
 package com.qunar.base.qunit.intercept;
 
+import com.alibaba.fastjson.JSONObject;
 import com.qunar.base.qunit.model.KeyValueStore;
+import com.qunar.base.qunit.util.Util;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 描述：
@@ -24,8 +28,12 @@ public class ParamIgnoreInterceptor extends ParameterInterceptor {
         if (params != null) {
             ArrayList<KeyValueStore> list = new ArrayList<KeyValueStore>(params);
             for (KeyValueStore kvs : params) {
-                if (IGNORE_PARAM.equals(kvs.getValue())) {
-                    list.remove(kvs);
+                if (Util.isJson(kvs.getValue())) {
+                    kvs.setValue(removeElement((String) kvs.getValue()));
+                } else {
+                    if (IGNORE_PARAM.equals(kvs.getValue())) {
+                        list.remove(kvs);
+                    }
                 }
             }
             return list;
@@ -37,12 +45,29 @@ public class ParamIgnoreInterceptor extends ParameterInterceptor {
     protected boolean support(List<KeyValueStore> params) {
         if (params != null) {
             for (KeyValueStore kvs : params) {
-                if (IGNORE_PARAM.equals(kvs.getValue())) {
+                if (IGNORE_PARAM.equals(kvs.getValue()) || ((String)kvs.getValue()).contains(IGNORE_PARAM)) {
                     return true;
                 }
             }
         }
         return false;
+    }
+
+    private String removeElement(String json) {
+        Map map = null;
+        try {
+            map = (Map) JSONObject.parse(json);
+        } catch (Exception e) {
+            return json;
+        }
+        Iterator iterator = map.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry entry = (Map.Entry) iterator.next();
+            if (IGNORE_PARAM.equals(entry.getValue())) {
+                iterator.remove();
+            }
+        }
+        return JSONObject.toJSONString(map);
     }
 
 }

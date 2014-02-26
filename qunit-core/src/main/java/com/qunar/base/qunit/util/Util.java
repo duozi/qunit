@@ -13,4 +13,10 @@ public class Util {
         if (StringUtils.isBlank(value.toString())) return true;
         return false;
     }
+
+    public static boolean isJson(Object value) {
+        if (!(value instanceof String)) return false;
+        String json = value.toString();
+        return json.startsWith("{") && json.endsWith("}");
+    }
 }
