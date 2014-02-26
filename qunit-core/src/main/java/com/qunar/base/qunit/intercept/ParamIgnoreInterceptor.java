@@ -45,7 +45,7 @@ public class ParamIgnoreInterceptor extends ParameterInterceptor {
     protected boolean support(List<KeyValueStore> params) {
         if (params != null) {
             for (KeyValueStore kvs : params) {
-                if (IGNORE_PARAM.equals(kvs.getValue()) || ((String)kvs.getValue()).contains(IGNORE_PARAM)) {
+                if (IGNORE_PARAM.equals(kvs.getValue()) || (Util.isJson(kvs.getValue()) && ((String)kvs.getValue()).contains(IGNORE_PARAM))) {
                     return true;
                 }
             }
