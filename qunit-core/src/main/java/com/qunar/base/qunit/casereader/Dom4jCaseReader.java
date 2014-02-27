@@ -297,6 +297,7 @@ public class Dom4jCaseReader implements TestCaseReader {
         for (KeyValueStore parameter : parameters) {
             Object value = parameter.getValue();
             if (isJson(value)) {
+                parameterNames.add(parameter.getName());
                 collectionJsonParameter(parameter.getName(), (String) value, parameterNames);
             } else if (value instanceof String) {
                 parameterNames.add(parameter.getName());
@@ -332,6 +333,9 @@ public class Dom4jCaseReader implements TestCaseReader {
         for (KeyValueStore parameter : parameters) {
             Object parameterValue = parameter.getValue();
             if (isJson(parameterValue)) {
+                if (replaceName.equals(parameter.getName())) {
+                    parameter.setValue(value);
+                }
                 String json = replaceJsonParameter(parameter.getName(), (String) parameterValue, value, replaceName);
                 parameter.setValue(json);
             } else if (parameterValue instanceof Map) {
