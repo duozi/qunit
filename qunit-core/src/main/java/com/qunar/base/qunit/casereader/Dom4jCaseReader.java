@@ -335,6 +335,7 @@ public class Dom4jCaseReader implements TestCaseReader {
             if (isJson(parameterValue)) {
                 if (replaceName.equals(parameter.getName())) {
                     parameter.setValue(value);
+                    return;
                 }
                 String json = replaceJsonParameter(parameter.getName(), (String) parameterValue, value, replaceName);
                 parameter.setValue(json);
