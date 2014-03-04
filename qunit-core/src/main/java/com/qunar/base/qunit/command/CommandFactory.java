@@ -37,6 +37,7 @@ public class CommandFactory {
         CONFIG.put("examples", ExamplesConfig.class);
         CONFIG.put("echo", EchoConfig.class);
         CONFIG.put("removeHeader", RemoveHeaderConfig.class);
+        CONFIG.put("compare", CompareStepConfig.class);
         CONFIG.put(CompareDatabaseStepConfig.NAME, CompareDatabaseStepConfig.class);
         loadAllConfigs();
     }
