@@ -41,8 +41,8 @@ public abstract class StepCommand {
 
     public void execute(Response preResponse, Context context, StepNotifier sNotifier) throws Throwable {
         Response response;
-        interceptor.doBefore(this, preResponse, context);
         try {
+            interceptor.doBefore(this, preResponse, context);
             sNotifier.fireStepStarted(this);
             response = doExecute(preResponse, context);
             sNotifier.fireStepFinished(this);
