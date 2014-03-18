@@ -117,6 +117,28 @@ public class ConfigUtils {
         return params;
     }
 
+    private static List<KeyValueStore> processList(List<KeyValueStore> keyValueStores) {
+        if (keyValueStores == null) return Collections.EMPTY_LIST;
+        List<KeyValueStore> keyValueStoreList = new ArrayList<KeyValueStore>();
+        for (KeyValueStore keyValueStore : keyValueStores) {
+            if ("list".equals(keyValueStore.getName())) {
+                Object value = keyValueStore.getValue();
+                if (!(value instanceof List)) {
+                    keyValueStoreList.add(keyValueStore);
+                    continue;
+                }
+
+                List<KeyValueStore> valueList = (List<KeyValueStore>) value;
+                if (valueList != null && valueList.size() > 0){
+                    keyValueStoreList.add(new KeyValueStore(valueList.get(0).getName(), keyValueStore.getValue()));
+                }
+            } else {
+                keyValueStoreList.add(keyValueStore);
+            }
+        }
+        return keyValueStoreList;
+    }
+
     private static List<KeyValueStore> getParams(Element element) {
         // <list>
         //       <User><param name="admin" /></User>
@@ -127,7 +149,7 @@ public class ConfigUtils {
         if (isListElement(element)) {
             ArrayList<KeyValueStore> list = new ArrayList<KeyValueStore>();
             list.add(new KeyValueStore(element.getName(), getList(element)));
-            return list;
+            return processList(list);
         }
         if (hasAttribute(element)) {
             return getAllAttribute(element);
