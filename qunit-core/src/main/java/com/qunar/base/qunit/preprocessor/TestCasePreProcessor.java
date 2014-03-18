@@ -51,7 +51,7 @@ public class TestCasePreProcessor {
         while (iterator.hasNext()) {
             Element currentNode = (Element) iterator.next();
             Preprocessor preprocessor = PREPROCESSORS.get(currentNode.getName());
-            if (preprocessor != null) {
+            if (preprocessor != null && "data-case".equals(parent.getName())) {
                 List<Node> newNodes = preprocessor.prepare(parent.getDocument(), currentNode);
                 replace(iterator, parent, newNodes);
                 prepare(parent);
