@@ -9,7 +9,7 @@ import com.qunar.base.qunit.annotation.Interceptor;
 import com.qunar.base.qunit.casefilter.CaseFilter;
 import com.qunar.base.qunit.casereader.DatacaseReader;
 import com.qunar.base.qunit.casereader.Dom4jCaseReader;
-import com.qunar.base.qunit.casereader.TestCaseReader;
+import com.qunar.base.qunit.casereader.GlobalVariablesReader;
 import com.qunar.base.qunit.context.Context;
 import com.qunar.base.qunit.dsl.DSLCommandReader;
 import com.qunar.base.qunit.intercept.InterceptorFactory;
@@ -37,9 +37,7 @@ import org.junit.runners.model.InitializationError;
 import java.io.FileNotFoundException;
 import java.lang.annotation.*;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * Qunit测试的入口类，使用时通过RunWith注解指定Junit的runner
@@ -88,6 +86,7 @@ public class Qunit extends ParentRunner<TestSuiteRunner> {
         attatchHandlers(testClass);
         attatchInterceptors(testClass);
 
+        /* 处理流程Case*/
         List<DataSuite> suites = null;
         if (CollectionUtils.isNotEmpty(dataFiles)){
             List<String> levels = options.levels();
@@ -104,11 +103,26 @@ public class Qunit extends ParentRunner<TestSuiteRunner> {
         Environment.initEnvironment(testClass);
 
         filter = options.createCaseFilter();
-        Class<? extends TestCaseReader> clazz = options.reader();
 
-        addChildren(beforeFiles, null, clazz);
-        addChildren(files, suites, clazz);
-        addChildren(afterFiles, null, clazz);
+        List<Map<String, Object>> dataList = null;
+        if (StringUtils.isNotBlank(options.global())) {
+            Map<String, Object> globalVariables = new GlobalVariablesReader().parse(options.global());
+            addGlobalParametersToContext((Map<String, Object>) globalVariables.get("set"));
+            dataList = (List<Map<String, Object>>) globalVariables.get("data");
+        }
+
+        addChildren(beforeFiles, null, null);
+        addChildren(files, suites, dataList);
+        addChildren(afterFiles, null, null);
+    }
+
+    private void addGlobalParametersToContext(Map<String, Object> setParameters) {
+        if (setParameters == null) return;
+        Iterator iterator = setParameters.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry entry = (Map.Entry) iterator.next();
+            GLOBALCONTEXT.addContext((String) entry.getKey(), entry.getValue());
+        }
     }
 
     private void addJobAndIdToContext(QunitOptions options) {
@@ -182,11 +196,10 @@ public class Qunit extends ParentRunner<TestSuiteRunner> {
         }
     }
 
-    private void addChildren(List<String> files, List<DataSuite> dataSuites, Class<? extends TestCaseReader> clazz) throws InitializationError, DocumentException, FileNotFoundException {
+    private void addChildren(List<String> files, List<DataSuite> dataSuites, List<Map<String, Object>> dataList) throws InitializationError, DocumentException, FileNotFoundException {
         List<TestSuite> suites = new ArrayList<TestSuite>(files.size());
         for (String file : files) {
-            //TestSuite testSuite = new Dom4jCaseReader().readTestCase(file);
-            TestSuite testSuite = createReader(clazz).readTestCase(file);
+            TestSuite testSuite = new Dom4jCaseReader().readTestCase(file);
             if (testSuite == null) continue;
             filter.filter(testSuite);
             if (!testSuite.getTestCases().isEmpty()) {
@@ -197,10 +210,56 @@ public class Qunit extends ParentRunner<TestSuiteRunner> {
             suites.addAll(new DatacaseReader().convertDataSuiteToTestSuite(dataSuites, this.options.ids()));
         }
         Collections.sort(suites);
-        for (TestSuite suite : suites) {
+        /*for (TestSuite suite : suites) {
             ((QJSONReporter)this.qjsonReporter).getCaseStatistics().addRunSum(statictisCase(suite));
             Context suitContext = new Context(GLOBALCONTEXT);
             children.add(new TestSuiteRunner(getTestClass().getJavaClass(), suite, suitContext, this.qjsonReporter));
+        }*/
+        addTestSuiteRunner(suites, dataList);
+    }
+
+    private void addTestSuiteRunner(List<TestSuite> suites, List<Map<String, Object>> dataList) throws InitializationError {
+        if (dataList == null) {
+            for (TestSuite suite : suites) {
+                ((QJSONReporter)this.qjsonReporter).getCaseStatistics().addRunSum(statictisCase(suite));
+                Context suitContext = new Context(GLOBALCONTEXT);
+                children.add(new TestSuiteRunner(getTestClass().getJavaClass(), suite, suitContext, this.qjsonReporter));
+            }
+        } else {
+            for (Map<String, Object> data : dataList) {
+                for (TestSuite suite : suites) {
+                    ((QJSONReporter)this.qjsonReporter).getCaseStatistics().addRunSum(statictisCase(suite));
+                    Context suitContext = new Context(GLOBALCONTEXT);
+                    String param = addSuiteParametersToContext(suitContext, data);
+                    TestSuite cloneSuite = suite.clone();
+                    modifyTestSuite(cloneSuite, param);
+                    children.add(new TestSuiteRunner(getTestClass().getJavaClass(), cloneSuite, suitContext, this.qjsonReporter));
+                }
+            }
+        }
+    }
+
+    private String addSuiteParametersToContext(Context suitContext, Map<String, Object> data) {
+        Iterator iterator = data.entrySet().iterator();
+        List<String> paramList = new ArrayList<String>();
+        while (iterator.hasNext()) {
+            Map.Entry entry = (Map.Entry) iterator.next();
+            paramList.add(entry.getKey() + "=" + entry.getValue());
+            suitContext.addContext((String) entry.getKey(), entry.getValue());
+        }
+        return StringUtils.join(paramList, "_");
+    }
+
+    private void modifyTestSuite(TestSuite testSuite, String param) {
+        testSuite.setId(testSuite.getId() + "_" + param);
+        if (!testSuite.getDesc().contains(param)) {
+            testSuite.setDesc(testSuite.getDesc() + "_" + param);
+        }
+        List<TestCase> testCaseList = testSuite.getTestCases();
+        if (testCaseList != null) {
+            for (TestCase testCase : testCaseList) {
+                testCase.setDesc(testCase.getDesc() + "_" + param);
+            }
         }
     }
 
@@ -210,14 +269,6 @@ public class Qunit extends ParentRunner<TestSuiteRunner> {
             return 0;
         }
         return testCases.size();
-    }
-
-    private TestCaseReader createReader(Class<?> clazz) {
-        try {
-            return (TestCaseReader) clazz.newInstance();
-        } catch (Exception e) {
-            throw new RuntimeException("createReader error");
-        }
     }
 
     public static void registerValidator(String validatorName, Class<? extends Validator> validatorClass) {
@@ -246,6 +297,8 @@ public class Qunit extends ParentRunner<TestSuiteRunner> {
 
         String[] service() default "service.xml";
 
+        String global() default "";
+
         String[] dsl() default "";
 
         String[] dataFiles() default "";
@@ -253,8 +306,6 @@ public class Qunit extends ParentRunner<TestSuiteRunner> {
         String keyFile() default "cases/key.xml";
 
         Operation operation() default Operation.CLEAR_INSERT;
-
-        Class<? extends TestCaseReader> reader() default Dom4jCaseReader.class;
     }
 
 }

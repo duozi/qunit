@@ -2,10 +2,7 @@ package com.qunar.base.qunit.model;
 
 import org.apache.commons.lang.StringUtils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class TestSuite extends MappedElement implements Comparable<TestSuite> {
 
@@ -115,6 +112,44 @@ public class TestSuite extends MappedElement implements Comparable<TestSuite> {
         suiteMap.put("comments", "");
         suiteMap.put("tags", getTags(tags));
         return suiteMap;
+    }
+
+    public TestSuite clone() {
+        TestSuite testSuite = new TestSuite();
+        testSuite.setDesc(desc);
+        testSuite.setId(id);
+        testSuite.setCaseFileName(caseFileName);
+        testSuite.setTag(cloneTag(tags));
+        testSuite.setTestCases(cloneCommand(testCases));
+        testSuite.setAfterCase(cloneCommand(afterCase));
+        testSuite.setAfterSuite(cloneCommand(afterSuite));
+        testSuite.setBackGrounds(cloneCommand(backGrounds));
+        testSuite.setBeforeCase(cloneCommand(beforeCase));
+        testSuite.setBeforeSuite(cloneCommand(beforeSuite));
+
+        return testSuite;
+    }
+
+    private List<TestCase> cloneCommand(List<TestCase> testCaseList) {
+        if (testCaseList != null) {
+            List<TestCase> testCases = new ArrayList<TestCase>();
+            for (TestCase testCase : testCaseList) {
+                testCases.add(testCase.clone());
+            }
+            return testCases;
+        }
+        return Collections.EMPTY_LIST;
+    }
+
+    private List<String> cloneTag(List<String> tagList) {
+        if (tags != null) {
+            List<String> tags = new ArrayList<String>();
+            for (String tag : tags) {
+                tags.add(tag);
+            }
+            return tags;
+        }
+        return Collections.EMPTY_LIST;
     }
 
     @Override
