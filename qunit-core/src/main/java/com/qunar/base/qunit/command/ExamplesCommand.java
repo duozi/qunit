@@ -75,8 +75,13 @@ public class ExamplesCommand extends StepCommand {
 
     @Override
     protected StepCommand doClone() {
-        return null;
+        return new ExamplesCommand(examples);
     }
+
+    public ExamplesCommand(List<Map<String, String>> examples){
+        this.examples = examples;
+    }
+
 
     @Override
     public Map<String, Object> toReport() {

@@ -33,4 +33,21 @@ public class DataDrivenTestCase extends TestCase {
             pre.setNextCommand(examples.getNextCommand());
         }
     }
+
+    public DataDrivenTestCase(String id, List<String> tag, String desc) {
+        super(id, tag, desc);
+    }
+
+    public DataDrivenTestCase() {
+
+    }
+
+    public TestCase clone(DataDrivenTestCase dataDrivenTestCase) {
+        TestCase testCase = new DataDrivenTestCase(dataDrivenTestCase.getId(), dataDrivenTestCase.getTag(), dataDrivenTestCase.getDesc());
+        testCase.setBodyCommand(cloneCommands(dataDrivenTestCase.getBodyCommand()));
+        testCase.setAfterCommand(cloneCommands(dataDrivenTestCase.getAfterCommand()));
+        testCase.setBeforeCommand(cloneCommands(dataDrivenTestCase.getBeforeCommand()));
+        testCase.setTearDownCommand(cloneCommands(dataDrivenTestCase.getTearDownCommand()));
+        return testCase;
+    }
 }

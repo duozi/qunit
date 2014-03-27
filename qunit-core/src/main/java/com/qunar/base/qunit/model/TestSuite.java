@@ -134,7 +134,11 @@ public class TestSuite extends MappedElement implements Comparable<TestSuite> {
         if (testCaseList != null) {
             List<TestCase> testCases = new ArrayList<TestCase>();
             for (TestCase testCase : testCaseList) {
-                testCases.add(testCase.clone());
+                if (testCase instanceof DataDrivenTestCase) {
+                    testCases.add(((DataDrivenTestCase)testCase).clone((DataDrivenTestCase) testCase));
+                } else {
+                    testCases.add(testCase.clone());
+                }
             }
             return testCases;
         }

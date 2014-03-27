@@ -95,7 +95,7 @@ public class TestCase extends MappedElement {
         return testCase;
     }
 
-    private StepCommand cloneCommands(StepCommand command) {
+    protected StepCommand cloneCommands(StepCommand command) {
         List<StepCommand> commands = new ArrayList<StepCommand>();
         StepCommand current = command;
         while (current != null) {
