@@ -20,10 +20,7 @@ import qunar.tc.qmq.utils.Constants;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * User: zhaohuiyu
@@ -102,6 +99,8 @@ public class QmqMessageExecuteCommand extends ExecuteCommand {
             for (KeyValueStore param : params) {
                 if (param.getName().equals(BaseMessage.keys.qmq_data.name())){
                     message.setData(JSON.parse(param.getValue().toString()));
+                } else if (param.getName().equals("no_qmq_data")) {
+                    addProperty(message, param);
                 }else {
                     message.setProperty(param.getName(), param.getValue().toString());
                 }
@@ -116,6 +115,15 @@ public class QmqMessageExecuteCommand extends ExecuteCommand {
             logger.error("access error", e);
         } catch (InvocationTargetException e) {
             logger.error("send message error", e.getTargetException());
+        }
+    }
+
+    private void addProperty(Message message, KeyValueStore param) {
+        Map data = (Map) JSON.parse(param.getValue().toString());
+        Iterator iterator = data.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry entry = (Map.Entry) iterator.next();
+            message.setProperty(entry.getKey().toString(), entry.getValue().toString());
         }
     }
 
