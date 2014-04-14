@@ -123,7 +123,19 @@ public class QmqMessageExecuteCommand extends ExecuteCommand {
         Iterator iterator = data.entrySet().iterator();
         while (iterator.hasNext()) {
             Map.Entry entry = (Map.Entry) iterator.next();
-            message.setProperty(entry.getKey().toString(), entry.getValue().toString());
+            if (entry.getValue() instanceof Long) {
+                message.setProperty(entry.getKey().toString(), (Long) entry.getValue());
+            } else if (entry.getValue() instanceof Integer) {
+                message.setProperty(entry.getKey().toString(), (Integer) entry.getValue());
+            } else if (entry.getValue() instanceof Float) {
+                message.setProperty(entry.getKey().toString(), (Float) entry.getValue());
+            } else if (entry.getValue() instanceof Double) {
+                message.setProperty(entry.getKey().toString(), (Double) entry.getValue());
+            } else if (entry.getValue() instanceof Date) {
+                message.setProperty(entry.getKey().toString(), (Date) entry.getValue());
+            } else {
+                message.setProperty(entry.getKey().toString(), entry.getValue().toString());
+            }
         }
     }
 
