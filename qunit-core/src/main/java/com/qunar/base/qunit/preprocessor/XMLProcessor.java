@@ -1,17 +1,12 @@
 package com.qunar.base.qunit.preprocessor;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-
+import com.sun.org.apache.xml.internal.serialize.LineSeparator;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.dom4j.Attribute;
 import org.dom4j.Element;
 
-import com.sun.org.apache.xml.internal.serialize.LineSeparator;
+import java.util.*;
 
 public class XMLProcessor {
 
@@ -105,7 +100,7 @@ public class XMLProcessor {
 			}
 			if (TR.equals(row.getName())) {
 				processRow(row, titleSet);
-				break;
+				//break;
 			}
 		}
 		return titleSet;

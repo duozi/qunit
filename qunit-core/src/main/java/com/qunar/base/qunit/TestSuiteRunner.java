@@ -7,10 +7,12 @@ package com.qunar.base.qunit;
 import com.qunar.base.qunit.command.StepCommand;
 import com.qunar.base.qunit.context.Context;
 import com.qunar.base.qunit.model.DataDrivenTestCase;
+import com.qunar.base.qunit.model.KeyValueStore;
 import com.qunar.base.qunit.model.TestCase;
 import com.qunar.base.qunit.model.TestSuite;
 import com.qunar.base.qunit.reporter.Reporter;
 import com.qunar.base.qunit.statement.QunitStatement;
+import com.qunar.base.qunit.util.ParameterUtils;
 import org.apache.commons.lang.StringUtils;
 import org.junit.internal.AssumptionViolatedException;
 import org.junit.internal.runners.model.EachTestNotifier;
@@ -110,12 +112,33 @@ public class TestSuiteRunner extends BlockJUnit4ClassRunner {
         int index = 0;
         for (Map<String, String> data : examples) {
             Context caseContext = new Context(suiteContext);
-            for (Map.Entry<String, String> entry : data.entrySet()) {
+            /*for (Map.Entry<String, String> entry : data.entrySet()) {
                 caseContext.addContext(entry.getKey(), entry.getValue());
-            }
+            }*/
+            createCaseContext(data, suitContext, caseContext);
             TestCase newTestCase = testCase.clone();
             newTestCase.setDesc(newTestCase.getDesc() + index++);
             frameworkMethodList.add(new QunitFrameworkMethod(null, newTestCase, caseContext));
+        }
+    }
+
+    private void createCaseContext(Map<String, String> data, Context suitContext, Context caseContext) {
+        List<KeyValueStore> params = new ArrayList<KeyValueStore>();
+        for (Map.Entry<String, String> entry : data.entrySet()) {
+            if ("null".equals(entry.getValue())) {
+                String name = entry.getKey();
+                params.add(new KeyValueStore(name, "${" + name + "}"));
+            } else {
+                params.add(new KeyValueStore(entry.getKey(), entry.getValue()));
+            }
+        }
+        List<KeyValueStore> keyValueStoreList = ParameterUtils.replaceValueFromContext(suitContext, params);
+        for (KeyValueStore keyValueStore : keyValueStoreList) {
+            if (("${" + keyValueStore.getName() + "}").equals(keyValueStore.getValue())) {
+                caseContext.addContext(keyValueStore.getName(), null);
+            } else {
+                caseContext.addContext(keyValueStore.getName(), keyValueStore.getValue());
+            }
         }
     }
 
