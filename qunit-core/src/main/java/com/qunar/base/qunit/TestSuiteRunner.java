@@ -117,7 +117,7 @@ public class TestSuiteRunner extends BlockJUnit4ClassRunner {
             }*/
             createCaseContext(data, suitContext, caseContext);
             TestCase newTestCase = testCase.clone();
-            newTestCase.setDesc(newTestCase.getDesc() + index++);
+            newTestCase.setDesc(newTestCase.getDesc() + "_" + index++);
             frameworkMethodList.add(new QunitFrameworkMethod(null, newTestCase, caseContext));
         }
     }
