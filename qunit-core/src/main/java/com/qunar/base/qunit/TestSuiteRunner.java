@@ -134,8 +134,8 @@ public class TestSuiteRunner extends BlockJUnit4ClassRunner {
         }
         List<KeyValueStore> keyValueStoreList = ParameterUtils.replaceValueFromContext(suitContext, params);
         for (KeyValueStore keyValueStore : keyValueStoreList) {
-            if (("${" + keyValueStore.getName() + "}").equals(keyValueStore.getValue())) {
-                caseContext.addContext(keyValueStore.getName(), null);
+            if (("[null]").equals(keyValueStore.getValue())) {
+                caseContext.addContext(keyValueStore.getName(), "null");
             } else {
                 caseContext.addContext(keyValueStore.getName(), keyValueStore.getValue());
             }
