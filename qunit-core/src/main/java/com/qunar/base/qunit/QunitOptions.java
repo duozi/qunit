@@ -10,8 +10,10 @@ import org.apache.commons.lang.StringUtils;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 public class QunitOptions {
     private Qunit.Options options;
@@ -114,12 +116,25 @@ public class QunitOptions {
         return getTestFiles(this.options.dsl());
     }
 
-    public CaseFilter createCaseFilter() {
+    public CaseFilter createCaseFilter(Set<String> extraTagSet) {
         if (StringUtils.isBlank(ids())) {
-            return new TagFilter(tags());
+            return new TagFilter(mergeTag(tags(), extraTagSet));
         } else {
             return new CaseIDsFilter(ids());
         }
+    }
+
+    private List<String> mergeTag(List<String> tags, Set<String> extraTags) {
+        if (extraTags == null) {
+            return tags;
+        }
+        List<String> mergeTags = new ArrayList<String>(tags);
+        for (String extraTag : extraTags) {
+            if (!tags.contains(extraTag)) {
+                mergeTags.add(extraTag);
+            }
+        }
+        return mergeTags;
     }
 
     public String jobName() {

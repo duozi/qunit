@@ -89,12 +89,12 @@ public class Qunit extends ParentRunner<TestSuiteRunner> {
         /* 处理流程Case*/
         List<DataSuite> suites = null;
         if (CollectionUtils.isNotEmpty(dataFiles)){
-            List<String> levels = options.levels();
-            List<String> statuss = options.statuss();
+            List<String> expectLevels = options.levels();
+            List<String> expectStatuss = options.statuss();
 
             DatacaseReader datacaseReader = new DatacaseReader();
             suites = datacaseReader.getSuites(dataFiles, options.keyFile(), options.dslFile());
-            datacaseReader.processDataSuite(suites, levels, statuss);
+            datacaseReader.processDataSuite(suites, expectLevels, expectStatuss);
         }
 
         new DSLCommandReader().read(options.dslFile(), qjsonReporter);
@@ -102,7 +102,6 @@ public class Qunit extends ParentRunner<TestSuiteRunner> {
         ServiceFactory.getInstance().init(options.serviceConfig(), qjsonReporter);
         Environment.initEnvironment(testClass);
 
-        filter = options.createCaseFilter();
 
         List<Map<String, Object>> dataList = null;
         if (StringUtils.isNotBlank(options.global())) {
@@ -110,10 +109,25 @@ public class Qunit extends ParentRunner<TestSuiteRunner> {
             addGlobalParametersToContext((Map<String, Object>) globalVariables.get("set"));
             dataList = (List<Map<String, Object>>) globalVariables.get("data");
         }
+        Set<String> extraTagSet = getExtraTag(dataList);
+        filter = options.createCaseFilter(extraTagSet);
 
         addChildren(beforeFiles, null, null);
         addChildren(files, suites, dataList);
         addChildren(afterFiles, null, null);
+    }
+
+    private Set<String> getExtraTag(List<Map<String, Object>> dataList) {
+        if (dataList == null) {
+            return Collections.EMPTY_SET;
+        }
+        Set<String> extraTagSet = new HashSet<String>();
+        for (Map<String, Object> map : dataList) {
+            if (map.get("site") != null) {
+                extraTagSet.add((String) map.get("site"));
+            }
+        }
+        return extraTagSet;
     }
 
     private void addGlobalParametersToContext(Map<String, Object> setParameters) {
@@ -210,11 +224,6 @@ public class Qunit extends ParentRunner<TestSuiteRunner> {
             suites.addAll(new DatacaseReader().convertDataSuiteToTestSuite(dataSuites, this.options.ids()));
         }
         Collections.sort(suites);
-        /*for (TestSuite suite : suites) {
-            ((QJSONReporter)this.qjsonReporter).getCaseStatistics().addRunSum(statictisCase(suite));
-            Context suitContext = new Context(GLOBALCONTEXT);
-            children.add(new TestSuiteRunner(getTestClass().getJavaClass(), suite, suitContext, this.qjsonReporter));
-        }*/
         addTestSuiteRunner(suites, dataList);
     }
 
