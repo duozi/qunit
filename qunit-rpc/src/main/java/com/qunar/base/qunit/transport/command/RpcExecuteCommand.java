@@ -4,6 +4,7 @@
 */
 package com.qunar.base.qunit.transport.command;
 
+import com.qunar.autotest.mock.util.JSON;
 import com.qunar.base.qunit.model.KeyValueStore;
 import com.qunar.base.qunit.objectfactory.BeanUtils;
 import com.qunar.base.qunit.response.Response;
@@ -33,8 +34,11 @@ public class RpcExecuteCommand extends ExecuteCommand {
         try {
             Object service = RpcServiceFactory.getRpcService(serviceDesc);
             Method executeMethod = ReflectionUtils.getMethod(serviceDesc.getMethod(), serviceDesc.getServiceClass());
-            Object result = executeMethod.invoke(service,
-                    BeanUtils.getParameters(params, executeMethod.getGenericParameterTypes()));
+            Object[] parameters = BeanUtils.getParameters(params, executeMethod.getGenericParameterTypes());
+            if (logger.isInfoEnabled()) {
+                logger.info("Rpc request start: params={}", new Object[]{JSON.toJSONString(parameters)});
+            }
+            Object result = executeMethod.invoke(service, parameters);
             response.setBody(result);
         } catch (InvocationTargetException ite) {
             logger.error("call rpc error", ite.getTargetException());
