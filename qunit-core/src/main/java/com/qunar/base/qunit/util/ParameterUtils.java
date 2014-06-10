@@ -6,10 +6,7 @@ import com.qunar.base.qunit.paramfilter.FilterFactory;
 import com.qunar.base.qunit.response.Response;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.qunar.base.qunit.util.PropertyUtils.replaceConfigValue;
 
@@ -58,15 +55,21 @@ public class ParameterUtils {
     private static void filter(Object entry, Object value) {
         if (value instanceof List) {
             List<Object> params = new ArrayList<Object>();
+            boolean isReflect = true;
             for (Object str : (List)value) {
-                if (str instanceof String) {
+                if (str instanceof KeyValueStore) {
+                    filter(str, ((KeyValueStore) str).getValue());
+                    isReflect = false;
+                } else if (str instanceof String) {
                     Object param = FilterFactory.handle(str.toString());
                     params.add(param);
                 } else {
                     params.add(str);
                 }
             }
-            ReflectionUtils.setFieldValue(entry, "value", params);
+            if (isReflect) {
+                ReflectionUtils.setFieldValue(entry, "value", params);
+            }
         }
         if (value instanceof String) {
             Object param = FilterFactory.handle(value.toString());
@@ -146,5 +149,13 @@ public class ParameterUtils {
             }
         }
         return resultList;
+    }
+
+    public static Map<String, String> convertListKeyValueToMap(List<KeyValueStore> list) {
+        Map<String, String> map = new HashMap<String, String>();
+        for (KeyValueStore kvs : list) {
+            map.put(kvs.getName(), (String) kvs.getValue());
+        }
+        return map;
     }
 }
