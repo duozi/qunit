@@ -65,6 +65,7 @@ public class CommandFactory {
     private StepCommand getCommand(Element element) {
         Class<? extends StepConfig> clazz = CONFIG.get(element.getName());
         if (clazz == null) {
+            logger.error("{} is not valid label", element.getName());
             throw new CommandNotFoundException(element.getName());
         }
         try {
