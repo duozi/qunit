@@ -99,6 +99,7 @@ public class CommandFactory {
     private StepCommand getDataCommand(String executor, String caseId, boolean follow, boolean beFollowed) {
         Class<? extends StepConfig> clazz = CONFIG.get(executor);
         if (clazz == null) {
+            logger.error("{} is not valid label", executor);
             throw new CommandNotFoundException(executor);
         }
         try {
