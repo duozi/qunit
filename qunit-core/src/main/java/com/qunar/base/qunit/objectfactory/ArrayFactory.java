@@ -8,7 +8,6 @@ import java.lang.reflect.Array;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Type;
 import java.util.List;
-import java.util.regex.Pattern;
 
 public class ArrayFactory extends InstanceFactory {
 
@@ -30,7 +29,13 @@ public class ArrayFactory extends InstanceFactory {
             }
         } catch (Exception e) {
         }
-        Object[] values = getValues(value);
+        //Object[] values = getValues(value);
+        Object[] values;
+        if (componentType == byte.class) {
+            values = (Object[]) value;
+        } else {
+            values = getValues(value);
+        }
         Object bean = Array.newInstance(componentType, values.length);
         for (int i = 0; i < values.length; ++i) {
             Object element = values[i];
