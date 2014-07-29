@@ -125,12 +125,13 @@ public class TestSuiteRunner extends BlockJUnit4ClassRunner {
     private void createCaseContext(Map<String, String> data, Context suitContext, Context caseContext) {
         List<KeyValueStore> params = new ArrayList<KeyValueStore>();
         for (Map.Entry<String, String> entry : data.entrySet()) {
-            if ("null".equals(entry.getValue())) {
+            /*if ("null".equals(entry.getValue())) {
                 String name = entry.getKey();
                 params.add(new KeyValueStore(name, "${" + name + "}"));
             } else {
                 params.add(new KeyValueStore(entry.getKey(), entry.getValue()));
-            }
+            }*/
+            params.add(new KeyValueStore(entry.getKey(), entry.getValue()));
         }
         List<KeyValueStore> keyValueStoreList = ParameterUtils.replaceValueFromContext(suitContext, params);
         for (KeyValueStore keyValueStore : keyValueStoreList) {
