@@ -28,6 +28,9 @@ public abstract class AbstractDateParamFilter extends ParamFilter {
         while (matcher.find()) {
             String group1 = matcher.group(1);
             String diff = StringUtils.trim(group1);
+            if (StringUtils.isNotBlank(diff) && diff.startsWith("+")) {
+                diff = diff.substring(1);
+            }
 
             String group2 = matcher.group(2);
             String formatExpression = StringUtils.trim(group2);
