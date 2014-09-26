@@ -85,11 +85,11 @@ public class PooledDataSource implements DataSource {
         p.setCommitOnReturn(true);
         p.setMinIdle(1);
         p.setMaxIdle(1);
-        p.setMaxActive(20);
+        p.setMaxActive(40);
         p.setInitialSize(1);
         p.setMaxWait(10000);
         p.setRemoveAbandonedTimeout(10);
-        p.setMinEvictableIdleTimeMillis(10000);
+        p.setMinEvictableIdleTimeMillis(20000);
         p.setLogAbandoned(false);
         p.setRemoveAbandoned(false);
         p.setDriverClassName(driverClass);
