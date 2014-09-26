@@ -15,13 +15,14 @@ import org.junit.Test;
 
 import java.io.FileNotFoundException;
 import java.net.URL;
+import java.util.Arrays;
 
 @Ignore
 public class Dom4jCaseReaderTest {
 
     @BeforeClass
     public static void initService() throws FileNotFoundException {
-        ServiceFactory.getInstance().init(new String[]{"service.xml"}, new QJSONReporter(System.out));
+        ServiceFactory.getInstance().init(Arrays.asList("service/service.xml"), new QJSONReporter(System.out));
     }
 
     @Before
