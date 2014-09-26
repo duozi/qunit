@@ -104,8 +104,9 @@ public class QunitOptions {
         return String.format("target/qunit-%s.json", this.testClass.getName());
     }
 
-    public String[] serviceConfig() {
-        return this.options.service();
+    public List<String> serviceConfig() {
+        return getTestFiles(this.options.service());
+        //return this.options.service();
     }
 
     public String keyFile(){

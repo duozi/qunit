@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.net.URL;
 import java.util.*;
 
 public class ServiceFactory {
@@ -45,30 +44,30 @@ public class ServiceFactory {
         }
     }
 
-    public void init(String[] fileNames, Reporter reporter) {
+    public void init(List<String> fileNames, Reporter reporter) {
         for (String fileName : fileNames) {
             init(fileName, reporter);
         }
         //init("serviceInner.xml", reporter);
     }
 
-    private void init(String fileName, Reporter reporter) {
+    private void init(String filePath, Reporter reporter) {
         try {
-            URL url = this.getClass().getClassLoader().getResource(fileName);
+            /*URL url = this.getClass().getClassLoader().getResource(fileName);
             if (url == null) {
                 throw new RuntimeException(String.format("服务配置文件不存在,file=<%s>", fileName));
             }
-            String path = url.getPath();
-            if (PARSED_FILES.contains(path)) {
+            String path = url.getPath();*/
+            if (PARSED_FILES.contains(filePath)) {
                 return;
             }
-            PARSED_FILES.add(path);
-            Document document = load(path);
+            PARSED_FILES.add(filePath);
+            Document document = load(filePath);
             initCommands(document, reporter);
         } catch (FileNotFoundException e) {
-            throw new RuntimeException(String.format("服务配置文件不存在,file=<%s>", fileName), e);
+            throw new RuntimeException(String.format("服务配置文件不存在,file=<%s>", filePath), e);
         } catch (DocumentException e) {
-            throw new RuntimeException(String.format("服务配置文件格式错误，是非法的xml文档,file=<%s>", fileName), e);
+            throw new RuntimeException(String.format("服务配置文件格式错误，是非法的xml文档,file=<%s>", filePath), e);
         }
     }
 

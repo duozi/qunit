@@ -112,7 +112,11 @@ public class XMLProcessor {
         sb.append(splitter);
         while (iterator.hasNext()) {
             String title = (String) iterator.next();
-			sb.append(map.get(title));
+            if (map.containsKey(title)) {
+			    sb.append(map.get(title));
+            } else {
+                sb.append("${").append(title).append("}");
+            }
             sb.append(splitter);
         }
 		sb.append(LineSeparator.Web);
