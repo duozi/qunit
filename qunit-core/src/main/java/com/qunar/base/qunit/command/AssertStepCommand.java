@@ -29,8 +29,11 @@ public class AssertStepCommand extends ParameterizedCommand {
 
     private String error = StringUtils.EMPTY;
 
-    public AssertStepCommand(List<KeyValueStore> params) {
+    private String desc;
+
+    public AssertStepCommand(List<KeyValueStore> params, String desc) {
         super(params);
+        this.desc = desc;
     }
 
     @Override
@@ -50,13 +53,13 @@ public class AssertStepCommand extends ParameterizedCommand {
 
     @Override
     public StepCommand doClone() {
-        return new AssertStepCommand(cloneKeyValueStore(this.params));
+        return new AssertStepCommand(cloneKeyValueStore(this.params), desc);
     }
 
     @Override
     public Map<String, Object> toReport() {
         Map<String, Object> details = new HashMap<String, Object>();
-        details.put("stepName", "验证:");
+        details.put("stepName", String.format("验证:%s", desc));
         List<KeyValueStore> params = new ArrayList<KeyValueStore>();
         params.addAll(this.params);
         //if (StringUtils.isNotBlank(error)) {

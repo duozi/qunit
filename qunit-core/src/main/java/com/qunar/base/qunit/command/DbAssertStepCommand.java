@@ -35,7 +35,7 @@ public class DbAssertStepCommand extends StepCommand {
             List<KeyValueStore> params = Arrays.asList(new KeyValueStore(SQL, sql), new KeyValueStore(DATABASE, "default"));
             SqlStepCommand sqlStepCommand = new SqlStepCommand(params);
             Response response = sqlStepCommand.doExecute(preResult, null);
-            AssertStepCommand assertStepCommand = new AssertStepCommand(Arrays.asList(new KeyValueStore("body", this.expect)));
+            AssertStepCommand assertStepCommand = new AssertStepCommand(Arrays.asList(new KeyValueStore("body", this.expect)), "");
             assertStepCommand.doExecute(response, context);
             logger.info("db assert command<sql={}, expect={}> is finished, result={}", new Object[]{sql, expect, response.getBody().toString()});
             return preResult;

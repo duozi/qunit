@@ -24,6 +24,9 @@ import java.util.List;
 public class AssertStepConfig extends StepConfig {
     public static final String BODY_TAG_NAME = "body";
 
+    @Property(defaultValue = "")
+    private String desc;
+
     @Property
     private String body;
 
@@ -33,7 +36,7 @@ public class AssertStepConfig extends StepConfig {
     @Override
     public StepCommand createCommand() {
         appendBodyIfExists();
-        return new AssertStepCommand(CloneUtil.cloneKeyValueStore(params));
+        return new AssertStepCommand(CloneUtil.cloneKeyValueStore(params), desc);
     }
 
     private void appendBodyIfExists() {
