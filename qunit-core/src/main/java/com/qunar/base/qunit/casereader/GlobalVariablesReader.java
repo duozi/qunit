@@ -24,7 +24,8 @@ import java.util.*;
  */
 public class GlobalVariablesReader {
 
-    public final static String spliter = "$$@@$$";
+    //public final static String spliter = "$$@@$$";
+    public final static String spliter = "@@$$@@";
 
     private final static Logger logger = LoggerFactory.getLogger(GlobalVariablesReader.class);
 

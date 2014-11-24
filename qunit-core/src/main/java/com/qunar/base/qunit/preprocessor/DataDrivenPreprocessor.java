@@ -14,7 +14,8 @@ import java.util.List;
  * Date: 10/16/12
  */
 public class DataDrivenPreprocessor extends Preprocessor {
-    public final static String spliter = "$$@@$$";
+    //public final static String spliter = "$$@@$$";
+    public final static String spliter = "@@$$@@";
 
     @Override
     public List<Node> prepare(Document document, Element instruction) {
