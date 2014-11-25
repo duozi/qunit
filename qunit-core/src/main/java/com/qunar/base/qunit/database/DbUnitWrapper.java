@@ -30,8 +30,8 @@ public class DbUnitWrapper {
         dataSource = new PooledDataSource(database);
     }
 
-    public void prepareData(String file, String replaceStr) throws Exception {
-        IDataSet dataSet = generateDataSet(file, replaceStr);
+    public void prepareData(String file, String replaceStr, boolean cached) throws Exception {
+        IDataSet dataSet = generateDataSet(file, replaceStr, cached);
         IDatabaseTester databaseTester = getDatabaseTester();
         databaseTester.setDataSet(dataSet);
         databaseTester.setSetUpOperation((DatabaseOperation) Environment.getEnvironment(Environment.OPERATION));
@@ -39,8 +39,8 @@ public class DbUnitWrapper {
         databaseTester.onSetup();
     }
 
-    public IDataSet generateDataSet(String file, String replaceTableName) {
-        IDataSet dataSet = new CachedDataSet(file, replaceTableName);
+    public IDataSet generateDataSet(String file, String replaceTableName, boolean cached) {
+        IDataSet dataSet = new CachedDataSet(file, replaceTableName, cached);
         return new ParamFilterDataSet(dataSet, getValueReplacerList());
     }
 

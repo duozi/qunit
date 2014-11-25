@@ -23,6 +23,7 @@ public class PreDataStepConfig extends StepConfig {
     public final static String FILE = "file";
     public final static String DATABASE = "database";
     public final static String REPLACETABLENAME = "replaceTableName";
+    public final static String CACHED = "cached";
 
     @Property(value = "file", required = true)
     String file;
@@ -33,12 +34,16 @@ public class PreDataStepConfig extends StepConfig {
     @Property("replaceTableName")
     String replaceTableName;
 
+    @Property("cached")
+    String cached;
+
     @Override
     public StepCommand createCommand() {
         return new PreDataStepCommand(Arrays.asList(
                 new KeyValueStore(FILE, file),
                 new KeyValueStore(DATABASE, database),
-                new KeyValueStore(REPLACETABLENAME, replaceTableName)
+                new KeyValueStore(REPLACETABLENAME, replaceTableName),
+                new KeyValueStore(CACHED, cached)
         ));
     }
 }

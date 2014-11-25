@@ -14,8 +14,11 @@ public class WaitUntilStepConfig extends CompositeStepConfig {
     @Property(required = true)
     private String timeout;
 
+    @Property
+    private String desc;
+
     @Override
     public StepCommand createCommand() {
-        return new WaitUntilStepCommand(Long.valueOf(timeout), this.createChildren());
+        return new WaitUntilStepCommand(desc, Long.valueOf(timeout), this.createChildren());
     }
 }

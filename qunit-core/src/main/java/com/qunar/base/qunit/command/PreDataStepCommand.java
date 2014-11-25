@@ -12,6 +12,7 @@ import com.qunar.base.qunit.model.KeyValueStore;
 import com.qunar.base.qunit.response.Response;
 import com.qunar.base.qunit.util.CloneUtil;
 import com.qunar.base.qunit.util.KeyValueUtil;
+import com.qunar.base.qunit.util.PropertyUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
@@ -31,6 +32,7 @@ public class PreDataStepCommand extends ParameterizedCommand {
     String file;
     String database;
     String replaceStr;
+    String cached;
 
     public PreDataStepCommand(List<KeyValueStore> params) {
         super(params);
@@ -41,7 +43,11 @@ public class PreDataStepCommand extends ParameterizedCommand {
         file = KeyValueUtil.getValueByKey(PreDataStepConfig.FILE, processedParams);
         database = KeyValueUtil.getValueByKey(PreDataStepConfig.DATABASE, processedParams);
         replaceStr = KeyValueUtil.getValueByKey(PreDataStepConfig.REPLACETABLENAME, processedParams);
+        cached = KeyValueUtil.getValueByKey(PreDataStepConfig.CACHED, processedParams);
 
+
+        String globalCached = PropertyUtils.getProperty("cached", "false");
+        boolean actualCached = getActualCached(globalCached, cached);
         DbUnitWrapper dbUnitWrapper = null;
         try {
             if (StringUtils.isBlank(file)) {
@@ -53,7 +59,7 @@ public class PreDataStepCommand extends ParameterizedCommand {
             dbUnitWrapper = new DbUnitWrapper(database);
             for (String file : files) {
                 if (StringUtils.isNotBlank(file)) {
-                    dbUnitWrapper.prepareData(file, replaceStr);
+                    dbUnitWrapper.prepareData(file, replaceStr, actualCached);
                 }
             }
             return preResult;
@@ -86,6 +92,16 @@ public class PreDataStepCommand extends ParameterizedCommand {
         List<KeyValueStore> params = new ArrayList<KeyValueStore>();
         details.put("params", params);
         return details;
+    }
+
+    private boolean getActualCached(String globalCached, String cached) {
+        if (StringUtils.isNotBlank(cached)) {
+            return Boolean.valueOf(cached);
+        }
+        if (Boolean.valueOf(globalCached)) {
+            return true;
+        }
+        return false;
     }
 
 }

@@ -24,12 +24,15 @@ public class WaitUntilStepCommand extends CompositeStepCommand {
 
     private Long timeout;
 
+    private String desc;
+
     private Response response;
     private static final Long INTERVAL = 100L;
 
-    public WaitUntilStepCommand(Long timeout, List<StepCommand> children) {
+    public WaitUntilStepCommand(String desc, Long timeout, List<StepCommand> children) {
         super(children);
         this.timeout = timeout;
+        this.desc = desc;
     }
 
     @Override
@@ -54,7 +57,7 @@ public class WaitUntilStepCommand extends CompositeStepCommand {
 
     @Override
     public StepCommand doClone() {
-        return new WaitUntilStepCommand(timeout, cloneStepCommand(children));
+        return new WaitUntilStepCommand(desc, timeout, cloneStepCommand(children));
     }
 
     private boolean isTimeout(long end) {
@@ -77,7 +80,7 @@ public class WaitUntilStepCommand extends CompositeStepCommand {
     @Override
     public Map<String, Object> toReport() {
         Map<String, Object> details = new HashMap<String, Object>();
-        details.put("stepName", "等待子命令执行完毕或超时:");
+        details.put("stepName", String.format("等待子命令执行完毕或超时:%s", desc));
         details.put("name", String.valueOf(this.timeout) + "ms");
         List<KeyValueStore> params = new ArrayList<KeyValueStore>();
         details.put("params", params);

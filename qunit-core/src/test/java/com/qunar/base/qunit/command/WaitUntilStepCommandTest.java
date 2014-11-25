@@ -41,7 +41,7 @@ public class WaitUntilStepCommandTest {
         StepCommand command = mock(StepCommand.class);
         final Response response = new HttpResponse(200, "");
 
-        WaitUntilStepCommand waitUntilStepCommand = new WaitUntilStepCommand(3000L, Arrays.asList(command));
+        WaitUntilStepCommand waitUntilStepCommand = new WaitUntilStepCommand("", 3000L, Arrays.asList(command));
 
         Answer<Object> errAnswer = new Answer<Object>() {
             int time;
@@ -65,7 +65,7 @@ public class WaitUntilStepCommandTest {
     public void should_throw_exception_unit_timeout() throws Throwable {
         StepCommand command = mock(StepCommand.class);
 
-        WaitUntilStepCommand waitUntilStepCommand = new WaitUntilStepCommand(3000L, Arrays.asList(command));
+        WaitUntilStepCommand waitUntilStepCommand = new WaitUntilStepCommand("", 3000L, Arrays.asList(command));
 
         Answer<Object> errAnswer = new Answer<Object>() {
             @Override
@@ -80,7 +80,7 @@ public class WaitUntilStepCommandTest {
 
     @Test
     public void testToReport() throws Exception {
-        WaitUntilStepCommand command = new WaitUntilStepCommand(3000L, null);
+        WaitUntilStepCommand command = new WaitUntilStepCommand("", 3000L, null);
         Map<String, Object> map = command.toReport();
         assertThat(map, hasKey("stepName"));
         assertThat(map, hasKey("params"));

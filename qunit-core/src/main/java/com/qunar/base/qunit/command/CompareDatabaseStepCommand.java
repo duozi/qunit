@@ -116,7 +116,7 @@ public class CompareDatabaseStepCommand extends ParameterizedCommand {
      * @return
      */
     private IDataSet getExpectedDataSet(DbUnitWrapper dbunit) {
-        IDataSet dataSet = dbunit.generateDataSet(expected, replaceTableName);
+        IDataSet dataSet = dbunit.generateDataSet(expected, replaceTableName, false);
         return new FilteredDataSet(new ExcludeTableFilter(getIgnoreTableNames()), dataSet);
     }
 

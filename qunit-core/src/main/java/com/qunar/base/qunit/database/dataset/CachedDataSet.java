@@ -28,10 +28,10 @@ public class CachedDataSet implements IDataSet {
 
     private IDataSet innerDataSet;
 
-    public CachedDataSet(String file, String replaceStr) {
+    public CachedDataSet(String file, String replaceStr, boolean cached) {
         this.innerDataSet = CACHED_DATASET.get(file);
         if (this.innerDataSet == null) {
-            this.innerDataSet = build(file, replaceStr);
+            this.innerDataSet = build(file, replaceStr, cached);
             CACHED_DATASET.put(file, this.innerDataSet);
         }
     }
@@ -71,10 +71,12 @@ public class CachedDataSet implements IDataSet {
         return innerDataSet.isCaseSensitiveTableNames();
     }
 
-    private IDataSet build(String file, String replaceStr) {
+    private IDataSet build(String file, String replaceStr, boolean cached) {
         try {
             if (file.endsWith(".xml")) {
-                return new FlatXmlDataSetBuilder()
+                FlatXmlDataSetBuilder flatXmlDataSetBuilder = new FlatXmlDataSetBuilder();
+                flatXmlDataSetBuilder.setColumnSensing(cached);
+                return flatXmlDataSetBuilder
                         .build(readFileAndReplaceTableName(file, replaceStr));
             } else if (file.endsWith(".csv")) {
                 URL resource = this.getClass().getClassLoader().getResource(file);
