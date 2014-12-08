@@ -1,7 +1,6 @@
 package com.qunar.base.qunit.objectfactory;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.qunar.base.qunit.model.KeyValueStore;
 import com.qunar.base.qunit.util.MapUtils;
 import com.qunar.base.qunit.util.ReflectionUtils;
@@ -26,7 +25,8 @@ public class MapFactory extends InstanceFactory {
                 temp.put(item.getName(), item.getValue());
             }
         } else if (isJson(value)) {
-            JSONObject jsonMap = JSON.parseObject(value.toString());
+            Map<Object, Object> jsonMap= (Map<Object, Object>) JSON.parse(value.toString());
+            //JSONObject jsonMap = JSON.parseObject(value.toString());
             temp.putAll(jsonMap);
         }
         return createMap(type, temp);
