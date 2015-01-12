@@ -24,9 +24,20 @@ public class CoberturaCommand extends StepCommand {
         String cobertura = PropertyUtils.getProperty("cobertura");
         if (Boolean.parseBoolean(cobertura)) {
             logger.info("collect {} cobertura", caseId);
-            Runtime.getRuntime().exec(String.format("bash /home/q/tools/devbin/cobertools/cobertura_collect_onecase.sh %s", caseId));
+            Process proc = Runtime.getRuntime().exec(String.format("bash /home/q/tools/devbin/cobertools/cobertura_collect_onecase.sh %s", caseId));
+            waitExec(proc);
         }
         return null;
+    }
+
+    private void waitExec(Process proc) {
+        try {
+            proc.waitFor();
+        } catch (Exception e) {
+            logger.error("Execute shell error", e);
+        } finally {
+            proc.destroy();
+        }
     }
 
     @Override
