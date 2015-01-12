@@ -21,13 +21,18 @@ public class CoberturaCommand extends StepCommand {
 
     @Override
     public Response doExecute(Response param, Context context) throws Throwable {
-        String cobertura = PropertyUtils.getProperty("cobertura");
+        String cobertura = getCobertura();
         if (Boolean.parseBoolean(cobertura)) {
             logger.info("collect {} cobertura", caseId);
             Process proc = Runtime.getRuntime().exec(String.format("bash /home/q/tools/devbin/cobertools/cobertura_collect_onecase.sh %s", caseId));
             waitExec(proc);
         }
         return null;
+    }
+
+    private String getCobertura() {
+        String cobertura = System.getProperty("cobertura");
+        return cobertura == null ? PropertyUtils.getProperty("cobertura") : cobertura;
     }
 
     private void waitExec(Process proc) {
