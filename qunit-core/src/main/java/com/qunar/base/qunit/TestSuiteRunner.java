@@ -4,6 +4,7 @@
 */
 package com.qunar.base.qunit;
 
+import com.qunar.base.qunit.command.CoberturaCommand;
 import com.qunar.base.qunit.command.StepCommand;
 import com.qunar.base.qunit.context.Context;
 import com.qunar.base.qunit.model.DataDrivenTestCase;
@@ -96,7 +97,9 @@ public class TestSuiteRunner extends BlockJUnit4ClassRunner {
             return;
         }
         for (TestCase testCase : testCases) {
-            testCase.setBeforeCommand(buildStepCommand(testSuite.getBeforeCase()));
+            String caseId = testCase.getId();
+            StepCommand stepCommand = new CoberturaCommand(caseId);
+            testCase.setBeforeCommand(addCoberturaCommand(stepCommand, buildStepCommand(testSuite.getBeforeCase())));
             testCase.setAfterCommand(buildStepCommand(testSuite.getAfterCase()));
             if (testCase instanceof DataDrivenTestCase) {
                 addDataDrivenTestCases(frameworkMethodList, (DataDrivenTestCase) testCase, suitContext);
@@ -105,6 +108,12 @@ public class TestSuiteRunner extends BlockJUnit4ClassRunner {
                 frameworkMethodList.add(new QunitFrameworkMethod(null, testCase, caseContext));
             }
         }
+    }
+
+    private StepCommand addCoberturaCommand(StepCommand coberturaCommand, StepCommand beforeCommand) {
+        StepCommand command = coberturaCommand.cloneCommand();
+        command.setNextCommand(beforeCommand);
+        return command;
     }
 
     private void addDataDrivenTestCases(List<FrameworkMethod> frameworkMethodList, DataDrivenTestCase testCase, Context suiteContext) {
