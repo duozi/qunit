@@ -17,14 +17,17 @@ import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
+import org.apache.http.client.CookieStore;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.params.ClientPNames;
+import org.apache.http.cookie.Cookie;
 import org.apache.http.entity.AbstractHttpEntity;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HTTP;
@@ -38,10 +41,7 @@ import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Array;
 import java.net.URI;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.qunar.base.meerkat.http.QunarHttpClient.createDefaultClient;
 import static org.apache.commons.lang.StringUtils.*;
@@ -392,6 +392,9 @@ public class HttpService {
     public static void removeHeader(String header) {
         if (StringUtils.isBlank(header)) return;
         if (headers == null || headers.size() <= 0) return;
+        if ("Cookie".equals(header)) {
+            httpClient.setCookieStore(new BasicCookieStore());
+        }
         for (Object key : headers.keySet()) {
             if (key == null) continue;
             String keyStr = key.toString();
