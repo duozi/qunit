@@ -18,6 +18,9 @@ public class MysqlDataTypeFactory extends QunitDataTypeFactory {
             if ("BIT".equals(sqlTypeName)) {
                 return BitDataType.TYPE;
             }
+            if ("INT UNSIGNED".equals(sqlTypeName)) {
+                return DataType.BIGINT;
+            }
             return super.createDataType(sqlType, sqlTypeName);
         } else {
             return super.createDataType(sqlType, sqlTypeName);
