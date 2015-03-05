@@ -9,10 +9,12 @@ import com.qunar.base.qunit.transport.rpc.RpcServiceFactory;
 import com.qunar.base.qunit.transport.zookeeper.*;
 import com.qunar.base.qunit.util.PropertyUtils;
 import com.qunar.base.qunit.util.ReflectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import qunar.tc.qmq.Message;
 import qunar.tc.qmq.MessageProducer;
+import qunar.tc.qmq.ReliabilityLevel;
 import qunar.tc.qmq.base.BaseMessage;
 import qunar.tc.qmq.producer.MessageProducerProvider;
 import qunar.tc.qmq.service.ConsumerMessageHandler;
@@ -38,7 +40,7 @@ public class QmqMessageExecuteCommand extends ExecuteCommand {
 
     static {
         String type = PropertyUtils.getProperty("qmq.message.redirect", "true");
-        if ("true".equalsIgnoreCase(type)){
+        if ("true".equalsIgnoreCase(type)) {
             zkMap.put("dev", "l-zk1.plat.dev.cn6.qunar.com:2181");
             zkMap.put("beta", "l-zk1.plat.beta.cn6:2181,l-zk2.plat.beta.cn6:2181,l-zk3.plat.beta.cn6:2181");
 
@@ -75,8 +77,14 @@ public class QmqMessageExecuteCommand extends ExecuteCommand {
             for (Map.Entry<String, Collection<Group>> entry : list.entrySet()) {
                 String prefix = entry.getKey();
                 for (Group group : entry.getValue()) {
-                    Endpoint endpoint = loadBalance.select(group);
-                    if (endpoint == null) continue;
+                    if (StringUtils.isNotBlank(this.group)) {
+                        if (!this.group.equals(group.getName())) continue;
+                    }
+                    Endpoint endpoint = loadBalance.select(group, this.host);
+                    if (endpoint == null) {
+                        logger.error("未选种任何消费者 for group: {}", group.getName());
+                        continue;
+                    }
                     URL url = endpoint.getUrl();
                     String host = url.getHost() + ":" + url.getPort();
                     sendMessage(host, prefix, params, group.getName());
@@ -97,17 +105,18 @@ public class QmqMessageExecuteCommand extends ExecuteCommand {
             Method executeMethod = ReflectionUtils.getMethod(desc.getMethod(), desc.getServiceClass());
             Message message = producer.generateMessage(subject);
             for (KeyValueStore param : params) {
-                if (param.getName().equals(BaseMessage.keys.qmq_data.name())){
+                if (param.getName().equals(BaseMessage.keys.qmq_data.name())) {
                     message.setData(JSON.parse(param.getValue().toString()));
                 } else if (param.getName().equals("no_qmq_data")) {
                     addProperty(message, param);
-                }else {
+                } else {
                     message.setProperty(param.getName(), param.getValue().toString());
                 }
             }
             ((BaseMessage) message).setProperty(BaseMessage.keys.qmq_brokerGroupName, Constants.DEFAULT_GROUP);
             ((BaseMessage) message).setProperty(BaseMessage.keys.qmq_prefix, prefix);
             ((BaseMessage) message).setProperty(BaseMessage.keys.qmq_consumerGroupName, group);
+            message.setReliabilityLevel(ReliabilityLevel.Low);
             logger.info("发送的消息为:{}", message);
 
             executeMethod.invoke(service, message);
@@ -141,16 +150,12 @@ public class QmqMessageExecuteCommand extends ExecuteCommand {
 
     @Override
     public String toReport() {
-        return String.format("给%s发送qmq消息，subject: %s",
-                PropertyUtils.getProperty("test.env", "dev"),
-                subject);
+        return String.format("给%s发送qmq消息，subject: %s", PropertyUtils.getProperty("test.env", "dev"), subject);
     }
 
     @Override
     public ServiceDesc desc() {
         return new com.qunar.base.qunit.model.ServiceDesc(this.id,
-                String.format("%s.%s", ConsumerMessageHandler.class.getCanonicalName(),
-                        "handle"),
-                this.desc);
+                String.format("%s.%s", ConsumerMessageHandler.class.getCanonicalName(), "handle"), this.desc);
     }
 }

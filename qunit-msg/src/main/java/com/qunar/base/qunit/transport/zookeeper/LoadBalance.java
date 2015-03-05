@@ -6,5 +6,5 @@ package com.qunar.base.qunit.transport.zookeeper;
  * Time: 3:55 PM
  */
 public interface LoadBalance {
-    Endpoint select(Group group);
+    Endpoint select(Group group, String host);
 }
