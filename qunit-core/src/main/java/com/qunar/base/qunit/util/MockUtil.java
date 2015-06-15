@@ -11,6 +11,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -28,9 +29,12 @@ public class MockUtil {
         config.put(Float.class, MockFloatSerializer.instance);
         config.put(Long.class, MockLongSerializer.instance);
         config.put(Short.class, MockShortSerializer.instance);
+        config.put(SimpleDateFormat.class, MockDateFormatSerializer.instance);
         config.put(Set.class, value);
         config.put(HashSet.class, value);
         config.put(TreeSet.class, value);
+        config.put(Date.class, MockDateSerializer.instance);
+
         config.setTypeKey("class");
         return JSON.toJSONString(object, config, SerializerFeature.WriteClassName, SerializerFeature.QuoteFieldNames).replaceAll("@type", "class");
     }
