@@ -34,6 +34,7 @@ public class MockUtil {
         config.put(HashSet.class, value);
         config.put(TreeSet.class, value);
         config.put(Date.class, MockDateSerializer.instance);
+        config.put(Map.class, MockMapSerializer.instance);
 
         config.setTypeKey("class");
         return JSON.toJSONString(object, config, SerializerFeature.WriteClassName, SerializerFeature.QuoteFieldNames).replaceAll("@type", "class");
