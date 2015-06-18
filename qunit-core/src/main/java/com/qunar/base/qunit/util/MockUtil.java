@@ -20,6 +20,33 @@ public class MockUtil {
         config.put(TreeSet.class, value);
 
         config.setTypeKey("class");
-        return JSON.toJSONString(object, config, SerializerFeature.NotWriteRootClassName, SerializerFeature.WriteClassName, SerializerFeature.QuoteFieldNames).replaceAll("@type", "class");
+        return JSON.toJSONString(object, config, SerializerFeature.NotWriteRootClassName,
+                SerializerFeature.WriteClassName,
+                SerializerFeature.QuoteFieldNames,
+                SerializerFeature.WriteNonStringKeyAsString,
+                SerializerFeature.BrowserCompatible
+        ).replaceAll("@type", "class");
+    }
+
+    public static void main(String[] args) {
+        HashMap<Long, Hotel> map = new HashMap<Long, Hotel>();
+        Hotel v = new Hotel();
+        v.setName("aaa");
+        map.put(1L, v);
+
+        System.out.println(MockUtil.toJson(map));
+
+    }
+
+    private static class Hotel {
+        private String name;
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
     }
 }
