@@ -4,6 +4,9 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
+import java.math.BigDecimal;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -22,9 +25,7 @@ public class MockUtil {
         config.setTypeKey("class");
         return JSON.toJSONString(object, config, SerializerFeature.NotWriteRootClassName,
                 SerializerFeature.WriteClassName,
-                SerializerFeature.QuoteFieldNames,
-                SerializerFeature.WriteNonStringKeyAsString,
-                SerializerFeature.BrowserCompatible
+                SerializerFeature.QuoteFieldNames
         ).replaceAll("@type", "class");
     }
 
@@ -32,14 +33,23 @@ public class MockUtil {
         HashMap<Long, Hotel> map = new HashMap<Long, Hotel>();
         Hotel v = new Hotel();
         v.setName("aaa");
+        v.setPrice(1.0);
         map.put(1L, v);
 
-        System.out.println(MockUtil.toJson(map));
+        String s = MockUtil.toJson(map);
+        System.out.println(s);
+        Object parse = JSON.parse(s);
+
+
+        System.out.println(parse);
+        System.out.println(s);
 
     }
 
     private static class Hotel {
         private String name;
+
+        private double price;
 
         public String getName() {
             return name;
@@ -47,6 +57,14 @@ public class MockUtil {
 
         public void setName(String name) {
             this.name = name;
+        }
+
+        public double getPrice() {
+            return price;
+        }
+
+        public void setPrice(double price) {
+            this.price = price;
         }
     }
 }
