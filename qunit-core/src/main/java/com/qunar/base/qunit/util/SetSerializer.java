@@ -15,7 +15,7 @@ public class SetSerializer implements ObjectSerializer {
     public final static CollectionSerializer instance = new CollectionSerializer();
 
     @Override
-    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
+    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
         SerializeWriter out = serializer.getWriter();
 
         if (object == null) {
@@ -38,7 +38,7 @@ public class SetSerializer implements ObjectSerializer {
         Collection<?> collection = (Collection<?>) object;
 
         SerialContext context = serializer.getContext();
-        serializer.setContext(context, object, fieldName, features);
+        serializer.setContext(context, object, fieldName);
 
         try {
             int i = 0;
@@ -68,7 +68,7 @@ public class SetSerializer implements ObjectSerializer {
                 }
 
                 ObjectSerializer itemSerializer = serializer.getObjectWriter(clazz);
-                itemSerializer.write(serializer, item, i - 1, elementType, features);
+                itemSerializer.write(serializer, item, i - 1, elementType);
             }
             out.append(']');
         } finally {

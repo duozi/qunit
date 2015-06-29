@@ -18,7 +18,7 @@ public class QunitDoubleSerializer extends DoubleSerializer {
     public static final QunitDoubleSerializer INSTANCE = new QunitDoubleSerializer();
 
     @Override
-    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
+    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
         SerializeWriter out = serializer.getWriter();
 
         if (object == null) {

@@ -1,8 +1,11 @@
 package com.qunar.base.qunit.util;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.serializer.JSONSerializer;
 import com.alibaba.fastjson.serializer.SerializeConfig;
+import com.alibaba.fastjson.serializer.SerializeWriter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.qunar.base.qunit.objectfactory.ObjectFactory;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -23,18 +26,37 @@ public class MockUtil {
         config.put(TreeSet.class, value);
 
         config.setTypeKey("class");
-        return JSON.toJSONString(object, config, SerializerFeature.NotWriteRootClassName,
+        return toJSONString(object, config, SerializerFeature.NotWriteRootClassName,
                 SerializerFeature.WriteClassName,
                 SerializerFeature.QuoteFieldNames
         ).replaceAll("@type", "class");
     }
 
+    public static String toJSONString(Object object, SerializeConfig config, SerializerFeature... features) {
+        SerializeWriter out = new SerializeWriter();
+
+        try {
+            JSONSerializer serializer = new MockJsonSerializer(out, config);
+            for (com.alibaba.fastjson.serializer.SerializerFeature feature : features) {
+                serializer.config(feature, true);
+            }
+
+            serializer.write(object);
+
+            return out.toString();
+        } finally {
+            out.close();
+        }
+    }
+
     public static void main(String[] args) {
-        HashMap<Long, Hotel> map = new HashMap<Long, Hotel>();
+        HashMap<Long, Object> map = new HashMap<Long, Object>();
         Hotel v = new Hotel();
         v.setName("aaa");
         v.setPrice(1.0);
         map.put(1L, v);
+
+        map.put(2L, Color.a);
 
         String s = MockUtil.toJson(map);
         System.out.println(s);
