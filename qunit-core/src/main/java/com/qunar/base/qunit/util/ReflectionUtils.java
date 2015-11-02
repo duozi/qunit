@@ -85,10 +85,12 @@ public abstract class ReflectionUtils {
     }
 
     public static Constructor getParameterless(Class clazz) {
-        Constructor[] constructors = clazz.getConstructors();
+        Constructor[] constructors = clazz.getDeclaredConstructors();
         for (Constructor constructor : constructors) {
-            if (constructor.getParameterTypes().length == 0)
+            if (constructor.getParameterTypes().length == 0) {
+                constructor.setAccessible(true);
                 return constructor;
+            }
         }
         return null;
     }
