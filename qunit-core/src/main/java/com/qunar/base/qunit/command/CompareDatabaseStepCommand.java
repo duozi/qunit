@@ -9,10 +9,7 @@ import com.qunar.base.qunit.util.CloneUtil;
 import com.qunar.base.qunit.util.KeyValueUtil;
 import org.apache.commons.lang.StringUtils;
 import org.dbunit.Assertion;
-import org.dbunit.dataset.Column;
-import org.dbunit.dataset.FilteredDataSet;
-import org.dbunit.dataset.IDataSet;
-import org.dbunit.dataset.ITable;
+import org.dbunit.dataset.*;
 import org.dbunit.dataset.filter.DefaultColumnFilter;
 import org.dbunit.dataset.filter.ExcludeTableFilter;
 
@@ -29,9 +26,11 @@ public class CompareDatabaseStepCommand extends ParameterizedCommand {
     private String expected;
     private String replaceTableName;
     private String ignore;
+    private String orderBy;
 
     // tablename -> columns
     private Map<String, List<String>> ignoreColumns;
+    private Map<String, List<String>> orderByColumns;
 
     public CompareDatabaseStepCommand(List<KeyValueStore> params) {
         super(params);
@@ -46,16 +45,26 @@ public class CompareDatabaseStepCommand extends ParameterizedCommand {
         expected = KeyValueUtil.getValueByKey(CompareDatabaseStepConfig.EXPECTED, processedParams);
         replaceTableName = KeyValueUtil.getValueByKey(CompareDatabaseStepConfig.REPLACETABLENAME, processedParams);
         ignore = KeyValueUtil.getValueByKey(CompareDatabaseStepConfig.IGNORE, processedParams);
+        orderBy = KeyValueUtil.getValueByKey(CompareDatabaseStepConfig.ORDERBY, processedParams);
         computeIgnore();
+        computeOrderBy();
         compare();
-
         return preResult;
     }
 
+
     private void computeIgnore() {
-        ignoreColumns = new HashMap<String, List<String>>();
-        if (StringUtils.isBlank(ignore)) return;
-        String[] tables = StringUtils.split(ignore, ";");
+        ignoreColumns = computeColumns(ignore);
+    }
+
+    private void computeOrderBy() {
+        orderByColumns = computeColumns(orderBy);
+    }
+
+    private Map<String, List<String>> computeColumns(String input) {
+        Map<String, List<String>> result = new HashMap<String, List<String>>();
+        if (StringUtils.isBlank(input)) return result;
+        String[] tables = StringUtils.split(input, ";");
         for (String table : tables) {
             String temp = StringUtils.trim(table);
             if (StringUtils.isBlank(temp)) continue;
@@ -64,24 +73,25 @@ public class CompareDatabaseStepCommand extends ParameterizedCommand {
                 String tableName = temp.substring(0, index);
                 String columnStr = temp.substring(index + 1, temp.length() - 1);
                 String[] columns = StringUtils.split(columnStr, ",");
-                List<String> columnList = ignoreColumns.get(tableName);
+                List<String> columnList = orderByColumns.get(tableName);
                 if (columnList == null) {
                     columnList = new ArrayList<String>();
-                    ignoreColumns.put(tableName, columnList);
+                    result.put(tableName, columnList);
                 }
                 columnList.addAll(Arrays.asList(columns));
             } else {
-                if (!ignoreColumns.containsKey(temp)) {
-                    ignoreColumns.put(temp, null);
+                if (!result.containsKey(temp)) {
+                    result.put(temp, null);
                 }
             }
         }
+        return result;
     }
 
     private void compare() throws Throwable {
-        DbUnitWrapper dbunit = new DbUnitWrapper(database);
-        IDataSet expectedDataSet = getExpectedDataSet(dbunit);
-        IDataSet actualDataSet = dbunit.fetchDatabaseDataSet();
+        DbUnitWrapper dbUnit = new DbUnitWrapper(database);
+        IDataSet expectedDataSet = getExpectedDataSet(dbUnit);
+        IDataSet actualDataSet = dbUnit.fetchDatabaseDataSet();
         compare(actualDataSet, expectedDataSet);
     }
 
@@ -105,7 +115,16 @@ public class CompareDatabaseStepCommand extends ParameterizedCommand {
             //只比较期望的表里存在的列
             actualTable = DefaultColumnFilter.includedColumnsTable(actualTable, expectedColumns);
 
-            Assertion.assertEquals(expectedTable, actualTable);
+            //对期望表和实际表排序后assert
+            String[] orderByColumns = getOrderByColumns(tableName);
+            if (orderByColumns != null && orderByColumns.length != 0) {
+                ITable actualTableSorted = new SortedTable(actualTable, orderByColumns);
+                ITable expectedTableSorted = new SortedTable(expectedTable, orderByColumns);
+                Assertion.assertEquals(expectedTableSorted, actualTableSorted);
+            } else {
+                Assertion.assertEquals(expectedTable, actualTable);
+            }
+
         }
     }
 
@@ -130,6 +149,12 @@ public class CompareDatabaseStepCommand extends ParameterizedCommand {
 
     private String[] getIgnoreColumns(String tableName) {
         List<String> columns = ignoreColumns.get(tableName);
+        if (columns == null || columns.size() == 0) return null;
+        return columns.toArray(new String[0]);
+    }
+
+    private String[] getOrderByColumns(String tableName) {
+        List<String> columns = orderByColumns.get(tableName);
         if (columns == null || columns.size() == 0) return null;
         return columns.toArray(new String[0]);
     }

@@ -20,6 +20,7 @@ public class CompareDatabaseStepConfig extends StepConfig {
     public final static String IGNORE = "ignore";
     public final static String EXPECTED = "expected";
     public final static String REPLACETABLENAME = "replaceTableName";
+    public final static String ORDERBY = "orderBy";
 
     @Property(defaultValue = "default")
     private String database;
@@ -34,13 +35,17 @@ public class CompareDatabaseStepConfig extends StepConfig {
     @Property("replaceTableName")
     private String replaceTableName;
 
+    @Property
+    private String orderBy;
+
     @Override
     public StepCommand createCommand() {
         return new CompareDatabaseStepCommand(Arrays.asList(
                 new KeyValueStore(DATABASE, database),
                 new KeyValueStore(IGNORE, ignore),
                 new KeyValueStore(EXPECTED, expected),
-                new KeyValueStore(REPLACETABLENAME, replaceTableName)
+                new KeyValueStore(REPLACETABLENAME, replaceTableName),
+                new KeyValueStore(ORDERBY, orderBy)
         ));
     }
 }
