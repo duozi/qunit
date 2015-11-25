@@ -73,7 +73,7 @@ public class CompareDatabaseStepCommand extends ParameterizedCommand {
                 String tableName = temp.substring(0, index);
                 String columnStr = temp.substring(index + 1, temp.length() - 1);
                 String[] columns = StringUtils.split(columnStr, ",");
-                List<String> columnList = orderByColumns.get(tableName);
+                List<String> columnList = result.get(tableName);
                 if (columnList == null) {
                     columnList = new ArrayList<String>();
                     result.put(tableName, columnList);
