@@ -62,7 +62,10 @@ public class StringParamFilter extends ParamFilter {
         Iterator iterator = map.entrySet().iterator();
         while (iterator.hasNext()) {
             Map.Entry entry = (Map.Entry) iterator.next();
-            if (((String)entry.getValue()).startsWith(PREFIX)) {
+            if (entry == null || entry.getValue() == null) continue;
+            if (!(entry.getValue() instanceof String)) continue;
+
+            if (((String) entry.getValue()).startsWith(PREFIX)) {
                 map.put(entry.getKey(), generateString((String) entry.getValue()));
             }
         }
