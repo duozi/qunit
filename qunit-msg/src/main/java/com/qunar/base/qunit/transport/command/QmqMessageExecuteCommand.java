@@ -41,8 +41,8 @@ public class QmqMessageExecuteCommand extends ExecuteCommand {
     static {
         String type = PropertyUtils.getProperty("qmq.message.redirect", "true");
         if ("true".equalsIgnoreCase(type)) {
-            zkMap.put("dev", "l-zk1.plat.dev.cn6.qunar.com:2181");
-            zkMap.put("beta", "l-zk1.plat.beta.cn6.qunar.com:2181,l-zk2.plat.beta.cn6.qunar.com:2181,l-zk3.plat.beta.cn6.qunar.com:2181");
+            zkMap.put("dev", "zk.dev.corp.qunar.com:2181");
+            zkMap.put("beta", "zk.beta.corp.qunar.com:2181,zk1.beta.corp.qunar.com:2181,zk2.beta.corp.qunar.com:2181,zk3.beta.corp.qunar.com:2181");
 
             String env = PropertyUtils.getProperty("test.env", "dev");
             ZKObserver observer = new ZKObserver(zkMap.get(env));
